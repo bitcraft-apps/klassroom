@@ -52,7 +52,7 @@ export function createGradeDistributionChart(
       labels: GRADE_LABELS,
       datasets: [
         {
-          label: "Count",
+          label: "Liczba",
           data,
           backgroundColor: GRADE_COLORS,
         },
@@ -64,14 +64,14 @@ export function createGradeDistributionChart(
         x: {
           title: {
             display: true,
-            text: "Grade",
+            text: "Ocena",
           },
         },
         y: {
           beginAtZero: true,
           title: {
             display: true,
-            text: "Count",
+            text: "Liczba",
           },
         },
       },

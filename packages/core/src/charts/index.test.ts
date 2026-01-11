@@ -90,14 +90,21 @@ describe("createStudentAveragesChart", () => {
     expect(config!.data.labels).toEqual(["1", "3"]);
   });
 
-  it("does not include student names anywhere in config", () => {
+  it("output contains only number and average data (GDPR)", () => {
     const students = [createStudent(1, [], { average: 4.5 })];
 
     const config = createStudentAveragesChart(students);
-    const configString = JSON.stringify(config);
 
-    // Ensure no PII leakage (the Student type doesn't have name, but verify the output)
+    // Verify chart data structure contains only safe fields
+    // Labels are string numbers, data is numeric averages
+    expect(config!.data.labels).toEqual(["1"]);
+    expect(config!.data.datasets[0].data).toEqual([4.5]);
+
+    // Additional safety check: serialized output has no PII-related keys
+    const configString = JSON.stringify(config);
     expect(configString).not.toContain("name");
+    expect(configString).not.toContain("behavior");
+    expect(configString).not.toContain("grades");
   });
 
   it("sorts students by number ascending", () => {
@@ -202,7 +209,7 @@ describe("createBehaviorChart", () => {
     expect(config!.type).toBe("doughnut");
   });
 
-  it("uses English behavior grade labels", () => {
+  it("uses Polish behavior grade labels", () => {
     const behaviorCounts: BehaviorCounts = {
       exemplary: 1,
       veryGood: 1,
@@ -215,12 +222,12 @@ describe("createBehaviorChart", () => {
     const config = createBehaviorChart(behaviorCounts);
 
     expect(config!.data.labels).toEqual([
-      "Exemplary",
-      "Very Good",
-      "Good",
-      "Acceptable",
-      "Inappropriate",
-      "Reprehensible",
+      "Wzorowe",
+      "Bardzo dobre",
+      "Dobre",
+      "Poprawne",
+      "Nieodpowiednie",
+      "Naganne",
     ]);
   });
 

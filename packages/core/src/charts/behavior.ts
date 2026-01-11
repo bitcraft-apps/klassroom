@@ -11,14 +11,14 @@ const BEHAVIOR_COLORS = [
   "#EF4444", // reprehensible - red
 ];
 
-/** Behavior grade labels (English) */
+/** Behavior grade labels (Polish) */
 const BEHAVIOR_LABELS = [
-  "Exemplary",
-  "Very Good",
-  "Good",
-  "Acceptable",
-  "Inappropriate",
-  "Reprehensible",
+  "Wzorowe",
+  "Bardzo dobre",
+  "Dobre",
+  "Poprawne",
+  "Nieodpowiednie",
+  "Naganne",
 ];
 
 /**

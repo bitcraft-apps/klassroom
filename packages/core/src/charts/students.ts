@@ -52,7 +52,7 @@ export function createStudentAveragesChart(
       labels,
       datasets: [
         {
-          label: "Average Grade",
+          label: "Średnia ocen",
           data,
           backgroundColor: STUDENT_BAR_COLOR,
         },
@@ -64,16 +64,15 @@ export function createStudentAveragesChart(
         x: {
           title: {
             display: true,
-            text: "Student Number",
+            text: "Numer ucznia",
           },
         },
         y: {
-          beginAtZero: true,
           min: 1,
           max: 6,
           title: {
             display: true,
-            text: "Average Grade",
+            text: "Średnia ocen",
           },
         },
       },

@@ -35,7 +35,7 @@ export function createSubjectAveragesChart(
       labels,
       datasets: [
         {
-          label: "Average Grade",
+          label: "Średnia ocen",
           data,
           backgroundColor: SUBJECT_BAR_COLOR,
         },
@@ -46,12 +46,17 @@ export function createSubjectAveragesChart(
       responsive: true,
       scales: {
         x: {
-          beginAtZero: true,
           min: 1,
           max: 6,
           title: {
             display: true,
-            text: "Grade",
+            text: "Ocena",
+          },
+        },
+        y: {
+          title: {
+            display: true,
+            text: "Przedmiot",
           },
         },
       },
