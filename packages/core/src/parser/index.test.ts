@@ -4,7 +4,6 @@ import * as XLSX from "xlsx";
 import { parseLibrusXlsx } from "./index.js";
 import { parseGradesSheet } from "./sheets/grades.js";
 import { parseAveragesSheet } from "./sheets/averages.js";
-import { parseBehaviorSheet } from "./sheets/behavior.js";
 import { parseMetadataSheet } from "./sheets/metadata.js";
 
 // Mock fs module
@@ -12,7 +11,7 @@ vi.mock("node:fs");
 
 // Mock xlsx module with factory
 vi.mock("xlsx", () => ({
-  readFile: vi.fn(),
+  read: vi.fn(),
   utils: {
     sheet_to_json: vi.fn(),
   },
@@ -37,67 +36,63 @@ describe("parseLibrusXlsx", () => {
 
   it("throws error when required sheet is missing", () => {
     vi.mocked(fs.existsSync).mockReturnValue(true);
-    vi.mocked(XLSX.readFile).mockReturnValue({
+    vi.mocked(fs.readFileSync).mockReturnValue(Buffer.from("mock"));
+    vi.mocked(XLSX.read).mockReturnValue({
       SheetNames: ["Okres klasyfikacyjny", "Średnia uczniów"],
       Sheets: {},
     } as XLSX.WorkBook);
 
     expect(() => parseLibrusXlsx("/path/to/file.xlsx")).toThrow(
-      "Missing required sheet: Zachowanie"
+      "Missing required sheet: Dodatkowe informacje 1"
     );
   });
 
   it("parses valid XLSX and returns ClassData without student names", () => {
     vi.mocked(fs.existsSync).mockReturnValue(true);
+    vi.mocked(fs.readFileSync).mockReturnValue(Buffer.from("mock"));
 
-    // Mock sheet data
+    // Mock sheet data in Librus format
+    // Grades sheet: Row 0 = headers, Row 1 = subjects, Row 2 = separator, Row 3+ = data
     const gradesSheetData = [
-      ["Numer", "Uczeń", "Matematyka", "Polski"],
-      [1, "Jan Kowalski", "5", "4"],
-      [2, "Anna Nowak", "4+", null],
+      ["Nr w dzienniku", "Uczeń", "Zachowanie", "Nazwa przedmiotu"],
+      [null, null, null, "Matematyka", "Polski"],
+      [null, null, null, null, null],
+      [1, "Jan Kowalski", "wzorowe", "5", "4"],
+      [2, "Anna Nowak", "bardzo dobre", "4+", null],
     ];
 
+    // Averages sheet: [number, name, average]
     const averagesSheetData = [
-      ["Uczeń", "Średnia"],
-      ["Jan Kowalski", 4.5],
-      ["Anna Nowak", 4.0],
-    ];
-
-    const behaviorSheetData = [
-      ["Uczeń", "Ocena"],
-      ["Jan Kowalski", "wzorowe"],
-      ["Anna Nowak", "bardzo dobre"],
+      ["Numer w dzienniku", "Dane ucznia", "Średnia"],
+      [1, "Jan Kowalski", 4.5],
+      [2, "Anna Nowak", 4.0],
     ];
 
     const metadataSheetData = [
-      ["Klasa", "3A"],
-      ["Okres klasyfikacyjny", "2024/2025 - Semestr 1"],
-      ["Wychowawca", "Maria Wiśniewska"],
+      ["Dodatkowe informacje dla 1 semestru w roku szkolnym 2024/2025"],
+      ["Oddział", "3A", "Wychowawca", null, null, "Maria Wiśniewska"],
     ];
 
     // Mock workbook
-    vi.mocked(XLSX.readFile).mockReturnValue({
+    vi.mocked(XLSX.read).mockReturnValue({
       SheetNames: [
         "Okres klasyfikacyjny",
         "Średnia uczniów",
-        "Zachowanie",
         "Dodatkowe informacje 1",
       ],
       Sheets: {
         "Okres klasyfikacyjny": {},
         "Średnia uczniów": {},
-        Zachowanie: {},
         "Dodatkowe informacje 1": {},
       },
     } as XLSX.WorkBook);
 
     // Mock sheet_to_json to return data in expected call order:
-    // 1. metadata, 2. grades, 3. averages, 4. behavior
+    // 1. metadata, 2. grades, 3. averages
     vi.mocked(XLSX.utils.sheet_to_json)
       .mockReturnValueOnce(metadataSheetData)
       .mockReturnValueOnce(gradesSheetData)
-      .mockReturnValueOnce(averagesSheetData)
-      .mockReturnValueOnce(behaviorSheetData);
+      .mockReturnValueOnce(averagesSheetData);
 
     const result = parseLibrusXlsx("/path/to/file.xlsx");
 
@@ -137,11 +132,14 @@ describe("parseLibrusXlsx", () => {
 });
 
 describe("parseGradesSheet", () => {
-  it("parses grades matrix correctly", () => {
+  it("parses grades matrix with behavior correctly", () => {
+    // Librus format: Row 0 = headers, Row 1 = subjects, Row 2 = separator, Row 3+ = data
     const sheetData = [
-      ["Numer", "Uczeń", "Matematyka", "Polski"],
-      [1, "Jan Kowalski", "5", "4"],
-      [2, "Anna Nowak", "4+", ""],
+      ["Nr w dzienniku", "Uczeń", "Zachowanie", "Nazwa przedmiotu"],
+      [null, null, null, "Matematyka", "Polski"],
+      [null, null, null, null, null],
+      [1, "Jan Kowalski", "wzorowe", "5", "4"],
+      [2, "Anna Nowak", "bardzo dobre", "4+", ""],
     ];
 
     vi.mocked(XLSX.utils.sheet_to_json).mockReturnValue(sheetData);
@@ -151,19 +149,23 @@ describe("parseGradesSheet", () => {
     expect(result).toHaveLength(2);
     expect(result[0]?.number).toBe(1);
     expect(result[0]?.name).toBe("Jan Kowalski");
+    expect(result[0]?.behavior).toBe("exemplary");
     expect(result[0]?.grades).toEqual([
       { subject: "Matematyka", value: "5" },
       { subject: "Polski", value: "4" },
     ]);
+    expect(result[1]?.behavior).toBe("veryGood");
     expect(result[1]?.grades[1]?.value).toBeNull(); // Empty cell
   });
 
   it("skips empty rows", () => {
     const sheetData = [
-      ["Numer", "Uczeń", "Matematyka"],
-      [1, "Jan Kowalski", "5"],
-      ["", "", ""],
-      [2, "Anna Nowak", "4"],
+      ["Nr w dzienniku", "Uczeń", "Zachowanie", "Nazwa przedmiotu"],
+      [null, null, null, "Matematyka"],
+      [null, null, null, null],
+      [1, "Jan Kowalski", "dobre", "5"],
+      ["", "", "", ""],
+      [2, "Anna Nowak", "dobre", "4"],
     ];
 
     vi.mocked(XLSX.utils.sheet_to_json).mockReturnValue(sheetData);
@@ -183,10 +185,11 @@ describe("parseGradesSheet", () => {
 
 describe("parseAveragesSheet", () => {
   it("parses student averages correctly", () => {
+    // Librus format: [number, name, average]
     const sheetData = [
-      ["Uczeń", "Średnia"],
-      ["Jan Kowalski", 4.5],
-      ["Anna Nowak", 4.0],
+      ["Numer w dzienniku", "Dane ucznia", "Średnia"],
+      [1, "Jan Kowalski", 4.5],
+      [2, "Anna Nowak", 4.0],
     ];
 
     vi.mocked(XLSX.utils.sheet_to_json).mockReturnValue(sheetData);
@@ -199,8 +202,8 @@ describe("parseAveragesSheet", () => {
 
   it("handles string numbers", () => {
     const sheetData = [
-      ["Uczeń", "Średnia"],
-      ["Jan Kowalski", "4.5"],
+      ["Numer w dzienniku", "Dane ucznia", "Średnia"],
+      [1, "Jan Kowalski", "4.5"],
     ];
 
     vi.mocked(XLSX.utils.sheet_to_json).mockReturnValue(sheetData);
@@ -218,85 +221,14 @@ describe("parseAveragesSheet", () => {
   });
 });
 
-describe("parseBehaviorSheet", () => {
-  it("parses Polish behavior grades to English", () => {
-    const sheetData = [
-      ["Uczeń", "Ocena"],
-      ["Jan Kowalski", "wzorowe"],
-      ["Anna Nowak", "bardzo dobre"],
-      ["Piotr Wiśniewski", "dobre"],
-      ["Maria Zielińska", "poprawne"],
-      ["Adam Kamiński", "nieodpowiednie"],
-      ["Ewa Lewandowska", "naganne"],
-    ];
-
-    vi.mocked(XLSX.utils.sheet_to_json).mockReturnValue(sheetData);
-
-    const result = parseBehaviorSheet({} as XLSX.WorkSheet);
-
-    expect(result.get("Jan Kowalski")).toBe("exemplary");
-    expect(result.get("Anna Nowak")).toBe("veryGood");
-    expect(result.get("Piotr Wiśniewski")).toBe("good");
-    expect(result.get("Maria Zielińska")).toBe("acceptable");
-    expect(result.get("Adam Kamiński")).toBe("inappropriate");
-    expect(result.get("Ewa Lewandowska")).toBe("reprehensible");
-  });
-
-  it("handles case-insensitive Polish grades", () => {
-    const sheetData = [
-      ["Uczeń", "Ocena"],
-      ["Jan Kowalski", "WZOROWE"],
-      ["Anna Nowak", "Bardzo Dobre"],
-    ];
-
-    vi.mocked(XLSX.utils.sheet_to_json).mockReturnValue(sheetData);
-
-    const result = parseBehaviorSheet({} as XLSX.WorkSheet);
-
-    expect(result.get("Jan Kowalski")).toBe("exemplary");
-    expect(result.get("Anna Nowak")).toBe("veryGood");
-  });
-
-  it("throws on invalid sheet structure", () => {
-    vi.mocked(XLSX.utils.sheet_to_json).mockReturnValue([]);
-
-    expect(() => parseBehaviorSheet({} as XLSX.WorkSheet)).toThrow(
-      "Invalid data structure in sheet: Zachowanie"
-    );
-  });
-
-  it("warns about unrecognized behavior grades", () => {
-    const consoleSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
-
-    const sheetData = [
-      ["Uczeń", "Ocena"],
-      ["Jan Kowalski", "wzorowe"],
-      ["Anna Nowak", "unknown_grade"],
-    ];
-
-    vi.mocked(XLSX.utils.sheet_to_json).mockReturnValue(sheetData);
-
-    const result = parseBehaviorSheet({} as XLSX.WorkSheet);
-
-    // Valid grade should be parsed
-    expect(result.get("Jan Kowalski")).toBe("exemplary");
-    // Invalid grade should not be in results
-    expect(result.has("Anna Nowak")).toBe(false);
-    // Warning should be logged with row number (not student name for GDPR)
-    expect(consoleSpy).toHaveBeenCalledWith(
-      'Unrecognized behavior grade "unknown_grade" at row 3'
-    );
-
-    consoleSpy.mockRestore();
-  });
-});
-
 describe("parseMetadataSheet", () => {
-  it("parses class metadata correctly", () => {
+  it("parses class metadata correctly from Librus format", () => {
+    // Real Librus format:
+    // Row 0: Title with period info
+    // Row 1: Horizontal form with Oddział and Wychowawca
     const sheetData = [
-      ["Klasa", "3A"],
-      ["Okres klasyfikacyjny", "2024/2025 - Semestr 1"],
-      ["Wychowawca", "Maria Wiśniewska"],
+      ["Dodatkowe informacje dla 1 semestru w roku szkolnym 2024/2025"],
+      ["Oddział", "3A", "Wychowawca", null, null, "Maria Wiśniewska"],
     ];
 
     vi.mocked(XLSX.utils.sheet_to_json).mockReturnValue(sheetData);
@@ -310,8 +242,8 @@ describe("parseMetadataSheet", () => {
 
   it("handles missing optional teacher field", () => {
     const sheetData = [
-      ["Klasa", "3A"],
-      ["Okres klasyfikacyjny", "2024/2025 - Semestr 1"],
+      ["Dodatkowe informacje dla 2 semestru w roku szkolnym 2024/2025"],
+      ["Oddział", "3A"],
     ];
 
     vi.mocked(XLSX.utils.sheet_to_json).mockReturnValue(sheetData);
@@ -319,12 +251,15 @@ describe("parseMetadataSheet", () => {
     const result = parseMetadataSheet({} as XLSX.WorkSheet);
 
     expect(result.className).toBe("3A");
-    expect(result.period).toBe("2024/2025 - Semestr 1");
+    expect(result.period).toBe("2024/2025 - Semestr 2");
     expect(result.teacher).toBeUndefined();
   });
 
   it("throws when className is missing", () => {
-    const sheetData = [["Okres klasyfikacyjny", "2024/2025 - Semestr 1"]];
+    const sheetData = [
+      ["Dodatkowe informacje dla 1 semestru w roku szkolnym 2024/2025"],
+      ["SomeOtherField", "value"],
+    ];
 
     vi.mocked(XLSX.utils.sheet_to_json).mockReturnValue(sheetData);
 
@@ -334,7 +269,10 @@ describe("parseMetadataSheet", () => {
   });
 
   it("throws when period is missing", () => {
-    const sheetData = [["Klasa", "3A"]];
+    const sheetData = [
+      ["Some title without period info"],
+      ["Oddział", "3A"],
+    ];
 
     vi.mocked(XLSX.utils.sheet_to_json).mockReturnValue(sheetData);
 

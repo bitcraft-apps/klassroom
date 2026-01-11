@@ -4,23 +4,22 @@ import type { ClassData, RawStudent, Student } from "../types/index.js";
 import { stripStudentPII } from "../types/index.js";
 import { parseGradesSheet } from "./sheets/grades.js";
 import { parseAveragesSheet } from "./sheets/averages.js";
-import { parseBehaviorSheet } from "./sheets/behavior.js";
 import { parseMetadataSheet } from "./sheets/metadata.js";
 
 /**
  * Polish sheet names as they appear in Librus XLSX exports.
+ * Note: Behavior is embedded in the grades sheet, not a separate per-student sheet.
  */
 const SHEET_NAMES = {
   GRADES: "Okres klasyfikacyjny",
   AVERAGES: "Średnia uczniów",
-  BEHAVIOR: "Zachowanie",
   METADATA: "Dodatkowe informacje 1",
 } as const;
 
 /**
  * Parses a Librus Synergia XLSX grade export into ClassData.
  *
- * Note: This function uses synchronous file I/O (fs.existsSync, XLSX.readFile).
+ * Note: This function uses synchronous file I/O (fs.readFileSync).
  * Suitable for CLI usage; an async variant may be needed for web/server contexts.
  *
  * @param filePath - Path to the XLSX file
@@ -38,8 +37,9 @@ export function parseLibrusXlsx(filePath: string): ClassData {
     throw new Error(`File not found: ${filePath}`);
   }
 
-  // Read workbook
-  const workbook = XLSX.readFile(filePath);
+  // Read workbook using fs.readFileSync + XLSX.read (XLSX.readFile has issues in ESM)
+  const buffer = fs.readFileSync(filePath);
+  const workbook = XLSX.read(buffer, { type: "buffer" });
 
   // Verify required sheets exist
   for (const sheetName of Object.values(SHEET_NAMES)) {
@@ -59,17 +59,15 @@ export function parseLibrusXlsx(filePath: string): ClassData {
   const averagesSheet = workbook.Sheets[SHEET_NAMES.AVERAGES]!;
   const averagesMap = parseAveragesSheet(averagesSheet);
 
-  const behaviorSheet = workbook.Sheets[SHEET_NAMES.BEHAVIOR]!;
-  const behaviorMap = parseBehaviorSheet(behaviorSheet);
-
   // Build RawStudent records by correlating data across sheets
+  // Note: Behavior comes from the grades sheet (embedded in column 2)
   const rawStudents: RawStudent[] = gradesData.map((row) => {
     const rawStudent: RawStudent = {
       number: row.number,
       name: row.name,
       grades: row.grades,
       average: averagesMap.get(row.name),
-      behavior: behaviorMap.get(row.name),
+      behavior: row.behavior,
     };
     return rawStudent;
   });
