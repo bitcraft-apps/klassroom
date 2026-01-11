@@ -10,6 +10,11 @@ export type {
   Student,
   ClassMetadata,
   ClassData,
+  // Analytics types
+  NumericGrade,
+  GradeCounts,
+  AverageRangeCounts,
+  BehaviorCounts,
 } from "./types/index.js";
 
 // Factory functions for branded types
@@ -29,3 +34,21 @@ export { BEHAVIOR_GRADES, POLISH_TO_BEHAVIOR } from "./types/index.js";
 // Parser
 export { parseLibrusXlsx, detectFormat } from "./parser/index.js";
 export type { DetectedFormat } from "./parser/index.js";
+
+// Analytics
+export {
+  // Grade statistics
+  countGradesByType,
+  countGradesBySubject,
+  parseNumericGrade,
+  emptyGradeCounts,
+  // Student statistics
+  calculateClassAverage,
+  calculateMinMaxAverage,
+  calculateSubjectAverages,
+  getTopStudents,
+  countStudentsByAverageRange,
+  HONORS_THRESHOLD,
+  // Behavior statistics
+  countBehaviorGrades,
+} from "./analytics/index.js";
