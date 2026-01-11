@@ -28,20 +28,22 @@ export function parseBehaviorSheet(sheet: WorkSheet): Map<string, BehaviorGrade>
     const nameValue = row[0];
     const behaviorValue = row[1];
 
-    // Skip empty rows
-    if (nameValue === undefined || nameValue === null || nameValue === "") continue;
-
+    // Skip rows with missing name
+    if (nameValue == null) continue;
     const name = String(nameValue).trim();
     if (!name) continue;
 
-    if (behaviorValue === undefined || behaviorValue === null || behaviorValue === "")
-      continue;
-
+    // Skip rows with missing behavior value
+    if (behaviorValue == null) continue;
     const polishGrade = String(behaviorValue).trim();
-    const behavior = parseBehaviorGrade(polishGrade);
+    if (!polishGrade) continue;
 
+    const behavior = parseBehaviorGrade(polishGrade);
     if (behavior) {
       results.set(name, behavior);
+    } else {
+      // Warn about unrecognized grades (use row index to avoid PII in logs)
+      console.warn(`Unrecognized behavior grade "${polishGrade}" at row ${i + 1}`);
     }
   }
 

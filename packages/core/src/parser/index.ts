@@ -20,6 +20,9 @@ const SHEET_NAMES = {
 /**
  * Parses a Librus Synergia XLSX grade export into ClassData.
  *
+ * Note: This function uses synchronous file I/O (fs.existsSync, XLSX.readFile).
+ * Suitable for CLI usage; an async variant may be needed for web/server contexts.
+ *
  * @param filePath - Path to the XLSX file
  * @returns Parsed class data with GDPR-safe student records
  * @throws Error if file not found, missing required sheets, or invalid structure
@@ -45,20 +48,19 @@ export function parseLibrusXlsx(filePath: string): ClassData {
     }
   }
 
-  // Parse metadata
-  const metadataSheet = workbook.Sheets[SHEET_NAMES.METADATA];
-  const metadata = parseMetadataSheet(metadataSheet!);
+  // Parse each sheet. Non-null assertions are safe here because we validated
+  // all required sheets exist in the loop above (lines 45-49).
+  const metadataSheet = workbook.Sheets[SHEET_NAMES.METADATA]!;
+  const metadata = parseMetadataSheet(metadataSheet);
 
-  // Parse grades (primary data source for student list)
-  const gradesSheet = workbook.Sheets[SHEET_NAMES.GRADES];
-  const gradesData = parseGradesSheet(gradesSheet!);
+  const gradesSheet = workbook.Sheets[SHEET_NAMES.GRADES]!;
+  const gradesData = parseGradesSheet(gradesSheet);
 
-  // Parse supplementary data
-  const averagesSheet = workbook.Sheets[SHEET_NAMES.AVERAGES];
-  const averagesMap = parseAveragesSheet(averagesSheet!);
+  const averagesSheet = workbook.Sheets[SHEET_NAMES.AVERAGES]!;
+  const averagesMap = parseAveragesSheet(averagesSheet);
 
-  const behaviorSheet = workbook.Sheets[SHEET_NAMES.BEHAVIOR];
-  const behaviorMap = parseBehaviorSheet(behaviorSheet!);
+  const behaviorSheet = workbook.Sheets[SHEET_NAMES.BEHAVIOR]!;
+  const behaviorMap = parseBehaviorSheet(behaviorSheet);
 
   // Build RawStudent records by correlating data across sheets
   const rawStudents: RawStudent[] = gradesData.map((row) => {

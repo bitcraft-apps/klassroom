@@ -36,9 +36,8 @@ export function parseAveragesSheet(sheet: WorkSheet): Map<string, number> {
     const nameValue = row[0];
     const avgValue = row[1];
 
-    // Skip empty rows
-    if (nameValue === undefined || nameValue === null || nameValue === "") continue;
-
+    // Skip rows with missing name
+    if (nameValue == null) continue;
     const name = String(nameValue).trim();
     if (!name) continue;
 

@@ -91,18 +91,13 @@ describe("parseLibrusXlsx", () => {
       },
     } as XLSX.WorkBook);
 
-    // Mock sheet_to_json to return appropriate data based on call order
-    let callIndex = 0;
-    const sheetDataSequence = [
-      metadataSheetData,
-      gradesSheetData,
-      averagesSheetData,
-      behaviorSheetData,
-    ];
-
-    vi.mocked(XLSX.utils.sheet_to_json).mockImplementation(() => {
-      return sheetDataSequence[callIndex++] ?? [];
-    });
+    // Mock sheet_to_json to return data in expected call order:
+    // 1. metadata, 2. grades, 3. averages, 4. behavior
+    vi.mocked(XLSX.utils.sheet_to_json)
+      .mockReturnValueOnce(metadataSheetData)
+      .mockReturnValueOnce(gradesSheetData)
+      .mockReturnValueOnce(averagesSheetData)
+      .mockReturnValueOnce(behaviorSheetData);
 
     const result = parseLibrusXlsx("/path/to/file.xlsx");
 
@@ -268,6 +263,31 @@ describe("parseBehaviorSheet", () => {
     expect(() => parseBehaviorSheet({} as XLSX.WorkSheet)).toThrow(
       "Invalid data structure in sheet: Zachowanie"
     );
+  });
+
+  it("warns about unrecognized behavior grades", () => {
+    const consoleSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
+
+    const sheetData = [
+      ["Uczeń", "Ocena"],
+      ["Jan Kowalski", "wzorowe"],
+      ["Anna Nowak", "unknown_grade"],
+    ];
+
+    vi.mocked(XLSX.utils.sheet_to_json).mockReturnValue(sheetData);
+
+    const result = parseBehaviorSheet({} as XLSX.WorkSheet);
+
+    // Valid grade should be parsed
+    expect(result.get("Jan Kowalski")).toBe("exemplary");
+    // Invalid grade should not be in results
+    expect(result.has("Anna Nowak")).toBe(false);
+    // Warning should be logged with row number (not student name for GDPR)
+    expect(consoleSpy).toHaveBeenCalledWith(
+      'Unrecognized behavior grade "unknown_grade" at row 3'
+    );
+
+    consoleSpy.mockRestore();
   });
 });
 

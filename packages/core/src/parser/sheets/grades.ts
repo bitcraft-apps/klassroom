@@ -46,21 +46,20 @@ export function parseGradesSheet(sheet: WorkSheet): GradesRow[] {
     const numValue = row[0];
     const nameValue = row[1];
 
-    // Skip empty rows
-    if (numValue === undefined || numValue === null || numValue === "") continue;
-
+    // Skip rows with missing student number
+    if (numValue == null) continue;
     const num = Number(numValue);
     if (!Number.isInteger(num) || num < 1) continue;
 
-    const name = String(nameValue ?? "").trim();
+    // Skip rows with missing name
+    if (nameValue == null) continue;
+    const name = String(nameValue).trim();
     if (!name) continue;
 
     const grades: Grade[] = subjects.map((subject, idx) => {
       const cellValue = row[idx + 2];
-      const value =
-        cellValue === undefined || cellValue === null || cellValue === ""
-          ? null
-          : String(cellValue).trim();
+      // Treat null/undefined/empty string as no grade
+      const value = cellValue == null || cellValue === "" ? null : String(cellValue).trim();
       return { subject, value };
     });
 
