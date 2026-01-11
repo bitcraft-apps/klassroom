@@ -283,14 +283,14 @@ describe("countStudentsByAverageRange", () => {
       createStudent(2, [], { average: 4.75 }), // honors
       createStudent(3, [], { average: 4.5 }), // good
       createStudent(4, [], { average: 4.0 }), // good
-      createStudent(5, [], { average: 3.8 }), // below4
+      createStudent(5, [], { average: 3.8 }), // passing
     ];
 
     const counts = countStudentsByAverageRange(students);
 
     expect(counts.honors).toBe(2);
     expect(counts.good).toBe(2);
-    expect(counts.below4).toBe(1);
+    expect(counts.passing).toBe(1);
   });
 
   it("excludes students below 3.5", () => {
@@ -301,13 +301,13 @@ describe("countStudentsByAverageRange", () => {
 
     const counts = countStudentsByAverageRange(students);
 
-    expect(counts).toEqual({ below4: 0, good: 0, honors: 0 });
+    expect(counts).toEqual({ passing: 0, good: 0, honors: 0 });
   });
 
   it("returns zero counts for empty student array", () => {
     const counts = countStudentsByAverageRange([]);
 
-    expect(counts).toEqual({ below4: 0, good: 0, honors: 0 });
+    expect(counts).toEqual({ passing: 0, good: 0, honors: 0 });
   });
 
   it("excludes students without average", () => {
@@ -317,7 +317,7 @@ describe("countStudentsByAverageRange", () => {
 
     expect(counts.honors).toBe(1);
     expect(counts.good).toBe(0);
-    expect(counts.below4).toBe(0);
+    expect(counts.passing).toBe(0);
   });
 });
 

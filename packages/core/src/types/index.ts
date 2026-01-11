@@ -255,23 +255,22 @@ export interface ClassData {
 // ============================================================================
 
 /**
+ * Valid numeric grade values in the Polish grading scale (1-6).
+ */
+export type NumericGrade = 1 | 2 | 3 | 4 | 5 | 6;
+
+/**
  * Count of grades by numeric value (1-6 Polish grading scale).
  */
-export interface GradeCounts {
-  1: number;
-  2: number;
-  3: number;
-  4: number;
-  5: number;
-  6: number;
-}
+export type GradeCounts = Record<NumericGrade, number>;
 
 /**
  * Distribution of students by average grade ranges.
+ * Only includes students with average >= 3.5 (promotion threshold in Polish schools).
  */
 export interface AverageRangeCounts {
-  /** Students with average below 4.0 (3.5 - 3.99) */
-  below4: number;
+  /** Students with passing average (3.5 - 3.99) - minimum for promotion */
+  passing: number;
   /** Students with good average (4.0 - 4.74) */
   good: number;
   /** Students with honors average (4.75+) */

@@ -1,9 +1,9 @@
-import type { Student, GradeCounts } from "../types/index.js";
+import type { Student, GradeCounts, NumericGrade } from "../types/index.js";
 
 /**
  * Creates an empty GradeCounts object with all values initialized to 0.
  */
-function emptyGradeCounts(): GradeCounts {
+export function emptyGradeCounts(): GradeCounts {
   return { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0 };
 }
 
@@ -15,7 +15,7 @@ function emptyGradeCounts(): GradeCounts {
  * @param value - The grade value string
  * @returns Numeric grade 1-6, or undefined if not parseable
  */
-function parseNumericGrade(value: string | null): number | undefined {
+export function parseNumericGrade(value: string | null): NumericGrade | undefined {
   if (value === null || value === "") {
     return undefined;
   }
@@ -26,7 +26,7 @@ function parseNumericGrade(value: string | null): number | undefined {
   }
   const grade = parseInt(match[1], 10);
   if (grade >= 1 && grade <= 6) {
-    return grade;
+    return grade as NumericGrade;
   }
   return undefined;
 }
@@ -49,7 +49,7 @@ export function countGradesByType(students: Student[]): GradeCounts {
     for (const grade of student.grades) {
       const numericGrade = parseNumericGrade(grade.value);
       if (numericGrade !== undefined) {
-        counts[numericGrade as keyof GradeCounts]++;
+        counts[numericGrade]++;
       }
     }
   }
@@ -85,7 +85,7 @@ export function countGradesBySubject(
       }
 
       const subjectCounts = result.get(grade.subject)!;
-      subjectCounts[numericGrade as keyof GradeCounts]++;
+      subjectCounts[numericGrade]++;
     }
   }
 

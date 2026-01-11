@@ -11,6 +11,7 @@ export type {
   ClassMetadata,
   ClassData,
   // Analytics types
+  NumericGrade,
   GradeCounts,
   AverageRangeCounts,
   BehaviorCounts,
@@ -39,12 +40,15 @@ export {
   // Grade statistics
   countGradesByType,
   countGradesBySubject,
+  parseNumericGrade,
+  emptyGradeCounts,
   // Student statistics
   calculateClassAverage,
   calculateMinMaxAverage,
   calculateSubjectAverages,
   getTopStudents,
   countStudentsByAverageRange,
+  HONORS_THRESHOLD,
   // Behavior statistics
   countBehaviorGrades,
 } from "./analytics/index.js";

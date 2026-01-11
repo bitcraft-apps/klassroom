@@ -1,4 +1,14 @@
 import type { Student, AverageRangeCounts } from "../types/index.js";
+import { parseNumericGrade } from "./grades.js";
+
+/** Minimum average for honors distinction (4.75+) */
+export const HONORS_THRESHOLD = 4.75;
+
+/** Minimum average for promotion in Polish schools */
+const PASSING_THRESHOLD = 3.5;
+
+/** Minimum average for "good" category */
+const GOOD_THRESHOLD = 4.0;
 
 /**
  * Calculates the average of all student averages in a class.
@@ -72,17 +82,8 @@ export function calculateSubjectAverages(
 
   for (const student of students) {
     for (const grade of student.grades) {
-      if (grade.value === null || grade.value === "") {
-        continue;
-      }
-
-      const match = grade.value.match(/^(\d)/);
-      if (!match) {
-        continue;
-      }
-
-      const numericGrade = parseInt(match[1], 10);
-      if (numericGrade < 1 || numericGrade > 6) {
+      const numericGrade = parseNumericGrade(grade.value);
+      if (numericGrade === undefined) {
         continue;
       }
 
@@ -109,7 +110,7 @@ export function calculateSubjectAverages(
  * Students without an `average` field are excluded.
  *
  * @param students - Array of students
- * @param threshold - Minimum average to qualify (default: 4.75 for honors)
+ * @param threshold - Minimum average to qualify (default: HONORS_THRESHOLD = 4.75)
  * @returns Array of students meeting the threshold
  *
  * @example
@@ -118,7 +119,7 @@ export function calculateSubjectAverages(
  */
 export function getTopStudents(
   students: Student[],
-  threshold: number = 4.75
+  threshold: number = HONORS_THRESHOLD
 ): Student[] {
   return students.filter(
     (student) => student.average !== undefined && student.average >= threshold
@@ -127,11 +128,12 @@ export function getTopStudents(
 
 /**
  * Counts students by their average grade range.
- * - below4: 3.5 - 3.99
+ * - passing: 3.5 - 3.99 (minimum for promotion in Polish schools)
  * - good: 4.0 - 4.74
  * - honors: 4.75+
  *
- * Students without an `average` field or with average below 3.5 are excluded.
+ * Students without an `average` field or with average below 3.5 are excluded
+ * (they don't meet the promotion threshold).
  *
  * @param students - Array of students
  * @returns Count of students in each average range
@@ -144,7 +146,7 @@ export function countStudentsByAverageRange(
   students: Student[]
 ): AverageRangeCounts {
   const counts: AverageRangeCounts = {
-    below4: 0,
+    passing: 0,
     good: 0,
     honors: 0,
   };
@@ -154,14 +156,14 @@ export function countStudentsByAverageRange(
       continue;
     }
 
-    if (student.average >= 4.75) {
+    if (student.average >= HONORS_THRESHOLD) {
       counts.honors++;
-    } else if (student.average >= 4.0) {
+    } else if (student.average >= GOOD_THRESHOLD) {
       counts.good++;
-    } else if (student.average >= 3.5) {
-      counts.below4++;
+    } else if (student.average >= PASSING_THRESHOLD) {
+      counts.passing++;
     }
-    // Students below 3.5 are not counted in any category
+    // Students below PASSING_THRESHOLD are not counted (don't meet promotion criteria)
   }
 
   return counts;

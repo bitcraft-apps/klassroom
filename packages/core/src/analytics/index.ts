@@ -1,5 +1,10 @@
 // Grade statistics
-export { countGradesByType, countGradesBySubject } from "./grades.js";
+export {
+  countGradesByType,
+  countGradesBySubject,
+  parseNumericGrade,
+  emptyGradeCounts,
+} from "./grades.js";
 
 // Student statistics
 export {
@@ -8,6 +13,7 @@ export {
   calculateSubjectAverages,
   getTopStudents,
   countStudentsByAverageRange,
+  HONORS_THRESHOLD,
 } from "./students.js";
 
 // Behavior statistics
