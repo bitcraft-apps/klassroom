@@ -27,12 +27,40 @@ Adheres to following principles:
 
 ## Domain Knowledge
 
-Librus XLSX export contains 6 Polish-named sheets:
-- **Okres klasyfikacyjny** - grades matrix (students × subjects)
-- **Dodatkowe informacje 1** - class metadata
-- **Średnia uczniów** - student averages
-- **Dodatkowe informacje 2** - attendance stats
-- **Zachowanie** - behavior grades
-- **Informacje o uczniach** - student details
+### Librus Synergia XLSX Export Format
+
+Librus Synergia's "additional internal documentation" XLSX export contains 6 Polish-named sheets. Format detection requires at least 4 of these sheets to be present:
+
+| Sheet Name | Purpose | Used by Parser |
+|------------|---------|----------------|
+| **Okres klasyfikacyjny** | Grades matrix with embedded behavior | ✅ Required |
+| **Dodatkowe informacje 1** | Class metadata (horizontal form) | ✅ Required |
+| **Średnia uczniów** | Student averages | ✅ Required |
+| **Dodatkowe informacje 2** | Attendance stats | ❌ Not parsed |
+| **Zachowanie** | Behavior summary (counts only) | ❌ Not parsed |
+| **Informacje o uczniach** | Student details | ❌ Not parsed |
+
+### Sheet Structures (Verified from Real Export)
+
+**Okres klasyfikacyjny (Grades)**:
+- Row 0: Headers `["Nr w dzienniku", "Uczeń", "Zachowanie", "Nazwa przedmiotu", ...]`
+- Row 1: Subject names `[null, null, null, "Religia", "Język polski", ...]`
+- Row 2: Empty separator
+- Row 3+: Student data `[number, name, behavior, grade1, grade2, ...]`
+- Note: Behavior is embedded in column 2, NOT from the "Zachowanie" sheet
+
+**Dodatkowe informacje 1 (Metadata)**:
+- Row 0: Title with period `"Dodatkowe informacje dla 1 semestru w roku szkolnym 2024/2025"`
+- Row 1: Horizontal form `["Oddział", "5b", "Wychowawca", null, null, "Teacher Name", ...]`
+
+**Średnia uczniów (Averages)**:
+- Row 0: Headers `["Numer w dzienniku", "Dane ucznia", "Średnia"]`
+- Row 1+: Student data `[number, name, average]`
+
+### Behavior Grade Mapping
 
 Polish behavior grades map: wzorowe→exemplary, bardzo dobre→veryGood, dobre→good, poprawne→acceptable, nieodpowiednie→inappropriate, naganne→reprehensible.
+
+### Future: Vulcan UONET+ Support
+
+Vulcan UONET+ exports are not yet supported. They use different sheet structures and terminology. Format detection will reject non-Librus files with a helpful error message.

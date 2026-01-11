@@ -27,4 +27,5 @@ export {
 export { BEHAVIOR_GRADES, POLISH_TO_BEHAVIOR } from "./types/index.js";
 
 // Parser
-export { parseLibrusXlsx } from "./parser/index.js";
+export { parseLibrusXlsx, detectFormat } from "./parser/index.js";
+export type { DetectedFormat } from "./parser/index.js";

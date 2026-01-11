@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import * as fs from "node:fs";
 import * as XLSX from "xlsx";
-import { parseLibrusXlsx } from "./index.js";
+import { parseLibrusXlsx, detectFormat } from "./index.js";
 import { parseGradesSheet } from "./sheets/grades.js";
 import { parseAveragesSheet } from "./sheets/averages.js";
 import { parseMetadataSheet } from "./sheets/metadata.js";
@@ -16,6 +16,59 @@ vi.mock("xlsx", () => ({
     sheet_to_json: vi.fn(),
   },
 }));
+
+describe("detectFormat", () => {
+  it("detects Librus format when all 6 sheets present", () => {
+    const sheetNames = [
+      "Okres klasyfikacyjny",
+      "Dodatkowe informacje 1",
+      "Średnia uczniów",
+      "Dodatkowe informacje 2",
+      "Zachowanie",
+      "Informacje o uczniach",
+    ];
+
+    const result = detectFormat(sheetNames);
+
+    expect(result.format).toBe("librus");
+    expect(result.matchedSheets).toHaveLength(6);
+    expect(result.missingSheets).toHaveLength(0);
+  });
+
+  it("detects Librus format when 4+ sheets present", () => {
+    const sheetNames = [
+      "Okres klasyfikacyjny",
+      "Dodatkowe informacje 1",
+      "Średnia uczniów",
+      "Zachowanie",
+    ];
+
+    const result = detectFormat(sheetNames);
+
+    expect(result.format).toBe("librus");
+    expect(result.matchedSheets).toHaveLength(4);
+    expect(result.missingSheets).toHaveLength(2);
+  });
+
+  it("returns unknown format when less than 4 sheets match", () => {
+    const sheetNames = ["Sheet1", "Sheet2", "Okres klasyfikacyjny"];
+
+    const result = detectFormat(sheetNames);
+
+    expect(result.format).toBe("unknown");
+    expect(result.matchedSheets).toHaveLength(1);
+  });
+
+  it("returns unknown format for completely different sheets", () => {
+    const sheetNames = ["Dane", "Oceny", "Uczniowie"];
+
+    const result = detectFormat(sheetNames);
+
+    expect(result.format).toBe("unknown");
+    expect(result.matchedSheets).toHaveLength(0);
+    expect(result.missingSheets).toHaveLength(6);
+  });
+});
 
 describe("parseLibrusXlsx", () => {
   beforeEach(() => {
@@ -34,16 +87,35 @@ describe("parseLibrusXlsx", () => {
     );
   });
 
-  it("throws error when required sheet is missing", () => {
+  it("throws error for unrecognized format", () => {
     vi.mocked(fs.existsSync).mockReturnValue(true);
     vi.mocked(fs.readFileSync).mockReturnValue(Buffer.from("mock"));
     vi.mocked(XLSX.read).mockReturnValue({
-      SheetNames: ["Okres klasyfikacyjny", "Średnia uczniów"],
+      SheetNames: ["Sheet1", "Sheet2", "Sheet3"],
       Sheets: {},
     } as XLSX.WorkBook);
 
     expect(() => parseLibrusXlsx("/path/to/file.xlsx")).toThrow(
-      "Missing required sheet: Dodatkowe informacje 1"
+      /Unrecognized XLSX format.*Vulcan UONET\+ and other formats are not yet supported/
+    );
+  });
+
+  it("throws error when required sheet is missing from Librus file", () => {
+    vi.mocked(fs.existsSync).mockReturnValue(true);
+    vi.mocked(fs.readFileSync).mockReturnValue(Buffer.from("mock"));
+    // Provide 4 sheets to pass format detection, but missing "Dodatkowe informacje 1"
+    vi.mocked(XLSX.read).mockReturnValue({
+      SheetNames: [
+        "Okres klasyfikacyjny",
+        "Średnia uczniów",
+        "Zachowanie",
+        "Informacje o uczniach",
+      ],
+      Sheets: {},
+    } as XLSX.WorkBook);
+
+    expect(() => parseLibrusXlsx("/path/to/file.xlsx")).toThrow(
+      /Missing required sheet: Dodatkowe informacje 1/
     );
   });
 
@@ -73,17 +145,23 @@ describe("parseLibrusXlsx", () => {
       ["Oddział", "3A", "Wychowawca", null, null, "Maria Wiśniewska"],
     ];
 
-    // Mock workbook
+    // Mock workbook with all 6 Librus sheets (format detection requires 4+)
     vi.mocked(XLSX.read).mockReturnValue({
       SheetNames: [
         "Okres klasyfikacyjny",
-        "Średnia uczniów",
         "Dodatkowe informacje 1",
+        "Średnia uczniów",
+        "Dodatkowe informacje 2",
+        "Zachowanie",
+        "Informacje o uczniach",
       ],
       Sheets: {
         "Okres klasyfikacyjny": {},
-        "Średnia uczniów": {},
         "Dodatkowe informacje 1": {},
+        "Średnia uczniów": {},
+        "Dodatkowe informacje 2": {},
+        Zachowanie: {},
+        "Informacje o uczniach": {},
       },
     } as XLSX.WorkBook);
 
