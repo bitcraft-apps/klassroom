@@ -196,14 +196,22 @@ export interface RawStudent {
 
 /**
  * Strips PII (name) from a RawStudent to produce a GDPR-safe Student.
+ * Uses explicit allowlist to prevent accidental PII leakage if new fields
+ * are added to RawStudent in the future.
+ *
  * @param raw - The internal student representation with name
  * @returns A Student without the name field
  *
  * @internal Not exported from barrel - use within @klassroom/core only.
  */
 export function stripStudentPII(raw: RawStudent): Student {
-  const { name: _, ...student } = raw;
-  return student;
+  return {
+    number: raw.number,
+    grades: raw.grades,
+    average: raw.average,
+    behavior: raw.behavior,
+    attendance: raw.attendance,
+  };
 }
 
 /**
