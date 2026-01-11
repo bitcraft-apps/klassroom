@@ -15,6 +15,9 @@ Thumbs.db
 # pnpm
 pnpm-debug.log*
 
+# Test coverage
+coverage/
+
 # npm (project uses pnpm)
 package-lock.json
 
