@@ -70,3 +70,6 @@ export type {
   DoughnutChartConfig,
   ChartStudentData,
 } from "./charts/index.js";
+
+// Generator
+export { generatePresentation } from "./generator/index.js";
