@@ -280,17 +280,18 @@ describe("countStudentsByAverageRange", () => {
   it("counts students in each range correctly", () => {
     const students = [
       createStudent(1, [], { average: 5.0 }), // honors
-      createStudent(2, [], { average: 4.75 }), // honors
+      createStudent(2, [], { average: 4.75 }), // honors (boundary)
       createStudent(3, [], { average: 4.5 }), // good
-      createStudent(4, [], { average: 4.0 }), // good
+      createStudent(4, [], { average: 4.0 }), // good (boundary)
       createStudent(5, [], { average: 3.8 }), // passing
+      createStudent(6, [], { average: 3.5 }), // passing (boundary)
     ];
 
     const counts = countStudentsByAverageRange(students);
 
     expect(counts.honors).toBe(2);
     expect(counts.good).toBe(2);
-    expect(counts.passing).toBe(1);
+    expect(counts.passing).toBe(2);
   });
 
   it("excludes students below 3.5", () => {
