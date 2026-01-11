@@ -70,6 +70,51 @@ export const POLISH_TO_BEHAVIOR: Readonly<Record<string, BehaviorGrade>> = {
 };
 
 /**
+ * Parses a Polish behavior grade string to its English equivalent.
+ * Handles case-insensitive matching and whitespace normalization.
+ *
+ * @param polish - The Polish behavior grade string (e.g., "Wzorowe", "bardzo dobre")
+ * @returns The corresponding BehaviorGrade, or undefined if not recognized
+ *
+ * @example
+ * parseBehaviorGrade("wzorowe")       // "exemplary"
+ * parseBehaviorGrade("Bardzo Dobre")  // "veryGood"
+ * parseBehaviorGrade("invalid")       // undefined
+ */
+export function parseBehaviorGrade(polish: string): BehaviorGrade | undefined {
+  const normalized = polish.trim().toLowerCase();
+  return POLISH_TO_BEHAVIOR[normalized];
+}
+
+/**
+ * Returns the ranking index of a behavior grade (0 = best, 5 = worst).
+ * Useful for sorting or comparing behavior grades numerically.
+ *
+ * @param grade - The behavior grade to get the index for
+ * @returns Index from 0 (exemplary) to 5 (reprehensible)
+ */
+export function behaviorToIndex(grade: BehaviorGrade): number {
+  return BEHAVIOR_GRADES.indexOf(grade);
+}
+
+/**
+ * Compares two behavior grades.
+ * Returns negative if `a` is better than `b`, positive if worse, 0 if equal.
+ *
+ * @param a - First behavior grade
+ * @param b - Second behavior grade
+ * @returns Negative number if a is better, positive if worse, 0 if equal
+ *
+ * @example
+ * compareBehavior("exemplary", "good")  // -2 (exemplary is better)
+ * compareBehavior("good", "exemplary")  // 2 (good is worse)
+ * compareBehavior("good", "good")       // 0 (equal)
+ */
+export function compareBehavior(a: BehaviorGrade, b: BehaviorGrade): number {
+  return behaviorToIndex(a) - behaviorToIndex(b);
+}
+
+/**
  * A single grade entry for a subject.
  */
 export interface Grade {
@@ -99,6 +144,30 @@ export interface AttendanceStats {
    * only include raw counts without a pre-calculated percentage.
    */
   percentage?: number;
+}
+
+/**
+ * Calculates attendance percentage from raw counts.
+ * Formula: (present / (present + absent + excused)) * 100
+ *
+ * Note: "late" is not included in the calculation as students who are
+ * late are still counted as present for that lesson.
+ *
+ * @param stats - The attendance statistics
+ * @returns Percentage (0-100), or null if no attendance data (all counts are 0)
+ *
+ * @example
+ * calculateAttendancePercentage({ present: 90, absent: 5, excused: 5, late: 3 })  // 90
+ * calculateAttendancePercentage({ present: 0, absent: 0, excused: 0, late: 0 })   // null
+ */
+export function calculateAttendancePercentage(
+  stats: Pick<AttendanceStats, "present" | "absent" | "excused">
+): number | null {
+  const total = stats.present + stats.absent + stats.excused;
+  if (total === 0) {
+    return null; // No attendance data
+  }
+  return (stats.present / total) * 100;
 }
 
 /**
