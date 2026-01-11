@@ -229,9 +229,10 @@ function renderOverviewSlide(data: PresentationData): string {
 }
 
 function renderSubjectAveragesSlide(data: PresentationData): string {
-  const content = data.charts.subjectAverages
+  const chartUrl = safeDataUrl(data.charts.subjectAverages);
+  const content = chartUrl
     ? `<div class="chart-container">
-        <img src="${data.charts.subjectAverages}" alt="Wykres średnich ocen z przedmiotów">
+        <img src="${chartUrl}" alt="Wykres średnich ocen z przedmiotów">
       </div>`
     : `<p class="no-data">Brak danych</p>`;
 
@@ -272,13 +273,13 @@ function renderGradeDistributionSlide(data: PresentationData): string {
     <table>
       <thead>
         <tr>
-          <th>Przedmiot</th>
-          <th>1</th>
-          <th>2</th>
-          <th>3</th>
-          <th>4</th>
-          <th>5</th>
-          <th>6</th>
+          <th scope="col">Przedmiot</th>
+          <th scope="col">1</th>
+          <th scope="col">2</th>
+          <th scope="col">3</th>
+          <th scope="col">4</th>
+          <th scope="col">5</th>
+          <th scope="col">6</th>
         </tr>
       </thead>
       <tbody>${rows}
@@ -288,9 +289,10 @@ function renderGradeDistributionSlide(data: PresentationData): string {
 }
 
 function renderStudentAveragesSlide(data: PresentationData): string {
-  const content = data.charts.studentAverages
+  const chartUrl = safeDataUrl(data.charts.studentAverages);
+  const content = chartUrl
     ? `<div class="chart-container">
-        <img src="${data.charts.studentAverages}" alt="Wykres średnich ocen uczniów">
+        <img src="${chartUrl}" alt="Wykres średnich ocen uczniów">
       </div>`
     : `<p class="no-data">Brak danych</p>`;
 
@@ -318,8 +320,8 @@ function renderBehaviorSlide(data: PresentationData): string {
     <table>
       <thead>
         <tr>
-          <th>Ocena zachowania</th>
-          <th>Liczba uczniów</th>
+          <th scope="col">Ocena zachowania</th>
+          <th scope="col">Liczba uczniów</th>
         </tr>
       </thead>
       <tbody>
@@ -366,6 +368,19 @@ function escapeHtml(str: string): string {
     .replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;")
     .replace(/'/g, "&#39;");
+}
+
+/**
+ * Validates and returns a safe data URL for images.
+ * Returns null if the URL is not a valid PNG data URL.
+ */
+function safeDataUrl(url: string | null): string | null {
+  if (!url) return null;
+  // Only allow base64-encoded PNG data URLs
+  if (url.startsWith("data:image/png;base64,")) {
+    return url;
+  }
+  return null;
 }
 
 // ============================================================================

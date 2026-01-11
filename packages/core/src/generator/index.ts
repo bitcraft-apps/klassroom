@@ -52,7 +52,8 @@ export async function generatePresentation(data: ClassData): Promise<string> {
   if (subjectChartConfig) {
     try {
       subjectChartImage = await renderChartToDataUrl(subjectChartConfig);
-    } catch {
+    } catch (error) {
+      console.warn("Failed to render subject averages chart:", error);
       subjectChartImage = PLACEHOLDER_IMAGE;
     }
   }
@@ -60,7 +61,8 @@ export async function generatePresentation(data: ClassData): Promise<string> {
   if (studentChartConfig) {
     try {
       studentChartImage = await renderChartToDataUrl(studentChartConfig);
-    } catch {
+    } catch (error) {
+      console.warn("Failed to render student averages chart:", error);
       studentChartImage = PLACEHOLDER_IMAGE;
     }
   }
