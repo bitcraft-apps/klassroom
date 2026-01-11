@@ -8,8 +8,12 @@ export type StudentNumber = number & { readonly __brand: "StudentNumber" };
  * Creates a type-safe StudentNumber from a plain number.
  * @param n - The student's class number (1-based index in class roster)
  * @returns A branded StudentNumber
+ * @throws Error if n is not a positive integer
  */
 export function studentNumber(n: number): StudentNumber {
+  if (!Number.isInteger(n) || n < 1) {
+    throw new Error(`Invalid student number: ${n}. Must be a positive integer.`);
+  }
   return n as StudentNumber;
 }
 
@@ -23,30 +27,57 @@ export type ClassPeriod = string & { readonly __brand: "ClassPeriod" };
  * Creates a type-safe ClassPeriod from a plain string.
  * @param period - The classification period string from Librus export
  * @returns A branded ClassPeriod
+ * @throws Error if period is empty
  */
 export function classPeriod(period: string): ClassPeriod {
+  if (!period || period.trim() === "") {
+    throw new Error("Invalid class period: must be a non-empty string.");
+  }
   return period as ClassPeriod;
 }
+
+/**
+ * All valid behavior grade values.
+ * Ordered from best to worst behavior.
+ */
+export const BEHAVIOR_GRADES = [
+  "exemplary",
+  "veryGood",
+  "good",
+  "acceptable",
+  "inappropriate",
+  "reprehensible",
+] as const;
 
 /**
  * Polish behavior grades mapped to English equivalents.
  * wzorowe -> exemplary, bardzo dobre -> veryGood, dobre -> good,
  * poprawne -> acceptable, nieodpowiednie -> inappropriate, naganne -> reprehensible
  */
-export type BehaviorGrade =
-  | "exemplary"
-  | "veryGood"
-  | "good"
-  | "acceptable"
-  | "inappropriate"
-  | "reprehensible";
+export type BehaviorGrade = (typeof BEHAVIOR_GRADES)[number];
+
+/**
+ * Maps Polish behavior grade strings to their English equivalents.
+ * Used during XLSX parsing to normalize behavior grades.
+ */
+export const POLISH_TO_BEHAVIOR: Readonly<Record<string, BehaviorGrade>> = {
+  wzorowe: "exemplary",
+  "bardzo dobre": "veryGood",
+  dobre: "good",
+  poprawne: "acceptable",
+  nieodpowiednie: "inappropriate",
+  naganne: "reprehensible",
+};
 
 /**
  * A single grade entry for a subject.
- * Value is string to handle modifiers (4+, 5-), exemptions (zwolniony), etc.
  */
 export interface Grade {
   subject: string;
+  /**
+   * The grade value as a string to handle modifiers (4+, 5-), exemptions (zwolniony), etc.
+   * Null indicates no grade was assigned (empty cell in source data).
+   */
   value: string | null;
 }
 
@@ -63,7 +94,10 @@ export interface AttendanceStats {
   excused: number;
   /** Number of times arrived late */
   late: number;
-  /** Attendance percentage if provided by source (0-100) */
+  /**
+   * Attendance percentage (0-100). Optional because some exports
+   * only include raw counts without a pre-calculated percentage.
+   */
   percentage?: number;
 }
 
@@ -89,6 +123,18 @@ export interface RawStudent {
   average?: number;
   behavior?: BehaviorGrade;
   attendance?: AttendanceStats;
+}
+
+/**
+ * Strips PII (name) from a RawStudent to produce a GDPR-safe Student.
+ * @param raw - The internal student representation with name
+ * @returns A Student without the name field
+ *
+ * @internal Not exported from barrel - use within @klassroom/core only.
+ */
+export function stripStudentPII(raw: RawStudent): Student {
+  const { name: _, ...student } = raw;
+  return student;
 }
 
 /**

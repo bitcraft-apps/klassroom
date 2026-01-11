@@ -14,3 +14,6 @@ export type {
 
 // Factory functions for branded types
 export { studentNumber, classPeriod } from "./types/index.js";
+
+// Constants
+export { BEHAVIOR_GRADES, POLISH_TO_BEHAVIOR } from "./types/index.js";
