@@ -17,6 +17,6 @@
     "dist"
   ],
   "scripts": {
-    "build": "tsc"
+    "build": "tsc --build"
   }
 }
