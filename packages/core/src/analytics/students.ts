@@ -4,8 +4,8 @@ import { parseNumericGrade } from "./grades.js";
 /** Minimum average for honors distinction (4.75+) */
 export const HONORS_THRESHOLD = 4.75;
 
-/** Minimum average for promotion in Polish schools */
-const PASSING_THRESHOLD = 3.5;
+/** Lower bound for satisfactory average category */
+const SATISFACTORY_THRESHOLD = 3.5;
 
 /** Minimum average for "good" category */
 const GOOD_THRESHOLD = 4.0;
@@ -128,12 +128,11 @@ export function getTopStudents(
 
 /**
  * Counts students by their average grade range.
- * - passing: 3.5 - 3.99 (minimum for promotion in Polish schools)
+ * - satisfactory: 3.5 - 3.99
  * - good: 4.0 - 4.74
- * - honors: 4.75+
+ * - honors: 4.75+ (eligible for distinction certificate)
  *
- * Students without an `average` field or with average below 3.5 are excluded
- * (they don't meet the promotion threshold).
+ * Students without an `average` field or with average below 3.5 are excluded.
  *
  * @param students - Array of students
  * @returns Count of students in each average range
@@ -146,7 +145,7 @@ export function countStudentsByAverageRange(
   students: Student[]
 ): AverageRangeCounts {
   const counts: AverageRangeCounts = {
-    passing: 0,
+    satisfactory: 0,
     good: 0,
     honors: 0,
   };
@@ -160,10 +159,10 @@ export function countStudentsByAverageRange(
       counts.honors++;
     } else if (student.average >= GOOD_THRESHOLD) {
       counts.good++;
-    } else if (student.average >= PASSING_THRESHOLD) {
-      counts.passing++;
+    } else if (student.average >= SATISFACTORY_THRESHOLD) {
+      counts.satisfactory++;
     }
-    // Students below PASSING_THRESHOLD are not counted (don't meet promotion criteria)
+    // Students below SATISFACTORY_THRESHOLD are not counted
   }
 
   return counts;

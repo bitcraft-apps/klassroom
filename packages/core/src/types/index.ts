@@ -266,14 +266,14 @@ export type GradeCounts = Record<NumericGrade, number>;
 
 /**
  * Distribution of students by average grade ranges.
- * Only includes students with average >= 3.5 (promotion threshold in Polish schools).
+ * Categorizes students into statistical tiers based on weighted average.
  */
 export interface AverageRangeCounts {
-  /** Students with passing average (3.5 - 3.99) - minimum for promotion */
-  passing: number;
+  /** Students with satisfactory average (3.5 - 3.99) */
+  satisfactory: number;
   /** Students with good average (4.0 - 4.74) */
   good: number;
-  /** Students with honors average (4.75+) */
+  /** Students with honors average (4.75+) - eligible for distinction certificate */
   honors: number;
 }
 

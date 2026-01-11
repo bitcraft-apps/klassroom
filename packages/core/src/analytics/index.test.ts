@@ -283,15 +283,15 @@ describe("countStudentsByAverageRange", () => {
       createStudent(2, [], { average: 4.75 }), // honors (boundary)
       createStudent(3, [], { average: 4.5 }), // good
       createStudent(4, [], { average: 4.0 }), // good (boundary)
-      createStudent(5, [], { average: 3.8 }), // passing
-      createStudent(6, [], { average: 3.5 }), // passing (boundary)
+      createStudent(5, [], { average: 3.8 }), // satisfactory
+      createStudent(6, [], { average: 3.5 }), // satisfactory (boundary)
     ];
 
     const counts = countStudentsByAverageRange(students);
 
     expect(counts.honors).toBe(2);
     expect(counts.good).toBe(2);
-    expect(counts.passing).toBe(2);
+    expect(counts.satisfactory).toBe(2);
   });
 
   it("excludes students below 3.5", () => {
@@ -302,13 +302,13 @@ describe("countStudentsByAverageRange", () => {
 
     const counts = countStudentsByAverageRange(students);
 
-    expect(counts).toEqual({ passing: 0, good: 0, honors: 0 });
+    expect(counts).toEqual({ satisfactory: 0, good: 0, honors: 0 });
   });
 
   it("returns zero counts for empty student array", () => {
     const counts = countStudentsByAverageRange([]);
 
-    expect(counts).toEqual({ passing: 0, good: 0, honors: 0 });
+    expect(counts).toEqual({ satisfactory: 0, good: 0, honors: 0 });
   });
 
   it("excludes students without average", () => {
@@ -318,7 +318,7 @@ describe("countStudentsByAverageRange", () => {
 
     expect(counts.honors).toBe(1);
     expect(counts.good).toBe(0);
-    expect(counts.passing).toBe(0);
+    expect(counts.satisfactory).toBe(0);
   });
 });
 
