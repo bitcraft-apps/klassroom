@@ -18,5 +18,8 @@
   ],
   "scripts": {
     "build": "tsc --build"
+  },
+  "dependencies": {
+    "xlsx": "^0.18.5"
   }
 }
