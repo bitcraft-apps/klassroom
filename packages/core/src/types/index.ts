@@ -5,6 +5,30 @@
 export type StudentNumber = number & { readonly __brand: "StudentNumber" };
 
 /**
+ * Creates a type-safe StudentNumber from a plain number.
+ * @param n - The student's class number (1-based index in class roster)
+ * @returns A branded StudentNumber
+ */
+export function studentNumber(n: number): StudentNumber {
+  return n as StudentNumber;
+}
+
+/**
+ * Branded type for classification period identifier.
+ * Typically contains school year and semester (e.g., "2024/2025 - Semestr 1").
+ */
+export type ClassPeriod = string & { readonly __brand: "ClassPeriod" };
+
+/**
+ * Creates a type-safe ClassPeriod from a plain string.
+ * @param period - The classification period string from Librus export
+ * @returns A branded ClassPeriod
+ */
+export function classPeriod(period: string): ClassPeriod {
+  return period as ClassPeriod;
+}
+
+/**
  * Polish behavior grades mapped to English equivalents.
  * wzorowe -> exemplary, bardzo dobre -> veryGood, dobre -> good,
  * poprawne -> acceptable, nieodpowiednie -> inappropriate, naganne -> reprehensible
@@ -28,12 +52,19 @@ export interface Grade {
 
 /**
  * Student attendance statistics.
+ * All counts are absolute numbers of hours/lessons.
  */
 export interface AttendanceStats {
+  /** Number of lessons attended */
   present: number;
+  /** Number of unexcused absences */
   absent: number;
+  /** Number of excused absences */
   excused: number;
+  /** Number of times arrived late */
   late: number;
+  /** Attendance percentage if provided by source (0-100) */
+  percentage?: number;
 }
 
 /**
@@ -48,6 +79,8 @@ export interface RawStudent {
    */
   name: string;
   grades: Grade[];
+  /** Overall grade average from "Średnia uczniów" sheet */
+  average?: number;
   behavior?: BehaviorGrade;
   attendance?: AttendanceStats;
 }
@@ -62,8 +95,11 @@ export type Student = Omit<RawStudent, "name">;
  * Class metadata from the Librus export.
  */
 export interface ClassMetadata {
+  /** Class name/identifier (e.g., "3A", "2B") */
   className: string;
-  period: string;
+  /** Classification period (school year and semester) */
+  period: ClassPeriod;
+  /** Class teacher name (if available) */
   teacher?: string;
 }
 
