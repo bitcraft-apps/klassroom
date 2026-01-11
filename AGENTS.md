@@ -6,9 +6,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Klassroom generates HTML presentations for Polish parent-teacher meetings from school grade XLSX exports (Librus Synergia, later Vulcan UONET+).
 
-## Critical Constraint
+## Critical Constraints
 
 **GDPR**: Output must use student numbers (`number` field) only, never names. Student names exist in data for parsing but must never appear in generated output.
+
+**Polish Output**: All user-facing output (chart labels, axis titles, UI text) must be in Polish. End users are Polish teachers and parents. Codebase uses English internally (variable names, comments, documentation).
 
 ## Architecture
 

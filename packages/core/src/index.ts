@@ -52,3 +52,21 @@ export {
   // Behavior statistics
   countBehaviorGrades,
 } from "./analytics/index.js";
+
+// Charts
+export {
+  createSubjectAveragesChart,
+  createStudentAveragesChart,
+  createGradeDistributionChart,
+  createBehaviorChart,
+} from "./charts/index.js";
+
+export type {
+  ChartConfig,
+  ChartDataset,
+  ChartOptions,
+  ScaleOptions,
+  BarChartConfig,
+  DoughnutChartConfig,
+  ChartStudentData,
+} from "./charts/index.js";
