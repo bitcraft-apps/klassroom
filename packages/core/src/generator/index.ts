@@ -45,27 +45,24 @@ export async function generatePresentation(data: ClassData): Promise<string> {
   const subjectChartConfig = createSubjectAveragesChart(subjectAverages);
   const studentChartConfig = createStudentAveragesChart(students);
 
-  // Render charts to base64 images
-  let subjectChartImage: string | null = null;
-  let studentChartImage: string | null = null;
-
-  if (subjectChartConfig) {
+  // Render charts to base64 images in parallel
+  const renderChart = async (
+    config: typeof subjectChartConfig,
+    label: string
+  ): Promise<string | null> => {
+    if (!config) return null;
     try {
-      subjectChartImage = await renderChartToDataUrl(subjectChartConfig);
+      return await renderChartToDataUrl(config);
     } catch (error) {
-      console.warn("Failed to render subject averages chart:", error);
-      subjectChartImage = PLACEHOLDER_IMAGE;
+      console.warn(`Failed to render ${label} chart:`, error);
+      return PLACEHOLDER_IMAGE;
     }
-  }
+  };
 
-  if (studentChartConfig) {
-    try {
-      studentChartImage = await renderChartToDataUrl(studentChartConfig);
-    } catch (error) {
-      console.warn("Failed to render student averages chart:", error);
-      studentChartImage = PLACEHOLDER_IMAGE;
-    }
-  }
+  const [subjectChartImage, studentChartImage] = await Promise.all([
+    renderChart(subjectChartConfig, "subject averages"),
+    renderChart(studentChartConfig, "student averages"),
+  ]);
 
   // Convert grade distribution to template-friendly format
   const gradeDistribution: GradeDistributionRow[] | null =

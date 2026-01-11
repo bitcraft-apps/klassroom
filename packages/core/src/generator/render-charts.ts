@@ -1,6 +1,8 @@
 import { ChartJSNodeCanvas } from "chartjs-node-canvas";
 import type { ChartConfig } from "../charts/types.js";
 
+// Chart dimensions optimized for presentation display:
+// 800x400 (2:1 aspect ratio) fits well in slides and scales nicely on projectors
 const CHART_WIDTH = 800;
 const CHART_HEIGHT = 400;
 

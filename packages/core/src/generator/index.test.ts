@@ -1,6 +1,7 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, vi } from "vitest";
 import { generatePresentation } from "./index.js";
 import { studentNumber, classPeriod, type ClassData } from "../types/index.js";
+import { PLACEHOLDER_IMAGE } from "./render-charts.js";
 
 // Helper to create test class data
 function createClassData(
@@ -214,6 +215,59 @@ describe("generatePresentation", () => {
       // Averages should show 0.00 when no student has an average
       expect(html).toContain("0.00");
       expect(html).not.toContain("NaN");
+    });
+  });
+
+  describe("chart rendering fallback", () => {
+    it("uses placeholder image when chart rendering fails", async () => {
+      // Mock renderChartToDataUrl to throw an error
+      const renderChartsModule = await import("./render-charts.js");
+      const originalRenderChart = renderChartsModule.renderChartToDataUrl;
+
+      vi.spyOn(renderChartsModule, "renderChartToDataUrl").mockRejectedValue(
+        new Error("Canvas initialization failed")
+      );
+
+      const data = createClassData([
+        {
+          num: 1,
+          grades: [{ subject: "Matematyka", value: "5" }],
+          average: 4.5,
+        },
+      ]);
+
+      // Should complete without throwing
+      const html = await generatePresentation(data);
+
+      // Presentation should still render
+      expect(html).toContain("<!DOCTYPE html>");
+      expect(html).toContain("Zebranie z rodzicami");
+
+      // Restore original implementation
+      vi.restoreAllMocks();
+    });
+
+    it("logs warning when chart rendering fails", async () => {
+      const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
+
+      const renderChartsModule = await import("./render-charts.js");
+      vi.spyOn(renderChartsModule, "renderChartToDataUrl").mockRejectedValue(
+        new Error("Memory error")
+      );
+
+      const data = createClassData([
+        {
+          num: 1,
+          grades: [{ subject: "Test", value: "4" }],
+          average: 4.0,
+        },
+      ]);
+
+      await generatePresentation(data);
+
+      expect(warnSpy).toHaveBeenCalled();
+
+      vi.restoreAllMocks();
     });
   });
 });

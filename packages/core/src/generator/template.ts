@@ -360,8 +360,9 @@ function renderBehaviorSlide(data: PresentationData): string {
 
 /**
  * Escapes HTML special characters to prevent XSS.
+ * @internal Exported for testing only
  */
-function escapeHtml(str: string): string {
+export function escapeHtml(str: string): string {
   return str
     .replace(/&/g, "&amp;")
     .replace(/</g, "&lt;")
@@ -373,8 +374,9 @@ function escapeHtml(str: string): string {
 /**
  * Validates and returns a safe data URL for images.
  * Returns null if the URL is not a valid PNG data URL.
+ * @internal Exported for testing only
  */
-function safeDataUrl(url: string | null): string | null {
+export function safeDataUrl(url: string | null): string | null {
   if (!url) return null;
   // Only allow base64-encoded PNG data URLs
   if (url.startsWith("data:image/png;base64,")) {
