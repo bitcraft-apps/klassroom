@@ -69,13 +69,19 @@ export interface AttendanceStats {
 
 /**
  * Internal student representation with full data including name.
- * @internal This type contains GDPR-sensitive data (name field).
- * Use only for internal parsing - never expose in output.
+ * Used during XLSX parsing to correlate data across sheets (students are
+ * referenced by name in Librus exports). Must be stripped to {@link Student}
+ * before returning from any public API.
+ *
+ * @internal Package-internal type. NOT exported from barrel - import directly
+ * from './types/index.js' only within @klassroom/core parsing modules.
  */
 export interface RawStudent {
   number: StudentNumber;
   /**
-   * @internal GDPR-sensitive field. Never include in generated output.
+   * Student's full name from source data. Used only for correlating records
+   * across XLSX sheets during parsing. MUST be stripped before public output.
+   * @internal
    */
   name: string;
   grades: Grade[];
@@ -86,10 +92,17 @@ export interface RawStudent {
 }
 
 /**
- * Output-safe student representation without GDPR-sensitive name field.
- * Use this type for all generated output (HTML, reports, etc).
+ * GDPR-safe student representation. Identifies students by class number only.
+ * This is the public type - use for all APIs, analytics, and generated output.
  */
-export type Student = Omit<RawStudent, "name">;
+export interface Student {
+  number: StudentNumber;
+  grades: Grade[];
+  /** Overall grade average from "Średnia uczniów" sheet */
+  average?: number;
+  behavior?: BehaviorGrade;
+  attendance?: AttendanceStats;
+}
 
 /**
  * Class metadata from the Librus export.
@@ -104,10 +117,10 @@ export interface ClassMetadata {
 }
 
 /**
- * Root container for all parsed class data.
- * Contains metadata and the full student list (with names for internal use).
+ * Root container for parsed class data.
+ * This is the public API return type - contains only GDPR-safe student data.
  */
 export interface ClassData {
   metadata: ClassMetadata;
-  students: RawStudent[];
+  students: Student[];
 }

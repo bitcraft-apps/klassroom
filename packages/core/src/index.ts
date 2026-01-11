@@ -1,13 +1,12 @@
 export const VERSION = "0.0.0";
 
-// Types
+// Types (public API - all GDPR-safe)
 export type {
   StudentNumber,
   ClassPeriod,
   BehaviorGrade,
   Grade,
   AttendanceStats,
-  RawStudent,
   Student,
   ClassMetadata,
   ClassData,
