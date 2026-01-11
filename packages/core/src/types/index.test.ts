@@ -24,26 +24,38 @@ describe("studentNumber", () => {
   });
 
   it("throws for zero", () => {
-    expect(() => studentNumber(0)).toThrow("Invalid student number: 0");
+    expect(() => studentNumber(0)).toThrow(
+      "Invalid student number: 0. Must be a positive integer."
+    );
   });
 
   it("throws for negative numbers", () => {
-    expect(() => studentNumber(-1)).toThrow("Invalid student number: -1");
-    expect(() => studentNumber(-100)).toThrow("Invalid student number: -100");
+    expect(() => studentNumber(-1)).toThrow(
+      "Invalid student number: -1. Must be a positive integer."
+    );
+    expect(() => studentNumber(-100)).toThrow(
+      "Invalid student number: -100. Must be a positive integer."
+    );
   });
 
   it("throws for floating point numbers", () => {
-    expect(() => studentNumber(1.5)).toThrow("Invalid student number: 1.5");
-    expect(() => studentNumber(3.14)).toThrow("Invalid student number: 3.14");
+    expect(() => studentNumber(1.5)).toThrow(
+      "Invalid student number: 1.5. Must be a positive integer."
+    );
+    expect(() => studentNumber(3.14)).toThrow(
+      "Invalid student number: 3.14. Must be a positive integer."
+    );
   });
 
   it("throws for NaN", () => {
-    expect(() => studentNumber(NaN)).toThrow("Invalid student number: NaN");
+    expect(() => studentNumber(NaN)).toThrow(
+      "Invalid student number: NaN. Must be a positive integer."
+    );
   });
 
   it("throws for Infinity", () => {
     expect(() => studentNumber(Infinity)).toThrow(
-      "Invalid student number: Infinity"
+      "Invalid student number: Infinity. Must be a positive integer."
     );
   });
 });
@@ -61,16 +73,16 @@ describe("classPeriod", () => {
 
   it("throws for empty string", () => {
     expect(() => classPeriod("")).toThrow(
-      "Invalid class period: must be a non-empty string"
+      "Invalid class period: must be a non-empty string."
     );
   });
 
   it("throws for whitespace-only string", () => {
     expect(() => classPeriod("   ")).toThrow(
-      "Invalid class period: must be a non-empty string"
+      "Invalid class period: must be a non-empty string."
     );
     expect(() => classPeriod("\t\n")).toThrow(
-      "Invalid class period: must be a non-empty string"
+      "Invalid class period: must be a non-empty string."
     );
   });
 });
