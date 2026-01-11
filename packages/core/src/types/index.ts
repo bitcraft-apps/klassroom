@@ -216,7 +216,9 @@ export function stripStudentPII(raw: RawStudent): Student {
 
 /**
  * GDPR-safe student representation. Identifies students by class number only.
- * This is the public type - use for all APIs, analytics, and generated output.
+ * This is the public API type exported from the @klassroom/core barrel; use it
+ * for all APIs, analytics, and generated output (unlike RawStudent, which is
+ * an internal parsing type and not barrel-exported).
  */
 export interface Student {
   number: StudentNumber;
