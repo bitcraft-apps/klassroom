@@ -16,6 +16,15 @@ pnpm monorepo: `@klassroom/core` (parsing, analytics, charts, HTML generation) �
 
 Pipeline: Parse XLSX → Calculate analytics → Generate chart configs → Render HTML presentation.
 
+## Development strategy
+
+Adheres to following principles:
+- **Minimalism**: Keep the code simple and easy to understand.
+- **YAGNI** (You Ain't Gonna Need It): Avoid adding features until they are actually needed.
+- **DRY** (Don't Repeat Yourself): Avoid duplicating code.
+- **KISS** (Keep It Simple, Stupid): Keep the code simple and easy to understand.
+- **Single Responsibility Principle**: Each function should have a single responsibility.
+
 ## Domain Knowledge
 
 Librus XLSX export contains 6 Polish-named sheets:
