@@ -28,6 +28,9 @@ export async function renderChartToDataUrl<T extends string>(
   config: ChartConfig<T>
 ): Promise<string> {
   const canvas = getCanvas();
+  // Type cast is safe: ChartConfig<T> is a subset of Chart.js ChartConfiguration.
+  // Our charts module produces standard Chart.js configs (bar, doughnut types)
+  // that chartjs-node-canvas accepts. The generic T constrains chart types we create.
   const buffer = await canvas.renderToBuffer(config as Parameters<typeof canvas.renderToBuffer>[0]);
   return `data:image/png;base64,${buffer.toString("base64")}`;
 }

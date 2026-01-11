@@ -152,6 +152,31 @@ tr:hover {
   font-style: italic;
   padding: 3rem;
 }
+@media print {
+  body {
+    background: white;
+  }
+  .slide {
+    min-height: auto;
+    padding: 2rem;
+    page-break-after: always;
+    border-bottom: none;
+    box-shadow: none;
+  }
+  .slide:last-child {
+    page-break-after: avoid;
+  }
+  .stat-card {
+    box-shadow: none;
+    border: 1px solid #d1d5db;
+  }
+  .chart-container img {
+    box-shadow: none;
+  }
+  table {
+    box-shadow: none;
+  }
+}
 `;
 
 // ============================================================================

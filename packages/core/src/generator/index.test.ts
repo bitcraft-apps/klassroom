@@ -188,4 +188,32 @@ describe("generatePresentation", () => {
       );
     });
   });
+
+  describe("edge cases", () => {
+    it("handles empty student list with zero values in overview", async () => {
+      const data = createClassData([]);
+
+      const html = await generatePresentation(data);
+
+      // With no students, averages should show 0.00 (not NaN)
+      expect(html).toContain('<div class="value">0</div>'); // student count
+      expect(html).toContain("0.00"); // averages default to 0
+      expect(html).not.toContain("NaN");
+    });
+
+    it("handles students without averages gracefully", async () => {
+      const data = createClassData([
+        { num: 1 }, // no average
+        { num: 2 }, // no average
+      ]);
+
+      const html = await generatePresentation(data);
+
+      // Student count should be 2
+      expect(html).toContain('<div class="value">2</div>');
+      // Averages should show 0.00 when no student has an average
+      expect(html).toContain("0.00");
+      expect(html).not.toContain("NaN");
+    });
+  });
 });
