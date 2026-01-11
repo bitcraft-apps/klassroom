@@ -249,3 +249,43 @@ export interface ClassData {
   metadata: ClassMetadata;
   students: Student[];
 }
+
+// ============================================================================
+// Analytics Types
+// ============================================================================
+
+/**
+ * Count of grades by numeric value (1-6 Polish grading scale).
+ */
+export interface GradeCounts {
+  1: number;
+  2: number;
+  3: number;
+  4: number;
+  5: number;
+  6: number;
+}
+
+/**
+ * Distribution of students by average grade ranges.
+ */
+export interface AverageRangeCounts {
+  /** Students with average below 4.0 (3.5 - 3.99) */
+  below4: number;
+  /** Students with good average (4.0 - 4.74) */
+  good: number;
+  /** Students with honors average (4.75+) */
+  honors: number;
+}
+
+/**
+ * Count of students by behavior grade.
+ */
+export interface BehaviorCounts {
+  exemplary: number;
+  veryGood: number;
+  good: number;
+  acceptable: number;
+  inappropriate: number;
+  reprehensible: number;
+}
