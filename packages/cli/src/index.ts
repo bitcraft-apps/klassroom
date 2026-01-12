@@ -13,7 +13,7 @@ function isMain(): boolean {
   if (!process.argv[1]) return false;
   try {
     const scriptPath = realpathSync(resolve(process.argv[1]));
-    const modulePath = fileURLToPath(import.meta.url);
+    const modulePath = realpathSync(fileURLToPath(import.meta.url));
     return scriptPath === modulePath;
   } catch {
     return false;
