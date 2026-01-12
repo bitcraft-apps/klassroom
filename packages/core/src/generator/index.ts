@@ -10,6 +10,7 @@ import {
 import {
   createSubjectAveragesChart,
   createStudentAveragesChart,
+  createAggregateGradesPieChart,
 } from "../charts/index.js";
 import { renderChartToDataUrl, PLACEHOLDER_IMAGE } from "./render-charts.js";
 import {
@@ -34,7 +35,13 @@ import {
  * fs.writeFileSync("presentation.html", html);
  */
 export async function generatePresentation(data: ClassData): Promise<string> {
-  const { metadata, students, classAttendance } = data;
+  const {
+    metadata,
+    students,
+    classAttendance,
+    failureStatistics,
+    aggregateGradeDistribution,
+  } = data;
 
   // Calculate analytics
   const classAverage = calculateClassAverage(students);
@@ -46,10 +53,13 @@ export async function generatePresentation(data: ClassData): Promise<string> {
   // Create chart configs
   const subjectChartConfig = createSubjectAveragesChart(subjectAverages);
   const studentChartConfig = createStudentAveragesChart(students);
+  const aggregateGradesChartConfig = aggregateGradeDistribution
+    ? createAggregateGradesPieChart(aggregateGradeDistribution)
+    : null;
 
   // Render charts to base64 images in parallel
-  const renderChart = async (
-    config: typeof subjectChartConfig,
+  const renderChart = async <T extends string>(
+    config: import("../charts/types.js").ChartConfig<T> | null,
     label: string
   ): Promise<string | null> => {
     if (!config) return null;
@@ -61,10 +71,12 @@ export async function generatePresentation(data: ClassData): Promise<string> {
     }
   };
 
-  const [subjectChartImage, studentChartImage] = await Promise.all([
-    renderChart(subjectChartConfig, "subject averages"),
-    renderChart(studentChartConfig, "student averages"),
-  ]);
+  const [subjectChartImage, studentChartImage, aggregateGradesChartImage] =
+    await Promise.all([
+      renderChart(subjectChartConfig, "subject averages"),
+      renderChart(studentChartConfig, "student averages"),
+      renderChart(aggregateGradesChartConfig, "aggregate grades"),
+    ]);
 
   // Convert grade distribution to template-friendly format
   const gradeDistribution: GradeDistributionRow[] | null =
@@ -117,6 +129,9 @@ export async function generatePresentation(data: ClassData): Promise<string> {
     topStudents,
     // Convert undefined (ClassData convention) to null (PresentationData convention)
     classAttendance: classAttendance ?? null,
+    failureStatistics: failureStatistics ?? null,
+    aggregateGradeDistribution: aggregateGradeDistribution ?? null,
+    aggregateGradesPieChart: aggregateGradesChartImage,
   };
 
   return renderPresentation(presentationData);

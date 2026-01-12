@@ -214,6 +214,10 @@ export interface ClassData {
   students: Student[];
   /** Class-level attendance summary (optional - may not be available in all exports) */
   classAttendance?: ClassAttendance;
+  /** Class-level failure statistics (optional - may not be available in all exports) */
+  failureStatistics?: FailureStatistics;
+  /** Class-level aggregate grade distribution (optional - may not be available in all exports) */
+  aggregateGradeDistribution?: AggregateGradeDistribution;
 }
 
 // ============================================================================
@@ -253,5 +257,43 @@ export interface BehaviorCounts {
   acceptable: number;
   inappropriate: number;
   reprehensible: number;
+}
+
+/**
+ * Class-level failure statistics.
+ * Counts students by number of failing grades.
+ * Extracted from aggregate data in Vulcan export (not per-student).
+ */
+export interface FailureStatistics {
+  /** Students with no failing grades */
+  noFailingGrades: number;
+  /** Students with 1-2 failing grades */
+  oneToTwoFailingGrades: number;
+  /** Students with 3+ failing grades */
+  threeOrMoreFailingGrades: number;
+  /** Students who are unclassified */
+  unclassified: number;
+}
+
+/**
+ * Class-level aggregate grade distribution.
+ * Counts of final grades across all subjects and students.
+ * Extracted from aggregate data in Vulcan export (not per-student).
+ */
+export interface AggregateGradeDistribution {
+  /** Count of grade 6 (celujący / excellent) */
+  excellent: number;
+  /** Count of grade 5 (bardzo dobry / very good) */
+  veryGood: number;
+  /** Count of grade 4 (dobry / good) */
+  good: number;
+  /** Count of grade 3 (dostateczny / satisfactory) */
+  satisfactory: number;
+  /** Count of grade 2 (dopuszczający / acceptable) */
+  acceptable: number;
+  /** Count of grade 1 (niedostateczny / failing) */
+  failing: number;
+  /** Count of unclassified grades */
+  unclassified: number;
 }
 

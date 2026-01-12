@@ -5,7 +5,11 @@ import { stripStudentPII } from "../types/index.js";
 import { parseGradesSheet } from "./sheets/grades.js";
 import { parseAveragesSheet } from "./sheets/averages.js";
 import { parseMetadataSheet } from "./sheets/metadata.js";
-import { parseClassAttendance } from "./sheets/attendance.js";
+import {
+  parseClassAttendance,
+  parseFailureStatistics,
+  parseAggregateGradeDistribution,
+} from "./sheets/attendance.js";
 
 /**
  * All 6 sheet names that appear in Vulcan UONET+ XLSX exports.
@@ -124,10 +128,14 @@ export function parseVulcanXlsx(filePath: string): ClassData {
   const averagesSheet = workbook.Sheets[REQUIRED_SHEETS.AVERAGES]!;
   const averagesMap = parseAveragesSheet(averagesSheet);
 
-  // Parse optional class-level attendance from "Dodatkowe informacje 2"
+  // Parse optional class-level data from "Dodatkowe informacje 2"
   // Returns null if sheet missing or format not recognized
   const attendanceSheet = workbook.Sheets[OPTIONAL_SHEETS.ATTENDANCE];
   const classAttendance = attendanceSheet ? parseClassAttendance(attendanceSheet) : null;
+  const failureStatistics = attendanceSheet ? parseFailureStatistics(attendanceSheet) : null;
+  const aggregateGradeDistribution = attendanceSheet
+    ? parseAggregateGradeDistribution(attendanceSheet)
+    : null;
 
   // Build RawStudent records by correlating data across sheets
   // Note: Behavior comes from the grades sheet (embedded in column 2)
@@ -149,5 +157,7 @@ export function parseVulcanXlsx(filePath: string): ClassData {
     metadata,
     students,
     classAttendance: classAttendance ?? undefined,
+    failureStatistics: failureStatistics ?? undefined,
+    aggregateGradeDistribution: aggregateGradeDistribution ?? undefined,
   };
 }
