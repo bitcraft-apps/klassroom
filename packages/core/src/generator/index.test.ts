@@ -191,6 +191,38 @@ describe('generatePresentation', () => {
     });
   });
 
+  describe('meetingDate option', () => {
+    it('uses custom meeting date when provided', async () => {
+      const data = createClassData([]);
+
+      const html = await generatePresentation(data, { meetingDate: '15 stycznia 2026' });
+
+      expect(html).toContain('Data:</strong> 15 stycznia 2026');
+    });
+
+    it('uses current date when meetingDate not provided', async () => {
+      const data = createClassData([]);
+
+      const html = await generatePresentation(data);
+
+      // Should contain Polish-formatted current date (not a custom string)
+      expect(html).toMatch(
+        /Data:<\/strong>\s+\d{1,2}\s+(stycznia|lutego|marca|kwietnia|maja|czerwca|lipca|sierpnia|września|października|listopada|grudnia)\s+\d{4}/,
+      );
+    });
+
+    it('passes through meetingDate as-is without validation', async () => {
+      const data = createClassData([]);
+
+      // Various format examples that should all work (pass-through)
+      const html1 = await generatePresentation(data, { meetingDate: '15.01.2026' });
+      expect(html1).toContain('Data:</strong> 15.01.2026');
+
+      const html2 = await generatePresentation(data, { meetingDate: 'Styczeń 2026' });
+      expect(html2).toContain('Data:</strong> Styczeń 2026');
+    });
+  });
+
   describe('edge cases', () => {
     it('handles empty student list with zero values in overview', async () => {
       const data = createClassData([]);

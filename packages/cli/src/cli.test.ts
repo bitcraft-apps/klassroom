@@ -137,4 +137,46 @@ describe('generate function', () => {
     expect(result.success).toBe(true);
     expect(result.outputPath).toBe('/path/to/klasa-5b.html');
   });
+
+  it('passes date option to generator when provided', async () => {
+    vi.mocked(existsSync).mockReturnValue(true);
+    vi.mocked(parseVulcanXlsx).mockReturnValue({
+      metadata: {
+        className: '5b',
+        period: '2024/2025 - Semestr 1' as import('@klassroom/core').ClassPeriod,
+        teacher: 'Jan Kowalski',
+      },
+      students: [],
+    });
+    vi.mocked(generatePresentation).mockResolvedValue('<html>test</html>');
+    vi.mocked(writeFile).mockResolvedValue(undefined);
+
+    await generate('/path/to/klasa-5b.xlsx', { date: '15 stycznia 2026' });
+
+    expect(generatePresentation).toHaveBeenCalledWith(
+      expect.anything(),
+      { meetingDate: '15 stycznia 2026' },
+    );
+  });
+
+  it('calls generator without options when date not provided', async () => {
+    vi.mocked(existsSync).mockReturnValue(true);
+    vi.mocked(parseVulcanXlsx).mockReturnValue({
+      metadata: {
+        className: '5b',
+        period: '2024/2025 - Semestr 1' as import('@klassroom/core').ClassPeriod,
+        teacher: 'Jan Kowalski',
+      },
+      students: [],
+    });
+    vi.mocked(generatePresentation).mockResolvedValue('<html>test</html>');
+    vi.mocked(writeFile).mockResolvedValue(undefined);
+
+    await generate('/path/to/klasa-5b.xlsx');
+
+    expect(generatePresentation).toHaveBeenCalledWith(
+      expect.anything(),
+      undefined,
+    );
+  });
 });
