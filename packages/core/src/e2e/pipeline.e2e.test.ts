@@ -9,11 +9,13 @@
  */
 import { describe, it, expect, vi, beforeAll, afterAll } from 'vitest';
 import * as path from 'node:path';
+import * as fs from 'node:fs';
+import * as XLSX from 'xlsx';
 import { parseVulcanXlsx } from '../parser/index.js';
 import { generatePresentation } from '../generator/index.js';
-import { writeFixture } from './fixtures/generate-fixture.js';
+import { generateVulcanFixture } from './fixtures/generate-fixture.js';
 
-// Path to the synthetic test fixture (regenerated at test runtime)
+// Path to the committed synthetic test fixture (stable input for true E2E testing)
 const FIXTURE_PATH = path.join(import.meta.dirname, 'fixtures', 'sample-class.xlsx');
 
 // Fake names used in the fixture (for GDPR verification)
@@ -23,11 +25,7 @@ describe('E2E: Full Pipeline', () => {
   let html: string;
 
   beforeAll(async () => {
-    // Regenerate fixture at runtime to ensure it matches the generator
-    // This prevents the binary file from drifting out of sync
-    writeFixture(FIXTURE_PATH, { quiet: true });
-
-    // Parse the synthetic XLSX fixture
+    // Parse the committed XLSX fixture (stable input for true E2E testing)
     const classData = parseVulcanXlsx(FIXTURE_PATH);
 
     // Generate HTML presentation with a fixed date to ensure consistent snapshots
@@ -162,6 +160,31 @@ describe('E2E: Full Pipeline', () => {
         .trim();
 
       expect(structuralHtml).toMatchSnapshot();
+    });
+  });
+
+  describe('Fixture Integrity', () => {
+    it('committed fixture matches generator output', () => {
+      // This test ensures the committed XLSX file stays in sync with the generator.
+      // If this fails, regenerate the fixture: npx tsx packages/core/src/e2e/fixtures/generate-fixture.ts
+      const committedBuffer = fs.readFileSync(FIXTURE_PATH);
+      const committedWorkbook = XLSX.read(committedBuffer);
+      const generatedWorkbook = generateVulcanFixture();
+
+      // Compare sheet names
+      expect(committedWorkbook.SheetNames).toEqual(generatedWorkbook.SheetNames);
+
+      // Compare each sheet's data content
+      for (const sheetName of generatedWorkbook.SheetNames) {
+        const committedSheet = committedWorkbook.Sheets[sheetName];
+        const generatedSheet = generatedWorkbook.Sheets[sheetName];
+
+        // Convert to array-of-arrays for comparison (ignores XLSX metadata)
+        const committedData = XLSX.utils.sheet_to_json(committedSheet, { header: 1 });
+        const generatedData = XLSX.utils.sheet_to_json(generatedSheet, { header: 1 });
+
+        expect(committedData, `Sheet "${sheetName}" data mismatch`).toEqual(generatedData);
+      }
     });
   });
 });
