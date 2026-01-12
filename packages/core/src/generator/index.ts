@@ -5,6 +5,7 @@ import {
   calculateSubjectAverages,
   countGradesBySubject,
   countBehaviorGrades,
+  getTopStudents,
 } from "../analytics/index.js";
 import {
   createSubjectAveragesChart,
@@ -15,6 +16,7 @@ import {
   renderPresentation,
   type PresentationData,
   type GradeDistributionRow,
+  type TopStudentRow,
 } from "./template.js";
 
 /**
@@ -75,6 +77,15 @@ export async function generatePresentation(data: ClassData): Promise<string> {
   // Check if any behavior data exists
   const hasBehaviorData = Object.values(behaviorCounts).some((c) => c > 0);
 
+  // Get top students (4.75+ average) sorted by average desc, then number asc
+  const topStudentsData = getTopStudents(students);
+  const topStudents: TopStudentRow[] | null =
+    topStudentsData.length > 0
+      ? topStudentsData
+          .map(({ number, average }) => ({ number, average: average! }))
+          .sort((a, b) => b.average - a.average || a.number - b.number)
+      : null;
+
   // Format date in Polish
   const generatedDate = new Date().toLocaleDateString("pl-PL", {
     year: "numeric",
@@ -102,6 +113,7 @@ export async function generatePresentation(data: ClassData): Promise<string> {
     },
     gradeDistribution,
     behaviorCounts: hasBehaviorData ? behaviorCounts : null,
+    topStudents,
   };
 
   return renderPresentation(presentationData);
