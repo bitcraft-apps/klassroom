@@ -288,3 +288,23 @@ export interface BehaviorCounts {
   inappropriate: number;
   reprehensible: number;
 }
+
+/**
+ * Class-wide attendance statistics.
+ */
+export interface ClassAttendanceStats {
+  /** Class average attendance percentage (0 if no valid data) */
+  averagePercentage: number;
+  /** Sum of all present counts across students */
+  totalPresent: number;
+  /** Sum of all unexcused absences across students */
+  totalAbsent: number;
+  /** Sum of all excused absences across students */
+  totalExcused: number;
+  /** Sum of all late arrivals across students */
+  totalLate: number;
+  /** Count of students with <90% attendance */
+  studentsBelow90: number;
+  /** Count of students with <80% attendance */
+  studentsBelow80: number;
+}

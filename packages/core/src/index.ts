@@ -15,6 +15,7 @@ export type {
   GradeCounts,
   AverageRangeCounts,
   BehaviorCounts,
+  ClassAttendanceStats,
 } from "./types/index.js";
 
 // Factory functions for branded types
@@ -51,6 +52,9 @@ export {
   HONORS_THRESHOLD,
   // Behavior statistics
   countBehaviorGrades,
+  // Attendance statistics
+  calculateClassAttendance,
+  getStudentsWithLowAttendance,
 } from "./analytics/index.js";
 
 // Charts
