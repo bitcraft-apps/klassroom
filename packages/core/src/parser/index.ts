@@ -1,11 +1,11 @@
 import * as fs from "node:fs";
 import * as XLSX from "xlsx";
-import type { AttendanceStats, ClassData, RawStudent, Student } from "../types/index.js";
+import type { ClassData, RawStudent, Student } from "../types/index.js";
 import { stripStudentPII } from "../types/index.js";
 import { parseGradesSheet } from "./sheets/grades.js";
 import { parseAveragesSheet } from "./sheets/averages.js";
 import { parseMetadataSheet } from "./sheets/metadata.js";
-import { parseAttendanceSheet } from "./sheets/attendance.js";
+import { parseClassAttendance } from "./sheets/attendance.js";
 
 /**
  * All 6 sheet names that appear in Vulcan UONET+ XLSX exports.
@@ -124,17 +124,10 @@ export function parseVulcanXlsx(filePath: string): ClassData {
   const averagesSheet = workbook.Sheets[REQUIRED_SHEETS.AVERAGES]!;
   const averagesMap = parseAveragesSheet(averagesSheet);
 
-  // Parse optional attendance sheet if present
-  // Wrapped in try-catch: sheet may exist but have unrecognized format
+  // Parse optional class-level attendance from "Dodatkowe informacje 2"
+  // Returns null if sheet missing or format not recognized
   const attendanceSheet = workbook.Sheets[OPTIONAL_SHEETS.ATTENDANCE];
-  let attendanceMap: Map<string, AttendanceStats> = new Map();
-  if (attendanceSheet) {
-    try {
-      attendanceMap = parseAttendanceSheet(attendanceSheet);
-    } catch {
-      // Sheet exists but format not recognized - continue without attendance data
-    }
-  }
+  const classAttendance = attendanceSheet ? parseClassAttendance(attendanceSheet) : null;
 
   // Build RawStudent records by correlating data across sheets
   // Note: Behavior comes from the grades sheet (embedded in column 2)
@@ -145,7 +138,6 @@ export function parseVulcanXlsx(filePath: string): ClassData {
       grades: row.grades,
       average: averagesMap.get(row.name),
       behavior: row.behavior,
-      attendance: attendanceMap.get(row.name),
     };
     return rawStudent;
   });
@@ -156,5 +148,6 @@ export function parseVulcanXlsx(filePath: string): ClassData {
   return {
     metadata,
     students,
+    classAttendance: classAttendance ?? undefined,
   };
 }

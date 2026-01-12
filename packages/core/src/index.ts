@@ -6,7 +6,7 @@ export type {
   ClassPeriod,
   BehaviorGrade,
   Grade,
-  AttendanceStats,
+  ClassAttendance,
   Student,
   ClassMetadata,
   ClassData,
@@ -15,7 +15,6 @@ export type {
   GradeCounts,
   AverageRangeCounts,
   BehaviorCounts,
-  ClassAttendanceStats,
 } from "./types/index.js";
 
 // Factory functions for branded types
@@ -26,7 +25,6 @@ export {
   parseBehaviorGrade,
   behaviorToIndex,
   compareBehavior,
-  calculateAttendancePercentage,
 } from "./types/index.js";
 
 // Constants
@@ -52,9 +50,6 @@ export {
   HONORS_THRESHOLD,
   // Behavior statistics
   countBehaviorGrades,
-  // Attendance statistics
-  calculateClassAttendance,
-  getStudentsWithLowAttendance,
 } from "./analytics/index.js";
 
 // Charts

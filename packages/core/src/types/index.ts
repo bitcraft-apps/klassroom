@@ -127,47 +127,14 @@ export interface Grade {
 }
 
 /**
- * Student attendance statistics.
- * All counts are absolute numbers of hours/lessons.
+ * Class-level attendance summary.
+ * Extracted from aggregate data in Vulcan export (not per-student).
  */
-export interface AttendanceStats {
-  /** Number of lessons attended */
-  present: number;
-  /** Number of unexcused absences */
-  absent: number;
-  /** Number of excused absences */
-  excused: number;
-  /** Number of times arrived late */
-  late: number;
-  /**
-   * Attendance percentage (0-100). Optional because some exports
-   * only include raw counts without a pre-calculated percentage.
-   */
-  percentage?: number;
-}
-
-/**
- * Calculates attendance percentage from raw counts.
- * Formula: (present / (present + absent + excused)) * 100
- *
- * Note: "late" is not included in the calculation as students who are
- * late are still counted as present for that lesson.
- *
- * @param stats - The attendance statistics
- * @returns Percentage (0-100), or null if no attendance data (all counts are 0)
- *
- * @example
- * calculateAttendancePercentage({ present: 90, absent: 5, excused: 5, late: 3 })  // 90
- * calculateAttendancePercentage({ present: 0, absent: 0, excused: 0, late: 0 })   // null
- */
-export function calculateAttendancePercentage(
-  stats: Pick<AttendanceStats, "present" | "absent" | "excused">
-): number | null {
-  const total = stats.present + stats.absent + stats.excused;
-  if (total === 0) {
-    return null; // No attendance data
-  }
-  return (stats.present / total) * 100;
+export interface ClassAttendance {
+  /** Class average attendance percentage (0-100) */
+  percentage: number;
+  /** Date when the attendance was calculated (e.g., "10.01.2026") */
+  date?: string;
 }
 
 /**
@@ -191,7 +158,6 @@ export interface RawStudent {
   /** Overall grade average from "Średnia uczniów" sheet */
   average?: number;
   behavior?: BehaviorGrade;
-  attendance?: AttendanceStats;
 }
 
 /**
@@ -210,7 +176,6 @@ export function stripStudentPII(raw: RawStudent): Student {
     grades: raw.grades,
     average: raw.average,
     behavior: raw.behavior,
-    attendance: raw.attendance,
   };
 }
 
@@ -226,7 +191,6 @@ export interface Student {
   /** Overall grade average from "Średnia uczniów" sheet */
   average?: number;
   behavior?: BehaviorGrade;
-  attendance?: AttendanceStats;
 }
 
 /**
@@ -248,6 +212,8 @@ export interface ClassMetadata {
 export interface ClassData {
   metadata: ClassMetadata;
   students: Student[];
+  /** Class-level attendance summary (optional - may not be available in all exports) */
+  classAttendance?: ClassAttendance;
 }
 
 // ============================================================================
@@ -289,22 +255,3 @@ export interface BehaviorCounts {
   reprehensible: number;
 }
 
-/**
- * Class-wide attendance statistics.
- */
-export interface ClassAttendanceStats {
-  /** Class average attendance percentage (0 if no valid data) */
-  averagePercentage: number;
-  /** Sum of all present counts across students */
-  totalPresent: number;
-  /** Sum of all unexcused absences across students */
-  totalAbsent: number;
-  /** Sum of all excused absences across students */
-  totalExcused: number;
-  /** Sum of all late arrivals across students */
-  totalLate: number;
-  /** Count of students with <90% attendance */
-  studentsBelow90: number;
-  /** Count of students with <80% attendance */
-  studentsBelow80: number;
-}

@@ -24,7 +24,7 @@ function createTestPresentationData(
     gradeDistribution: null,
     behaviorCounts: null,
     topStudents: null,
-    attendanceStats: null,
+    classAttendance: null,
     ...overrides,
   };
 }
@@ -222,36 +222,22 @@ describe("renderPresentation - topStudents slide", () => {
 describe("renderPresentation - attendance slide", () => {
   it("renders attendance slide with Polish labels", () => {
     const data = createTestPresentationData({
-      attendanceStats: {
-        averagePercentage: 92.5,
-        totalPresent: 1850,
-        totalAbsent: 100,
-        totalExcused: 50,
-        totalLate: 30,
-        studentsBelow90: 3,
-        studentsBelow80: 1,
+      classAttendance: {
+        percentage: 92.5,
+        date: "10.01.2026",
       },
     });
 
     const html = renderPresentation(data);
 
     expect(html).toContain("Frekwencja");
-    expect(html).toContain("Średnia frekwencja");
-    expect(html).toContain("Obecności");
-    expect(html).toContain("Nieobecności");
-    expect(html).toContain("Spóźnienia");
+    expect(html).toContain("Średnia frekwencja klasy");
   });
 
   it("formats percentage with comma as decimal separator (Polish)", () => {
     const data = createTestPresentationData({
-      attendanceStats: {
-        averagePercentage: 92.5,
-        totalPresent: 1850,
-        totalAbsent: 100,
-        totalExcused: 50,
-        totalLate: 30,
-        studentsBelow90: 3,
-        studentsBelow80: 1,
+      classAttendance: {
+        percentage: 92.5,
       },
     });
 
@@ -260,29 +246,34 @@ describe("renderPresentation - attendance slide", () => {
     expect(html).toContain("92,5%");
   });
 
-  it("displays attendance values correctly", () => {
+  it("displays date when available", () => {
     const data = createTestPresentationData({
-      attendanceStats: {
-        averagePercentage: 95.0,
-        totalPresent: 1000,
-        totalAbsent: 50,
-        totalExcused: 25,
-        totalLate: 15,
-        studentsBelow90: 2,
-        studentsBelow80: 0,
+      classAttendance: {
+        percentage: 88.93,
+        date: "10.01.2026",
       },
     });
 
     const html = renderPresentation(data);
 
-    expect(html).toContain(">1000</div>");
-    expect(html).toContain(">50</div>");
-    expect(html).toContain(">15</div>");
+    expect(html).toContain("stan na 10.01.2026");
+  });
+
+  it("skips date when not available", () => {
+    const data = createTestPresentationData({
+      classAttendance: {
+        percentage: 88.93,
+      },
+    });
+
+    const html = renderPresentation(data);
+
+    expect(html).not.toContain("stan na");
   });
 
   it("skips slide when attendance data is null", () => {
     const data = createTestPresentationData({
-      attendanceStats: null,
+      classAttendance: null,
     });
 
     const html = renderPresentation(data);
@@ -290,36 +281,23 @@ describe("renderPresentation - attendance slide", () => {
     expect(html).not.toContain("Frekwencja");
   });
 
-  it("shows dash when no attendance data (guards against division by zero)", () => {
+  it("displays zero percentage correctly", () => {
     const data = createTestPresentationData({
-      attendanceStats: {
-        averagePercentage: 0,
-        totalPresent: 0,
-        totalAbsent: 0,
-        totalExcused: 0,
-        totalLate: 0,
-        studentsBelow90: 0,
-        studentsBelow80: 0,
+      classAttendance: {
+        percentage: 0,
       },
     });
 
     const html = renderPresentation(data);
 
-    // Should show "-" for percentage when no data
-    expect(html).toContain(">-</div>");
+    expect(html).toContain("0,0%");
   });
 
   it("renders slide between top students and behavior", () => {
     const data = createTestPresentationData({
       topStudents: [{ number: studentNumber(1), average: 5.0 }],
-      attendanceStats: {
-        averagePercentage: 90.0,
-        totalPresent: 1000,
-        totalAbsent: 100,
-        totalExcused: 50,
-        totalLate: 20,
-        studentsBelow90: 2,
-        studentsBelow80: 1,
+      classAttendance: {
+        percentage: 90.0,
       },
       behaviorCounts: {
         exemplary: 1,

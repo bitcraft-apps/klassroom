@@ -1,4 +1,4 @@
-import type { BehaviorCounts, ClassAttendanceStats, GradeCounts, StudentNumber } from "../types/index.js";
+import type { BehaviorCounts, ClassAttendance, GradeCounts, StudentNumber } from "../types/index.js";
 
 /**
  * GDPR-safe row for top students slide.
@@ -33,7 +33,7 @@ export interface PresentationData {
   gradeDistribution: GradeDistributionRow[] | null;
   behaviorCounts: BehaviorCounts | null;
   topStudents: TopStudentRow[] | null;
-  attendanceStats: ClassAttendanceStats | null;
+  classAttendance: ClassAttendance | null;
 }
 
 export interface GradeDistributionRow {
@@ -355,17 +355,17 @@ function renderTopStudentsSlide(data: PresentationData): string {
 }
 
 function renderAttendanceSlide(data: PresentationData): string {
-  if (!data.attendanceStats) {
+  if (!data.classAttendance) {
     return "";
   }
 
-  const { averagePercentage, totalPresent, totalAbsent, totalLate } = data.attendanceStats;
+  const { percentage, date } = data.classAttendance;
 
-  // Guard against division by zero: show "-" if no attendance data
-  const hasData = totalPresent > 0 || totalAbsent > 0;
-  const formattedPercentage = hasData
-    ? `${averagePercentage.toFixed(1).replace(".", ",")}%`
-    : "-";
+  // Format percentage with Polish decimal separator (comma)
+  const formattedPercentage = `${percentage.toFixed(1).replace(".", ",")}%`;
+
+  // Show date if available
+  const dateInfo = date ? ` (stan na ${date})` : "";
 
   return `
   <section class="slide">
@@ -373,19 +373,7 @@ function renderAttendanceSlide(data: PresentationData): string {
     <div class="stats-grid">
       <div class="stat-card">
         <div class="value">${formattedPercentage}</div>
-        <div class="label">Średnia frekwencja</div>
-      </div>
-      <div class="stat-card">
-        <div class="value">${totalPresent}</div>
-        <div class="label">Obecności</div>
-      </div>
-      <div class="stat-card">
-        <div class="value">${totalAbsent}</div>
-        <div class="label">Nieobecności</div>
-      </div>
-      <div class="stat-card">
-        <div class="value">${totalLate}</div>
-        <div class="label">Spóźnienia</div>
+        <div class="label">Średnia frekwencja klasy${dateInfo}</div>
       </div>
     </div>
   </section>`;
