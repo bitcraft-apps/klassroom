@@ -128,6 +128,19 @@ describe("renderPresentation - topStudents slide", () => {
     expect(html).toContain("(3 uczniów)");
   });
 
+  it("uses singular form for one student (Polish grammar)", () => {
+    const data = createTestPresentationData({
+      topStudents: [
+        { number: studentNumber(1), average: 5.00 },
+      ],
+    });
+
+    const html = renderPresentation(data);
+
+    expect(html).toContain("(1 uczeń)");
+    expect(html).not.toContain("(1 uczniów)");
+  });
+
   it("displays student numbers only (GDPR)", () => {
     const data = createTestPresentationData({
       topStudents: [

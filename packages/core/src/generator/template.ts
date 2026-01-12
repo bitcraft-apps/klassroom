@@ -328,10 +328,13 @@ function renderTopStudentsSlide(data: PresentationData): string {
     )
     .join("");
 
+  // Polish grammar: 1 uczeń (singular), 2+ uczniów (genitive plural)
+  const studentLabel = data.topStudents.length === 1 ? "uczeń" : "uczniów";
+
   return `
   <section class="slide">
     <h2>Najwyższe średnie</h2>
-    <p style="font-size: 1.25rem; color: #6b7280; margin-bottom: 1rem;">Średnia 4,75 i wyżej (${data.topStudents.length} uczniów)</p>
+    <p style="font-size: 1.25rem; color: #6b7280; margin-bottom: 1rem;">Średnia 4,75 i wyżej (${data.topStudents.length} ${studentLabel})</p>
     <table>
       <thead>
         <tr>

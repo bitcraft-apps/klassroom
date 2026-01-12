@@ -78,6 +78,7 @@ export async function generatePresentation(data: ClassData): Promise<string> {
   const hasBehaviorData = Object.values(behaviorCounts).some((c) => c > 0);
 
   // Get top students (4.75+ average) sorted by average desc, then number asc
+  // Note: getTopStudents filters to students with defined averages, so average! is safe
   const topStudentsData = getTopStudents(students);
   const topStudents: TopStudentRow[] | null =
     topStudentsData.length > 0
