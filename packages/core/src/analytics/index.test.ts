@@ -459,6 +459,40 @@ describe("countStudentsBySubject", () => {
 
     expect(counts.get("Math")).toBe(2);
   });
+
+  it("counts only students who have the subject in their grades array", () => {
+    const students = [
+      createStudent(1, [
+        { subject: "Math", value: "5" },
+        { subject: "Health Ed", value: "5" },
+      ]),
+      createStudent(2, [
+        { subject: "Math", value: "4" },
+        // Health Ed completely absent from this student
+      ]),
+      createStudent(3, [
+        { subject: "Math", value: "5" },
+        { subject: "Health Ed", value: "4" },
+      ]),
+    ];
+
+    const counts = countStudentsBySubject(students);
+
+    expect(counts.get("Math")).toBe(3);
+    expect(counts.get("Health Ed")).toBe(2);
+  });
+
+  it("handles 'zwolniony' with leading/trailing whitespace", () => {
+    const students = [
+      createStudent(1, [{ subject: "PE", value: " zwolniony " }]),
+      createStudent(2, [{ subject: "PE", value: "zwolniony  " }]),
+      createStudent(3, [{ subject: "PE", value: "5" }]),
+    ];
+
+    const counts = countStudentsBySubject(students);
+
+    expect(counts.get("PE")).toBe(1);
+  });
 });
 
 describe("getOptionalSubjects", () => {
@@ -535,5 +569,26 @@ describe("getOptionalSubjects", () => {
     const optional = getOptionalSubjects(students);
 
     expect(optional).toEqual(["PE"]);
+  });
+
+  it("detects optional subjects when completely absent from some students", () => {
+    const students = [
+      createStudent(1, [
+        { subject: "Math", value: "5" },
+        { subject: "Health Ed", value: "5" },
+      ]),
+      createStudent(2, [
+        { subject: "Math", value: "4" },
+        // Health Ed completely absent - student not enrolled
+      ]),
+      createStudent(3, [
+        { subject: "Math", value: "5" },
+        // Health Ed completely absent - student not enrolled
+      ]),
+    ];
+
+    const optional = getOptionalSubjects(students);
+
+    expect(optional).toEqual(["Health Ed"]);
   });
 });
