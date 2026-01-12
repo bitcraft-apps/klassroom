@@ -162,6 +162,11 @@ tr:hover {
   font-style: italic;
   padding: 3rem;
 }
+.slide-subtitle {
+  font-size: 1.25rem;
+  color: #6b7280;
+  margin-bottom: 1rem;
+}
 @media print {
   body {
     background: white;
@@ -334,7 +339,7 @@ function renderTopStudentsSlide(data: PresentationData): string {
   return `
   <section class="slide">
     <h2>Najwyższe średnie</h2>
-    <p style="font-size: 1.25rem; color: #6b7280; margin-bottom: 1rem;">Średnia 4,75 i wyżej (${data.topStudents.length} ${studentLabel})</p>
+    <p class="slide-subtitle">Średnia 4,75 i wyżej (${data.topStudents.length} ${studentLabel})</p>
     <table>
       <thead>
         <tr>

@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { escapeHtml, safeDataUrl, renderPresentation, type PresentationData } from "./template.js";
-import { studentNumber, classPeriod } from "../types/index.js";
+import { studentNumber } from "../types/index.js";
 
 function createTestPresentationData(
   overrides: Partial<PresentationData> = {}
