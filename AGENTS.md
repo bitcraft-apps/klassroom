@@ -38,7 +38,7 @@ Vulcan UONET+ "additional internal documentation" XLSX export contains 6 Polish-
 | **Okres klasyfikacyjny** | Grades matrix with embedded behavior | ✅ Required |
 | **Dodatkowe informacje 1** | Class metadata (horizontal form) | ✅ Required |
 | **Średnia uczniów** | Student averages | ✅ Required |
-| **Dodatkowe informacje 2** | Attendance stats | ✅ Optional |
+| **Dodatkowe informacje 2** | Class-level summaries (attendance %, grade counts) | ✅ Optional |
 | **Zachowanie** | Behavior summary (counts only) | ❌ Not parsed |
 | **Informacje o uczniach** | Student details | ❌ Not parsed |
 
@@ -59,11 +59,14 @@ Vulcan UONET+ "additional internal documentation" XLSX export contains 6 Polish-
 - Row 0: Headers `["Numer w dzienniku", "Dane ucznia", "Średnia"]`
 - Row 1+: Student data `[number, name, average]`
 
-**Dodatkowe informacje 2 (Attendance)**:
-- Row 0: Headers containing student name and attendance columns (column order may vary)
-- Row 1+: Student data with attendance counts
-- Parser matches columns by Polish header patterns (e.g., "Dane ucznia", "Obecności", "Nieobecności", "Spóźnienia")
-- Missing columns default to 0
+**Dodatkowe informacje 2 (Class Summaries)**:
+- Contains class-level aggregate data, NOT per-student records
+- Row 0: Title `"Dodatkowe informacje dla oddziału {class} w roku szkolnym {year}"`
+- Rows 2-4: Basic info (teacher name, etc.)
+- Rows 5-16: Daily student counts
+- Rows 17-20: Attendance summary with `["Frekwencja", "Stan %"]` header, then `[date, percentage]`
+- Rows 24+: Behavior and grade distribution counts
+- Parser extracts only the class attendance percentage from the "Frekwencja" / "Stan %" section
 
 ### Behavior Grade Mapping
 
