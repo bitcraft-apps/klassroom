@@ -66,9 +66,7 @@ export async function generatePresentation(data: ClassData): Promise<string> {
     try {
       return await renderChartToDataUrl(config);
     } catch (error) {
-      if (process.env.NODE_ENV !== 'test') {
-        console.warn(`Failed to render ${label} chart:`, error);
-      }
+      console.warn(`Failed to render ${label} chart:`, error);
       return PLACEHOLDER_IMAGE;
     }
   };
