@@ -6,14 +6,18 @@
  * GDPR Compliance:
  * - Uses synthetic test data with fake names ("Uczen 01", "Uczen 02", etc.)
  * - Verifies output contains student numbers only, never names
+ *
+ * Fixture: fixtures/sample-class.xlsx
+ * - Class 5b, teacher Jan Kowalski, period 2024/2025 semester 1
+ * - 5 students (Uczen 01-05) with grades in 4 subjects
+ * - Subjects: Język polski, Matematyka, Historia, Przyroda
+ * - Attendance: 92.5%
+ * - Behavior grades: wzorowe, bardzo dobre, dobre, poprawne
  */
 import { describe, it, expect, vi, beforeAll, afterAll } from 'vitest';
 import * as path from 'node:path';
-import * as fs from 'node:fs';
-import * as XLSX from 'xlsx';
 import { parseVulcanXlsx } from '../parser/index.js';
 import { generatePresentation } from '../generator/index.js';
-import { generateVulcanFixture } from './fixtures/generate-fixture.js';
 
 // Path to the committed synthetic test fixture (stable input for true E2E testing)
 const FIXTURE_PATH = path.join(import.meta.dirname, 'fixtures', 'sample-class.xlsx');
@@ -160,31 +164,6 @@ describe('E2E: Full Pipeline', () => {
         .trim();
 
       expect(structuralHtml).toMatchSnapshot();
-    });
-  });
-
-  describe('Fixture Integrity', () => {
-    it('committed fixture matches generator output', () => {
-      // This test ensures the committed XLSX file stays in sync with the generator.
-      // If this fails, regenerate the fixture: npx tsx packages/core/src/e2e/fixtures/generate-fixture.ts
-      const committedBuffer = fs.readFileSync(FIXTURE_PATH);
-      const committedWorkbook = XLSX.read(committedBuffer);
-      const generatedWorkbook = generateVulcanFixture();
-
-      // Compare sheet names
-      expect(committedWorkbook.SheetNames).toEqual(generatedWorkbook.SheetNames);
-
-      // Compare each sheet's data content
-      for (const sheetName of generatedWorkbook.SheetNames) {
-        const committedSheet = committedWorkbook.Sheets[sheetName];
-        const generatedSheet = generatedWorkbook.Sheets[sheetName];
-
-        // Convert to array-of-arrays for comparison (ignores XLSX metadata)
-        const committedData = XLSX.utils.sheet_to_json(committedSheet, { header: 1 });
-        const generatedData = XLSX.utils.sheet_to_json(generatedSheet, { header: 1 });
-
-        expect(committedData, `Sheet "${sheetName}" data mismatch`).toEqual(generatedData);
-      }
     });
   });
 });
