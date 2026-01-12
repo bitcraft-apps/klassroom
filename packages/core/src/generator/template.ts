@@ -178,6 +178,11 @@ tr:hover {
   color: #6b7280;
   margin-bottom: 1rem;
 }
+.section-heading {
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+  color: #374151;
+}
 @media print {
   body {
     background: white;
@@ -389,7 +394,7 @@ function renderAttendanceSlide(data: PresentationData): string {
     const { noFailingGrades, oneToTwoFailingGrades, threeOrMoreFailingGrades, unclassified } =
       data.failureStatistics;
     failureStatsHtml = `
-    <h3 style="margin-top: 2rem; margin-bottom: 1rem; color: #374151;">Zagrożenia</h3>
+    <h3 class="section-heading">Zagrożenia</h3>
     <table>
       <thead>
         <tr>
