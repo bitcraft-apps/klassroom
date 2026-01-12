@@ -18,3 +18,6 @@ export {
 
 // Behavior statistics
 export { countBehaviorGrades } from "./behavior.js";
+
+// Subject enrollment statistics
+export { countStudentsBySubject, getOptionalSubjects } from "./subjects.js";
