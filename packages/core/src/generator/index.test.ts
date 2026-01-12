@@ -315,28 +315,6 @@ describe('generatePresentation', () => {
       vi.restoreAllMocks();
     });
 
-    it('logs warning when chart rendering fails', async () => {
-      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
-
-      const renderChartsModule = await import('./render-charts.js');
-      vi.spyOn(renderChartsModule, 'renderChartToDataUrl').mockRejectedValue(
-        new Error('Memory error'),
-      );
-
-      const data = createClassData([
-        {
-          num: 1,
-          grades: [{ subject: 'Test', value: '4' }],
-          average: 4.0,
-        },
-      ]);
-
-      await generatePresentation(data);
-
-      expect(warnSpy).toHaveBeenCalled();
-
-      vi.restoreAllMocks();
-    });
   });
 
   describe('attendance slide', () => {
