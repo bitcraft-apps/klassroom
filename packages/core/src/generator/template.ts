@@ -1,4 +1,4 @@
-import type { BehaviorCounts, GradeCounts, StudentNumber } from "../types/index.js";
+import type { BehaviorCounts, ClassAttendanceStats, GradeCounts, StudentNumber } from "../types/index.js";
 
 /**
  * GDPR-safe row for top students slide.
@@ -33,6 +33,7 @@ export interface PresentationData {
   gradeDistribution: GradeDistributionRow[] | null;
   behaviorCounts: BehaviorCounts | null;
   topStudents: TopStudentRow[] | null;
+  attendanceStats: ClassAttendanceStats | null;
 }
 
 export interface GradeDistributionRow {
@@ -353,6 +354,43 @@ function renderTopStudentsSlide(data: PresentationData): string {
   </section>`;
 }
 
+function renderAttendanceSlide(data: PresentationData): string {
+  if (!data.attendanceStats) {
+    return "";
+  }
+
+  const { averagePercentage, totalPresent, totalAbsent, totalLate } = data.attendanceStats;
+
+  // Guard against division by zero: show "-" if no attendance data
+  const hasData = totalPresent > 0 || totalAbsent > 0;
+  const formattedPercentage = hasData
+    ? `${averagePercentage.toFixed(1).replace(".", ",")}%`
+    : "-";
+
+  return `
+  <section class="slide">
+    <h2>Frekwencja</h2>
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="value">${formattedPercentage}</div>
+        <div class="label">Średnia frekwencja</div>
+      </div>
+      <div class="stat-card">
+        <div class="value">${totalPresent}</div>
+        <div class="label">Obecności</div>
+      </div>
+      <div class="stat-card">
+        <div class="value">${totalAbsent}</div>
+        <div class="label">Nieobecności</div>
+      </div>
+      <div class="stat-card">
+        <div class="value">${totalLate}</div>
+        <div class="label">Spóźnienia</div>
+      </div>
+    </div>
+  </section>`;
+}
+
 function renderBehaviorSlide(data: PresentationData): string {
   if (!data.behaviorCounts) {
     return `
@@ -452,7 +490,7 @@ export function renderPresentation(data: PresentationData): string {
   <title>Zebranie z rodzicami - ${escapeHtml(data.metadata.className)}</title>
   <style>${STYLES}</style>
 </head>
-<body>${renderTitleSlide(data)}${renderOverviewSlide(data)}${renderSubjectAveragesSlide(data)}${renderGradeDistributionSlide(data)}${renderStudentAveragesSlide(data)}${renderTopStudentsSlide(data)}${renderBehaviorSlide(data)}
+<body>${renderTitleSlide(data)}${renderOverviewSlide(data)}${renderSubjectAveragesSlide(data)}${renderGradeDistributionSlide(data)}${renderStudentAveragesSlide(data)}${renderTopStudentsSlide(data)}${renderAttendanceSlide(data)}${renderBehaviorSlide(data)}
 </body>
 </html>`;
 }

@@ -6,6 +6,7 @@ import {
   countGradesBySubject,
   countBehaviorGrades,
   getTopStudents,
+  calculateClassAttendance,
 } from "../analytics/index.js";
 import {
   createSubjectAveragesChart,
@@ -42,6 +43,7 @@ export async function generatePresentation(data: ClassData): Promise<string> {
   const subjectAverages = calculateSubjectAverages(students);
   const gradesBySubject = countGradesBySubject(students);
   const behaviorCounts = countBehaviorGrades(students);
+  const attendanceStats = calculateClassAttendance(students);
 
   // Create chart configs
   const subjectChartConfig = createSubjectAveragesChart(subjectAverages);
@@ -76,6 +78,10 @@ export async function generatePresentation(data: ClassData): Promise<string> {
 
   // Check if any behavior data exists
   const hasBehaviorData = Object.values(behaviorCounts).some((c) => c > 0);
+
+  // Check if any attendance data exists
+  const hasAttendanceData =
+    attendanceStats.totalPresent > 0 || attendanceStats.totalAbsent > 0;
 
   // Get top students (4.75+ average) sorted by average desc, then number asc
   // Note: getTopStudents filters to students with defined averages, so average! is safe
@@ -115,6 +121,7 @@ export async function generatePresentation(data: ClassData): Promise<string> {
     gradeDistribution,
     behaviorCounts: hasBehaviorData ? behaviorCounts : null,
     topStudents,
+    attendanceStats: hasAttendanceData ? attendanceStats : null,
   };
 
   return renderPresentation(presentationData);
