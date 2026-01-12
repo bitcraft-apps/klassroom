@@ -1,4 +1,4 @@
-import type { BehaviorCounts, GradeCounts, StudentNumber } from "../types/index.js";
+import type { BehaviorCounts, ClassAttendance, GradeCounts, StudentNumber } from "../types/index.js";
 
 /**
  * GDPR-safe row for top students slide.
@@ -33,6 +33,7 @@ export interface PresentationData {
   gradeDistribution: GradeDistributionRow[] | null;
   behaviorCounts: BehaviorCounts | null;
   topStudents: TopStudentRow[] | null;
+  classAttendance: ClassAttendance | null;
 }
 
 export interface GradeDistributionRow {
@@ -353,6 +354,31 @@ function renderTopStudentsSlide(data: PresentationData): string {
   </section>`;
 }
 
+function renderAttendanceSlide(data: PresentationData): string {
+  if (!data.classAttendance) {
+    return "";
+  }
+
+  const { percentage, date } = data.classAttendance;
+
+  // Format percentage with Polish decimal separator (comma)
+  const formattedPercentage = `${percentage.toFixed(1).replace(".", ",")}%`;
+
+  // Show date if available
+  const dateInfo = date ? ` (stan na ${date})` : "";
+
+  return `
+  <section class="slide">
+    <h2>Frekwencja</h2>
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="value">${formattedPercentage}</div>
+        <div class="label">Średnia frekwencja klasy${dateInfo}</div>
+      </div>
+    </div>
+  </section>`;
+}
+
 function renderBehaviorSlide(data: PresentationData): string {
   if (!data.behaviorCounts) {
     return `
@@ -452,7 +478,7 @@ export function renderPresentation(data: PresentationData): string {
   <title>Zebranie z rodzicami - ${escapeHtml(data.metadata.className)}</title>
   <style>${STYLES}</style>
 </head>
-<body>${renderTitleSlide(data)}${renderOverviewSlide(data)}${renderSubjectAveragesSlide(data)}${renderGradeDistributionSlide(data)}${renderStudentAveragesSlide(data)}${renderTopStudentsSlide(data)}${renderBehaviorSlide(data)}
+<body>${renderTitleSlide(data)}${renderOverviewSlide(data)}${renderSubjectAveragesSlide(data)}${renderGradeDistributionSlide(data)}${renderStudentAveragesSlide(data)}${renderTopStudentsSlide(data)}${renderAttendanceSlide(data)}${renderBehaviorSlide(data)}
 </body>
 </html>`;
 }

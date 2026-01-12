@@ -5,7 +5,7 @@ import { parseVulcanXlsx, detectFormat } from "./index.js";
 import { parseGradesSheet } from "./sheets/grades.js";
 import { parseAveragesSheet } from "./sheets/averages.js";
 import { parseMetadataSheet } from "./sheets/metadata.js";
-import { parseAttendanceSheet } from "./sheets/attendance.js";
+import { parseClassAttendance } from "./sheets/attendance.js";
 
 // Mock fs module
 vi.mock("node:fs");
@@ -146,11 +146,12 @@ describe("parseVulcanXlsx", () => {
       ["Oddział", "3A", "Wychowawca", null, null, "Maria Wiśniewska"],
     ];
 
-    // Attendance sheet: [name, present, absent, excused, late]
+    // Attendance sheet: class-level summary format
     const attendanceSheetData = [
-      ["Dane ucznia", "Obecności", "Nieobecności nieusprawiedliwione", "Nieobecności usprawiedliwione", "Spóźnienia"],
-      ["Jan Kowalski", 90, 5, 3, 2],
-      ["Anna Nowak", 85, 10, 5, 1],
+      ["Dodatkowe informacje"],
+      [],
+      ["Frekwencja", "Stan %"],
+      ["10.01.2026", 88.93],
     ];
 
     // Mock workbook with all 6 Vulcan sheets (format detection requires 4+)
@@ -199,13 +200,6 @@ describe("parseVulcanXlsx", () => {
       ],
       average: 4.5,
       behavior: "exemplary",
-      attendance: {
-        present: 90,
-        absent: 5,
-        excused: 3,
-        late: 2,
-        percentage: expect.closeTo(91.84, 1), // 90/(90+5+3)*100
-      },
     });
 
     expect(result.students[1]).toEqual({
@@ -216,13 +210,12 @@ describe("parseVulcanXlsx", () => {
       ],
       average: 4.0,
       behavior: "veryGood",
-      attendance: {
-        present: 85,
-        absent: 10,
-        excused: 5,
-        late: 1,
-        percentage: 85, // 85/(85+10+5)*100 = 85%
-      },
+    });
+
+    // Verify class-level attendance
+    expect(result.classAttendance).toEqual({
+      percentage: 88.93,
+      date: "10.01.2026",
     });
 
     // Critical: Verify no names in output
@@ -283,14 +276,89 @@ describe("parseVulcanXlsx", () => {
     expect(result.metadata.className).toBe("3A");
     expect(result.students).toHaveLength(1);
 
-    // Verify student has undefined attendance (graceful degradation)
     expect(result.students[0]).toEqual({
       number: 1,
       grades: [{ subject: "Matematyka", value: "5" }],
       average: 4.5,
       behavior: "exemplary",
-      attendance: undefined,
     });
+
+    // Verify classAttendance is undefined when sheet is missing
+    expect(result.classAttendance).toBeUndefined();
+  });
+
+  it("parses successfully when attendance sheet has unrecognized format", () => {
+    vi.mocked(fs.existsSync).mockReturnValue(true);
+    vi.mocked(fs.readFileSync).mockReturnValue(Buffer.from("mock"));
+
+    const gradesSheetData = [
+      ["Nr w dzienniku", "Uczeń", "Zachowanie", "Nazwa przedmiotu"],
+      [null, null, null, "Matematyka"],
+      [null, null, null, null],
+      [1, "Jan Kowalski", "wzorowe", "5"],
+    ];
+
+    const averagesSheetData = [
+      ["Numer w dzienniku", "Dane ucznia", "Średnia"],
+      [1, "Jan Kowalski", 4.5],
+    ];
+
+    const metadataSheetData = [
+      ["Dodatkowe informacje dla 1 semestru w roku szkolnym 2024/2025"],
+      ["Oddział", "3A", "Wychowawca", null, null, "Maria Wiśniewska"],
+    ];
+
+    // Sheet with unexpected format - no "Frekwencja" / "Stan %" headers
+    const attendanceSheetData = [
+      ["Dodatkowe informacje dla oddziału 5b w roku szkolnym 2025/2026"],
+      [],
+      ["Dane podstawowe"],
+      ["Wychowawca: Teacher Name"],
+    ];
+
+    // Mock workbook WITH attendance sheet present (all 6 sheets)
+    vi.mocked(XLSX.read).mockReturnValue({
+      SheetNames: [
+        "Okres klasyfikacyjny",
+        "Dodatkowe informacje 1",
+        "Średnia uczniów",
+        "Dodatkowe informacje 2",
+        "Zachowanie",
+        "Informacje o uczniach",
+      ],
+      Sheets: {
+        "Okres klasyfikacyjny": {},
+        "Dodatkowe informacje 1": {},
+        "Średnia uczniów": {},
+        "Dodatkowe informacje 2": {},
+        Zachowanie: {},
+        "Informacje o uczniach": {},
+      },
+    } as XLSX.WorkBook);
+
+    // Mock sheet_to_json: metadata, grades, averages, attendance (with unrecognized format)
+    vi.mocked(XLSX.utils.sheet_to_json)
+      .mockReturnValueOnce(metadataSheetData)
+      .mockReturnValueOnce(gradesSheetData)
+      .mockReturnValueOnce(averagesSheetData)
+      .mockReturnValueOnce(attendanceSheetData);
+
+    // Should NOT throw - graceful degradation
+    const result = parseVulcanXlsx("/path/to/file.xlsx");
+
+    // Verify parsing succeeded
+    expect(result.metadata.className).toBe("3A");
+    expect(result.students).toHaveLength(1);
+
+    expect(result.students[0]).toEqual({
+      number: 1,
+      grades: [{ subject: "Matematyka", value: "5" }],
+      average: 4.5,
+      behavior: "exemplary",
+    });
+
+    // Verify classAttendance is undefined when format not recognized
+    expect(result.classAttendance).toBeUndefined();
   });
 });
 
@@ -445,199 +513,153 @@ describe("parseMetadataSheet", () => {
   });
 });
 
-describe("parseAttendanceSheet", () => {
-  it("parses attendance data correctly", () => {
+describe("parseClassAttendance", () => {
+  it("parses class-level attendance from Vulcan format", () => {
+    // Real Vulcan format: header row with "Frekwencja" and "Stan %", then data row
     const sheetData = [
-      ["Dane ucznia", "Obecności", "Nieobecności nieusprawiedliwione", "Nieobecności usprawiedliwione", "Spóźnienia"],
-      ["Jan Kowalski", 90, 5, 3, 2],
-      ["Anna Nowak", 85, 10, 5, 1],
+      ["Dodatkowe informacje"],
+      [],
+      ["Frekwencja", "Stan %"],
+      ["10.01.2026", 88.93],
     ];
 
     vi.mocked(XLSX.utils.sheet_to_json).mockReturnValue(sheetData);
 
-    const result = parseAttendanceSheet({} as XLSX.WorkSheet);
+    const result = parseClassAttendance({} as XLSX.WorkSheet);
 
-    expect(result.get("Jan Kowalski")).toEqual({
-      present: 90,
-      absent: 5,
-      excused: 3,
-      late: 2,
-      percentage: expect.closeTo(91.84, 1), // 90/(90+5+3)*100
-    });
-    expect(result.get("Anna Nowak")).toEqual({
-      present: 85,
-      absent: 10,
-      excused: 5,
-      late: 1,
-      percentage: 85, // 85/(85+10+5)*100 = 85%
+    expect(result).toEqual({
+      percentage: 88.93,
+      date: "10.01.2026",
     });
   });
 
-  it("handles different column order", () => {
+  it("parses percentage without date", () => {
     const sheetData = [
-      ["Spóźnienia", "Dane ucznia", "Usprawiedliwione", "Nieusprawiedliwione", "Obecne"],
-      [3, "Jan Kowalski", 5, 2, 100],
+      ["Frekwencja", "Stan %"],
+      [null, 92.5],
     ];
 
     vi.mocked(XLSX.utils.sheet_to_json).mockReturnValue(sheetData);
 
-    const result = parseAttendanceSheet({} as XLSX.WorkSheet);
+    const result = parseClassAttendance({} as XLSX.WorkSheet);
 
-    expect(result.get("Jan Kowalski")).toEqual({
-      present: 100,
-      absent: 2,
-      excused: 5,
-      late: 3,
-      percentage: expect.closeTo(93.46, 1), // 100/(100+2+5)*100
+    expect(result).toEqual({
+      percentage: 92.5,
     });
   });
 
-  it("handles missing attendance columns gracefully", () => {
+  it("handles string percentage values", () => {
     const sheetData = [
-      ["Dane ucznia", "Obecności"],
-      ["Jan Kowalski", 90],
+      ["Frekwencja", "Stan %"],
+      ["15.01.2026", "95.5"],
     ];
 
     vi.mocked(XLSX.utils.sheet_to_json).mockReturnValue(sheetData);
 
-    const result = parseAttendanceSheet({} as XLSX.WorkSheet);
+    const result = parseClassAttendance({} as XLSX.WorkSheet);
 
-    expect(result.get("Jan Kowalski")).toEqual({
-      present: 90,
-      absent: 0,
-      excused: 0,
-      late: 0,
-      percentage: 100, // 90/(90+0+0)*100 = 100%
+    expect(result).toEqual({
+      percentage: 95.5,
+      date: "15.01.2026",
     });
   });
 
-  it("handles string numbers", () => {
+  it("returns null when header row not found", () => {
     const sheetData = [
-      ["Dane ucznia", "Obecności", "Nieobecności"],
-      ["Jan Kowalski", "90", "5"],
+      ["Some other data"],
+      ["More data", 123],
     ];
 
     vi.mocked(XLSX.utils.sheet_to_json).mockReturnValue(sheetData);
 
-    const result = parseAttendanceSheet({} as XLSX.WorkSheet);
+    const result = parseClassAttendance({} as XLSX.WorkSheet);
 
-    expect(result.get("Jan Kowalski")).toEqual({
-      present: 90,
-      absent: 5,
-      excused: 0,
-      late: 0,
-      percentage: expect.closeTo(94.74, 1), // 90/(90+5+0)*100
-    });
+    expect(result).toBeNull();
   });
 
-  it("treats invalid/empty cells as 0", () => {
-    const sheetData = [
-      ["Dane ucznia", "Obecności", "Nieobecności", "Usprawiedliwione", "Spóźnienia"],
-      ["Jan Kowalski", null, "", "abc", undefined],
-    ];
-
-    vi.mocked(XLSX.utils.sheet_to_json).mockReturnValue(sheetData);
-
-    const result = parseAttendanceSheet({} as XLSX.WorkSheet);
-
-    expect(result.get("Jan Kowalski")).toEqual({
-      present: 0,
-      absent: 0,
-      excused: 0,
-      late: 0,
-      percentage: undefined, // No attendance data (all zeros)
-    });
-  });
-
-  it("skips rows with missing student name", () => {
-    const sheetData = [
-      ["Dane ucznia", "Obecności"],
-      [null, 90],
-      ["", 85],
-      ["Jan Kowalski", 80],
-    ];
-
-    vi.mocked(XLSX.utils.sheet_to_json).mockReturnValue(sheetData);
-
-    const result = parseAttendanceSheet({} as XLSX.WorkSheet);
-
-    expect(result.size).toBe(1);
-    expect(result.get("Jan Kowalski")).toEqual({
-      present: 80,
-      absent: 0,
-      excused: 0,
-      late: 0,
-      percentage: 100, // 80/(80+0+0)*100 = 100%
-    });
-  });
-
-  it("throws on empty sheet", () => {
+  it("returns null for empty sheet", () => {
     vi.mocked(XLSX.utils.sheet_to_json).mockReturnValue([]);
 
-    expect(() => parseAttendanceSheet({} as XLSX.WorkSheet)).toThrow(
-      "Invalid data structure in sheet: Dodatkowe informacje 2"
-    );
+    const result = parseClassAttendance({} as XLSX.WorkSheet);
+
+    expect(result).toBeNull();
   });
 
-  it("throws when student name column is missing", () => {
+  it("returns null when no valid percentage in data rows", () => {
     const sheetData = [
-      ["Obecności", "Nieobecności"],
-      [90, 5],
+      ["Frekwencja", "Stan %"],
+      ["10.01.2026", "not a number"],
     ];
 
     vi.mocked(XLSX.utils.sheet_to_json).mockReturnValue(sheetData);
 
-    expect(() => parseAttendanceSheet({} as XLSX.WorkSheet)).toThrow(
-      "Invalid data structure in sheet: Dodatkowe informacje 2 - missing student name column"
-    );
+    const result = parseClassAttendance({} as XLSX.WorkSheet);
+
+    expect(result).toBeNull();
   });
 
-  it("handles excused column appearing before unexcused in full headers", () => {
-    // Edge case: "Nieobecności usprawiedliwione" appears BEFORE "Nieobecności nieusprawiedliwione"
-    // The fallback "nieobecności" pattern should NOT incorrectly match the excused column
+  it("skips non-date values in first column", () => {
+    // If first column doesn't look like a date, don't include it
     const sheetData = [
-      ["Dane ucznia", "Nieobecności usprawiedliwione", "Nieobecności nieusprawiedliwione", "Obecności"],
-      ["Jan Kowalski", 3, 5, 90],
+      ["Frekwencja", "Stan %"],
+      ["Something", 90.0],
     ];
 
     vi.mocked(XLSX.utils.sheet_to_json).mockReturnValue(sheetData);
 
-    const result = parseAttendanceSheet({} as XLSX.WorkSheet);
+    const result = parseClassAttendance({} as XLSX.WorkSheet);
 
-    // Verify columns are matched correctly despite order
-    expect(result.get("Jan Kowalski")).toEqual({
-      present: 90,
-      absent: 5, // unexcused (nieusprawiedliwione)
-      excused: 3, // excused (usprawiedliwione)
-      late: 0,
-      percentage: expect.closeTo(91.84, 1), // 90/(90+5+3)*100
+    expect(result).toEqual({
+      percentage: 90.0,
     });
   });
 
-  it("returns empty Map for header-only sheet (no students)", () => {
+  it("does not match decimal numbers as dates", () => {
+    // "1.5" looks like a decimal, not a date - should not be treated as date
     const sheetData = [
-      ["Dane ucznia", "Obecności", "Nieobecności"],
+      ["Frekwencja", "Stan %"],
+      ["1.5", 90.0],
     ];
 
     vi.mocked(XLSX.utils.sheet_to_json).mockReturnValue(sheetData);
 
-    const result = parseAttendanceSheet({} as XLSX.WorkSheet);
+    const result = parseClassAttendance({} as XLSX.WorkSheet);
 
-    expect(result.size).toBe(0);
+    expect(result).toEqual({
+      percentage: 90.0,
+      // No date - "1.5" doesn't match DD.MM pattern
+    });
   });
 
-  it("calculates percentage correctly", () => {
+  it("matches short date format without year", () => {
     const sheetData = [
-      ["Dane ucznia", "Obecności", "Nieobecności nieusprawiedliwione", "Nieobecności usprawiedliwione"],
-      ["Jan Kowalski", 90, 5, 5], // 90/(90+5+5) = 90%
-      ["Anna Nowak", 0, 0, 0], // No data = undefined percentage
+      ["Frekwencja", "Stan %"],
+      ["10.01", 85.0],
     ];
 
     vi.mocked(XLSX.utils.sheet_to_json).mockReturnValue(sheetData);
 
-    const result = parseAttendanceSheet({} as XLSX.WorkSheet);
+    const result = parseClassAttendance({} as XLSX.WorkSheet);
 
-    expect(result.get("Jan Kowalski")?.percentage).toBe(90);
-    expect(result.get("Anna Nowak")?.percentage).toBeUndefined();
+    expect(result).toEqual({
+      percentage: 85.0,
+      date: "10.01",
+    });
+  });
+
+  it("handles case insensitive header matching", () => {
+    const sheetData = [
+      ["FREKWENCJA", "STAN %"],
+      ["10.01.2026", 88.0],
+    ];
+
+    vi.mocked(XLSX.utils.sheet_to_json).mockReturnValue(sheetData);
+
+    const result = parseClassAttendance({} as XLSX.WorkSheet);
+
+    expect(result).toEqual({
+      percentage: 88.0,
+      date: "10.01.2026",
+    });
   });
 });

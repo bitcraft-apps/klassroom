@@ -5,7 +5,6 @@ import {
   parseBehaviorGrade,
   behaviorToIndex,
   compareBehavior,
-  calculateAttendancePercentage,
   stripStudentPII,
   BEHAVIOR_GRADES,
   type StudentNumber,
@@ -156,63 +155,6 @@ describe("compareBehavior", () => {
   });
 });
 
-describe("calculateAttendancePercentage", () => {
-  it("calculates correct percentage for typical attendance", () => {
-    const result = calculateAttendancePercentage({
-      present: 90,
-      absent: 5,
-      excused: 5,
-    });
-    expect(result).toBe(90);
-  });
-
-  it("calculates 100% for perfect attendance", () => {
-    const result = calculateAttendancePercentage({
-      present: 100,
-      absent: 0,
-      excused: 0,
-    });
-    expect(result).toBe(100);
-  });
-
-  it("calculates 0% when always absent", () => {
-    const result = calculateAttendancePercentage({
-      present: 0,
-      absent: 50,
-      excused: 50,
-    });
-    expect(result).toBe(0);
-  });
-
-  it("returns null when no attendance data (all zeros)", () => {
-    const result = calculateAttendancePercentage({
-      present: 0,
-      absent: 0,
-      excused: 0,
-    });
-    expect(result).toBeNull();
-  });
-
-  it("handles fractional percentages", () => {
-    const result = calculateAttendancePercentage({
-      present: 1,
-      absent: 1,
-      excused: 1,
-    });
-    expect(result).toBeCloseTo(33.33, 1);
-  });
-
-  it("does not include late in calculation", () => {
-    // Late students are still present, so late doesn't affect percentage
-    const withLate = calculateAttendancePercentage({
-      present: 90,
-      absent: 10,
-      excused: 0,
-    });
-    expect(withLate).toBe(90);
-  });
-});
-
 describe("stripStudentPII", () => {
   it("removes the name field from RawStudent", () => {
     const raw: RawStudent = {
@@ -237,24 +179,14 @@ describe("stripStudentPII", () => {
       number: studentNumber(1),
       name: "Anna Nowak",
       grades: [],
-      attendance: {
-        present: 100,
-        absent: 5,
-        excused: 3,
-        late: 2,
-        percentage: 92.5,
-      },
+      average: 4.75,
+      behavior: "exemplary",
     };
 
     const student = stripStudentPII(raw);
 
-    expect(student.attendance).toEqual({
-      present: 100,
-      absent: 5,
-      excused: 3,
-      late: 2,
-      percentage: 92.5,
-    });
+    expect(student.average).toBe(4.75);
+    expect(student.behavior).toBe("exemplary");
   });
 
   it("handles minimal RawStudent", () => {

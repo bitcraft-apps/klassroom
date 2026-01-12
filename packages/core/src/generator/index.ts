@@ -34,7 +34,7 @@ import {
  * fs.writeFileSync("presentation.html", html);
  */
 export async function generatePresentation(data: ClassData): Promise<string> {
-  const { metadata, students } = data;
+  const { metadata, students, classAttendance } = data;
 
   // Calculate analytics
   const classAverage = calculateClassAverage(students);
@@ -115,6 +115,8 @@ export async function generatePresentation(data: ClassData): Promise<string> {
     gradeDistribution,
     behaviorCounts: hasBehaviorData ? behaviorCounts : null,
     topStudents,
+    // Convert undefined (ClassData convention) to null (PresentationData convention)
+    classAttendance: classAttendance ?? null,
   };
 
   return renderPresentation(presentationData);

@@ -11,7 +11,8 @@ function createClassData(
     average?: number;
     behavior?: "exemplary" | "veryGood" | "good" | "acceptable" | "inappropriate" | "reprehensible";
   }>,
-  metadata?: Partial<ClassData["metadata"]>
+  metadata?: Partial<ClassData["metadata"]>,
+  classAttendance?: ClassData["classAttendance"]
 ): ClassData {
   return {
     metadata: {
@@ -25,6 +26,7 @@ function createClassData(
       average: s.average,
       behavior: s.behavior,
     })),
+    classAttendance,
   };
 }
 
@@ -340,6 +342,57 @@ describe("generatePresentation", () => {
       expect(warnSpy).toHaveBeenCalled();
 
       vi.restoreAllMocks();
+    });
+  });
+
+  describe("attendance slide", () => {
+    it("renders attendance slide when classAttendance provided", async () => {
+      const data = createClassData(
+        [{ num: 1, average: 4.0 }],
+        undefined,
+        { percentage: 92.5, date: "10.01.2026" }
+      );
+
+      const html = await generatePresentation(data);
+
+      expect(html).toContain("Frekwencja");
+      expect(html).toContain("Średnia frekwencja klasy");
+      expect(html).toContain("92,5%");
+      expect(html).toContain("stan na 10.01.2026");
+    });
+
+    it("skips attendance slide when classAttendance is undefined", async () => {
+      const data = createClassData([{ num: 1, average: 4.0 }]);
+
+      const html = await generatePresentation(data);
+
+      expect(html).not.toContain("Frekwencja");
+    });
+
+    it("renders attendance without date when date not provided", async () => {
+      const data = createClassData(
+        [{ num: 1, average: 4.0 }],
+        undefined,
+        { percentage: 88.0 }
+      );
+
+      const html = await generatePresentation(data);
+
+      expect(html).toContain("88,0%");
+      expect(html).not.toContain("stan na");
+    });
+
+    it("uses Polish decimal separator (comma) for percentage", async () => {
+      const data = createClassData(
+        [{ num: 1, average: 4.0 }],
+        undefined,
+        { percentage: 93.75 }
+      );
+
+      const html = await generatePresentation(data);
+
+      expect(html).toContain("93,8%");
+      expect(html).not.toContain("93.8%");
     });
   });
 });

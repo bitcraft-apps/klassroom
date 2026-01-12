@@ -24,6 +24,7 @@ function createTestPresentationData(
     gradeDistribution: null,
     behaviorCounts: null,
     topStudents: null,
+    classAttendance: null,
     ...overrides,
   };
 }
@@ -215,5 +216,106 @@ describe("renderPresentation - topStudents slide", () => {
 
     expect(studentAveragesIndex).toBeLessThan(topStudentsIndex);
     expect(topStudentsIndex).toBeLessThan(behaviorIndex);
+  });
+});
+
+describe("renderPresentation - attendance slide", () => {
+  it("renders attendance slide with Polish labels", () => {
+    const data = createTestPresentationData({
+      classAttendance: {
+        percentage: 92.5,
+        date: "10.01.2026",
+      },
+    });
+
+    const html = renderPresentation(data);
+
+    expect(html).toContain("Frekwencja");
+    expect(html).toContain("Średnia frekwencja klasy");
+  });
+
+  it("formats percentage with comma as decimal separator (Polish)", () => {
+    const data = createTestPresentationData({
+      classAttendance: {
+        percentage: 92.5,
+      },
+    });
+
+    const html = renderPresentation(data);
+
+    expect(html).toContain("92,5%");
+  });
+
+  it("displays date when available", () => {
+    const data = createTestPresentationData({
+      classAttendance: {
+        percentage: 88.93,
+        date: "10.01.2026",
+      },
+    });
+
+    const html = renderPresentation(data);
+
+    expect(html).toContain("stan na 10.01.2026");
+  });
+
+  it("skips date when not available", () => {
+    const data = createTestPresentationData({
+      classAttendance: {
+        percentage: 88.93,
+      },
+    });
+
+    const html = renderPresentation(data);
+
+    expect(html).not.toContain("stan na");
+  });
+
+  it("skips slide when attendance data is null", () => {
+    const data = createTestPresentationData({
+      classAttendance: null,
+    });
+
+    const html = renderPresentation(data);
+
+    expect(html).not.toContain("Frekwencja");
+  });
+
+  it("displays zero percentage correctly", () => {
+    const data = createTestPresentationData({
+      classAttendance: {
+        percentage: 0,
+      },
+    });
+
+    const html = renderPresentation(data);
+
+    expect(html).toContain("0,0%");
+  });
+
+  it("renders slide between top students and behavior", () => {
+    const data = createTestPresentationData({
+      topStudents: [{ number: studentNumber(1), average: 5.0 }],
+      classAttendance: {
+        percentage: 90.0,
+      },
+      behaviorCounts: {
+        exemplary: 1,
+        veryGood: 0,
+        good: 0,
+        acceptable: 0,
+        inappropriate: 0,
+        reprehensible: 0,
+      },
+    });
+
+    const html = renderPresentation(data);
+
+    const topStudentsIndex = html.indexOf("Najwyższe średnie");
+    const attendanceIndex = html.indexOf("Frekwencja");
+    const behaviorIndex = html.indexOf("Zachowanie");
+
+    expect(topStudentsIndex).toBeLessThan(attendanceIndex);
+    expect(attendanceIndex).toBeLessThan(behaviorIndex);
   });
 });
