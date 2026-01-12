@@ -44,6 +44,7 @@ export interface PresentationData {
   failureStatistics: FailureStatistics | null;
   aggregateGradeDistribution: AggregateGradeDistribution | null;
   aggregateGradesPieChart: string | null;
+  subjectEnrollment: { subject: string; count: number }[] | null;
 }
 
 export interface GradeDistributionRow {
@@ -259,6 +260,37 @@ function renderOverviewSlide(data: PresentationData): string {
   </section>`;
 }
 
+function renderSubjectEnrollmentSlide(data: PresentationData): string {
+  if (!data.subjectEnrollment || data.subjectEnrollment.length === 0) {
+    return "";
+  }
+
+  const rows = data.subjectEnrollment
+    .map(
+      ({ subject, count }) => `
+        <tr>
+          <td>${escapeHtml(subject)}</td>
+          <td>${count}</td>
+        </tr>`
+    )
+    .join("");
+
+  return `
+  <section class="slide">
+    <h2>Przedmioty dodatkowe</h2>
+    <table>
+      <thead>
+        <tr>
+          <th scope="col">Przedmiot</th>
+          <th scope="col">Liczba uczniów</th>
+        </tr>
+      </thead>
+      <tbody>${rows}
+      </tbody>
+    </table>
+  </section>`;
+}
+
 function renderSubjectAveragesSlide(data: PresentationData): string {
   const chartUrl = safeDataUrl(data.charts.subjectAverages);
   const content = chartUrl
@@ -391,8 +423,12 @@ function renderAttendanceSlide(data: PresentationData): string {
 
   let failureStatsHtml = "";
   if (data.failureStatistics) {
-    const { noFailingGrades, oneToTwoFailingGrades, threeOrMoreFailingGrades, unclassified } =
-      data.failureStatistics;
+    const {
+      noFailingGrades,
+      oneToTwoFailingGrades,
+      threeOrMoreFailingGrades,
+      unclassified,
+    } = data.failureStatistics;
     failureStatsHtml = `
     <h3 class="section-heading">Zagrożenia</h3>
     <table>
@@ -608,7 +644,15 @@ export function renderPresentation(data: PresentationData): string {
   <title>Zebranie z rodzicami - ${escapeHtml(data.metadata.className)}</title>
   <style>${STYLES}</style>
 </head>
-<body>${renderTitleSlide(data)}${renderOverviewSlide(data)}${renderSubjectAveragesSlide(data)}${renderGradeDistributionSlide(data)}${renderStudentAveragesSlide(data)}${renderTopStudentsSlide(data)}${renderAttendanceSlide(data)}${renderAggregateGradesSlide(data)}${renderBehaviorSlide(data)}
+<body>${renderTitleSlide(data)}${renderOverviewSlide(
+    data
+  )}${renderSubjectEnrollmentSlide(data)}${renderSubjectAveragesSlide(
+    data
+  )}${renderGradeDistributionSlide(data)}${renderStudentAveragesSlide(
+    data
+  )}${renderTopStudentsSlide(data)}${renderAttendanceSlide(
+    data
+  )}${renderAggregateGradesSlide(data)}${renderBehaviorSlide(data)}
 </body>
 </html>`;
 }

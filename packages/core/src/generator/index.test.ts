@@ -9,7 +9,13 @@ function createClassData(
     num: number;
     grades?: Array<{ subject: string; value: string | null }>;
     average?: number;
-    behavior?: "exemplary" | "veryGood" | "good" | "acceptable" | "inappropriate" | "reprehensible";
+    behavior?:
+      | "exemplary"
+      | "veryGood"
+      | "good"
+      | "acceptable"
+      | "inappropriate"
+      | "reprehensible";
   }>,
   metadata?: Partial<ClassData["metadata"]>,
   classAttendance?: ClassData["classAttendance"]
@@ -36,7 +42,7 @@ describe("generatePresentation", () => {
     const html = await generatePresentation(data);
 
     expect(html).toMatch(/^<!DOCTYPE html>/);
-    expect(html).toContain("<html lang=\"pl\">");
+    expect(html).toContain('<html lang="pl">');
     expect(html).toContain("</html>");
   });
 
@@ -224,8 +230,8 @@ describe("generatePresentation", () => {
     it("renders top students slide when students have 4.75+ average", async () => {
       const data = createClassData([
         { num: 1, average: 5.25 },
-        { num: 2, average: 4.80 },
-        { num: 3, average: 4.50 }, // below threshold
+        { num: 2, average: 4.8 },
+        { num: 3, average: 4.5 }, // below threshold
       ]);
 
       const html = await generatePresentation(data);
@@ -237,8 +243,8 @@ describe("generatePresentation", () => {
 
     it("skips slide when no students meet threshold", async () => {
       const data = createClassData([
-        { num: 1, average: 4.50 },
-        { num: 2, average: 4.00 },
+        { num: 1, average: 4.5 },
+        { num: 2, average: 4.0 },
       ]);
 
       const html = await generatePresentation(data);
@@ -248,10 +254,10 @@ describe("generatePresentation", () => {
 
     it("sorts by average descending, then by number ascending", async () => {
       const data = createClassData([
-        { num: 3, average: 4.80 },
-        { num: 1, average: 5.00 },
-        { num: 5, average: 4.80 }, // tied with num 3
-        { num: 2, average: 4.90 },
+        { num: 3, average: 4.8 },
+        { num: 1, average: 5.0 },
+        { num: 5, average: 4.8 }, // tied with num 3
+        { num: 2, average: 4.9 },
       ]);
 
       const html = await generatePresentation(data);
@@ -269,22 +275,20 @@ describe("generatePresentation", () => {
     });
 
     it("displays only student numbers, never names (GDPR)", async () => {
-      const data = createClassData([
-        { num: 7, average: 5.00 },
-      ]);
+      const data = createClassData([{ num: 7, average: 5.0 }]);
 
       const html = await generatePresentation(data);
 
       expect(html).toContain("Numer ucznia");
       expect(html).toContain("<td>7</td>");
       // The slide should not have any name-related columns
-      expect(html).not.toMatch(/<th[^>]*>.*(?:Imię|Nazwisko|Uczeń|Name).*<\/th>/i);
+      expect(html).not.toMatch(
+        /<th[^>]*>.*(?:Imię|Nazwisko|Uczeń|Name).*<\/th>/i
+      );
     });
 
     it("formats average with comma as decimal separator", async () => {
-      const data = createClassData([
-        { num: 1, average: 5.25 },
-      ]);
+      const data = createClassData([{ num: 1, average: 5.25 }]);
 
       const html = await generatePresentation(data);
 
@@ -347,11 +351,10 @@ describe("generatePresentation", () => {
 
   describe("attendance slide", () => {
     it("renders attendance slide when classAttendance provided", async () => {
-      const data = createClassData(
-        [{ num: 1, average: 4.0 }],
-        undefined,
-        { percentage: 92.5, date: "10.01.2026" }
-      );
+      const data = createClassData([{ num: 1, average: 4.0 }], undefined, {
+        percentage: 92.5,
+        date: "10.01.2026",
+      });
 
       const html = await generatePresentation(data);
 
@@ -370,11 +373,9 @@ describe("generatePresentation", () => {
     });
 
     it("renders attendance without date when date not provided", async () => {
-      const data = createClassData(
-        [{ num: 1, average: 4.0 }],
-        undefined,
-        { percentage: 88.0 }
-      );
+      const data = createClassData([{ num: 1, average: 4.0 }], undefined, {
+        percentage: 88.0,
+      });
 
       const html = await generatePresentation(data);
 
@@ -383,16 +384,53 @@ describe("generatePresentation", () => {
     });
 
     it("uses Polish decimal separator (comma) for percentage", async () => {
-      const data = createClassData(
-        [{ num: 1, average: 4.0 }],
-        undefined,
-        { percentage: 93.75 }
-      );
+      const data = createClassData([{ num: 1, average: 4.0 }], undefined, {
+        percentage: 93.75,
+      });
 
       const html = await generatePresentation(data);
 
       expect(html).toContain("93,8%");
       expect(html).not.toContain("93.8%");
     });
+  });
+
+  it("renders aggregate grades slide", async () => {
+    const data = createClassData([
+      { num: 1, grades: [{ subject: "Matematyka", value: "5" }] },
+      { num: 2, grades: [{ subject: "Matematyka", value: "4" }] },
+    ]);
+
+    // Mock aggregate grade distribution to trigger slide rendering
+    // Since createClassData doesn't support passing it directly
+    data.aggregateGradeDistribution = {
+      excellent: 1,
+      veryGood: 1,
+      good: 0,
+      satisfactory: 0,
+      acceptable: 0,
+      failing: 0,
+      unclassified: 0,
+    };
+
+    const html = await generatePresentation(data);
+
+    expect(html).toContain("Rozkład wszystkich ocen");
+    expect(html).toContain("Bardzo dobry (5)");
+  });
+
+  it("calculates and renders subject enrollment statistics", async () => {
+    const data = createClassData([
+      { num: 1, grades: [{ subject: "Etyka", value: "zwolniony" }] }, // Not enrolled
+      { num: 2, grades: [{ subject: "Etyka", value: "5" }] }, // Enrolled
+      { num: 3, grades: [{ subject: "Etyka", value: "4" }] }, // Enrolled
+    ]);
+
+    const html = await generatePresentation(data);
+
+    expect(html).toContain("Przedmioty dodatkowe");
+    expect(html).toContain("Etyka");
+    // Should be 2 students enrolled out of 3
+    expect(html).toContain("<td>2</td>");
   });
 });
