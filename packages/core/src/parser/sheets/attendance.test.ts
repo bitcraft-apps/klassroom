@@ -11,9 +11,7 @@ import {
  * Helper to create a mock WorkSheet from row data.
  */
 function createMockSheet(rows: unknown[][]): WorkSheet {
-  const wb = XLSX.utils.book_new();
-  const ws = XLSX.utils.aoa_to_sheet(rows);
-  return ws;
+  return XLSX.utils.aoa_to_sheet(rows);
 }
 
 /**
