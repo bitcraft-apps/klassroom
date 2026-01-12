@@ -72,3 +72,4 @@ export type {
 
 // Generator
 export { generatePresentation } from './generator/index.js';
+export type { GeneratePresentationOptions } from './generator/index.js';

@@ -23,6 +23,11 @@ import {
   type TopStudentRow,
 } from './template.js';
 
+export interface GeneratePresentationOptions {
+  /** Custom meeting date string for title slide. If omitted, uses current date. */
+  meetingDate?: string;
+}
+
 /**
  * Generates a self-contained HTML presentation for a parent-teacher meeting.
  *
@@ -30,14 +35,22 @@ import {
  * All text is in Polish.
  *
  * @param data - Parsed class data from Vulcan XLSX export
+ * @param options - Optional generation options
  * @returns Promise resolving to complete HTML string
  *
  * @example
  * const data = parseVulcanXlsx("grades.xlsx");
  * const html = await generatePresentation(data);
  * fs.writeFileSync("presentation.html", html);
+ *
+ * @example
+ * // With custom meeting date
+ * const html = await generatePresentation(data, { meetingDate: "15 stycznia 2026" });
  */
-export async function generatePresentation(data: ClassData): Promise<string> {
+export async function generatePresentation(
+  data: ClassData,
+  options?: GeneratePresentationOptions,
+): Promise<string> {
   const { metadata, students, classAttendance, failureStatistics, aggregateGradeDistribution } =
     data;
 
@@ -104,12 +117,14 @@ export async function generatePresentation(data: ClassData): Promise<string> {
     count: subjectCounts.get(subject) ?? 0,
   }));
 
-  // Format date in Polish
-  const generatedDate = new Date().toLocaleDateString('pl-PL', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-  });
+  // Use custom meeting date if provided, otherwise format current date in Polish
+  const generatedDate =
+    options?.meetingDate ??
+    new Date().toLocaleDateString('pl-PL', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    });
 
   // Prepare presentation data
   const presentationData: PresentationData = {

@@ -2,7 +2,16 @@ import { existsSync } from 'node:fs';
 import { writeFile } from 'node:fs/promises';
 import { basename, dirname, extname, join } from 'node:path';
 import { Command } from 'commander';
-import { VERSION, parseVulcanXlsx, generatePresentation } from '@klassroom/core';
+import {
+  VERSION,
+  parseVulcanXlsx,
+  generatePresentation,
+  type GeneratePresentationOptions,
+} from '@klassroom/core';
+
+export interface GenerateOptions {
+  date?: string;
+}
 
 export interface GenerateResult {
   success: boolean;
@@ -10,7 +19,10 @@ export interface GenerateResult {
   error?: string;
 }
 
-export async function generate(xlsxPath: string): Promise<GenerateResult> {
+export async function generate(
+  xlsxPath: string,
+  options?: GenerateOptions,
+): Promise<GenerateResult> {
   // Check if file exists
   if (!existsSync(xlsxPath)) {
     return { success: false, error: `Plik nie istnieje: ${xlsxPath}` };
@@ -28,8 +40,11 @@ export async function generate(xlsxPath: string): Promise<GenerateResult> {
     // Parse XLSX
     const classData = parseVulcanXlsx(xlsxPath);
 
-    // Generate HTML
-    const html = await generatePresentation(classData);
+    // Generate HTML with optional meeting date
+    const generatorOptions: GeneratePresentationOptions | undefined = options?.date
+      ? { meetingDate: options.date }
+      : undefined;
+    const html = await generatePresentation(classData, generatorOptions);
 
     // Write output file
     const baseName = basename(xlsxPath, extname(xlsxPath));
@@ -55,8 +70,9 @@ export function createProgram(): Command {
     .command('generate')
     .description('Generuje prezentację HTML z pliku XLSX')
     .argument('<xlsx-path>', 'Ścieżka do pliku XLSX z eksportu Vulcan UONET+')
-    .action(async (xlsxPath: string) => {
-      const result = await generate(xlsxPath);
+    .option('-d, --date <date>', 'data zebrania na slajdzie tytułowym')
+    .action(async (xlsxPath: string, opts: GenerateOptions) => {
+      const result = await generate(xlsxPath, opts);
 
       if (result.success) {
         console.log(`Wygenerowano prezentację: ${result.outputPath}`);
