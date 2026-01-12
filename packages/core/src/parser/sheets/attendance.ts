@@ -72,34 +72,37 @@ export function parseClassAttendance(sheet: WorkSheet): ClassAttendance | null {
 
 /**
  * Polish labels for failure statistics in "Dodatkowe informacje 2" sheet.
- * Used for label-based row detection (handles row position variations).
+ * The actual Vulcan export uses abbreviated forms like "ndst." for "niedostatecznych".
+ * Labels appear in column 2 (index 2) of the multi-column table.
  */
 const FAILURE_LABELS = {
-  NO_FAILING: "uczniów bez ocen niedostatecznych",
-  ONE_TWO_FAILING: "uczniów z 1 lub 2 ocenami niedostatecznymi",
-  THREE_PLUS_FAILING: "uczniów z 3 i więcej ocenami niedostatecznymi",
-  UNCLASSIFIED: "uczniów nieklasyfikowanych",
+  NO_FAILING: "bez ocen niedostatecznych",
+  ONE_TWO_FAILING: "1-2", // matches "z 1-2 ocenami ndst."
+  THREE_PLUS_FAILING: "3 i więcej", // matches "z 3 i więcej ocenami ndst."
+  UNCLASSIFIED: "nieklasyfikowani",
 } as const;
 
 /**
  * Polish labels for grade distribution in "Dodatkowe informacje 2" sheet.
+ * Labels appear in column 4 (index 4) of the multi-column table.
+ * Uses nominative case (e.g., "Celujący") not genitive (e.g., "celujących").
  */
 const GRADE_LABELS = {
-  EXCELLENT: "celujących",
-  VERY_GOOD: "bardzo dobrych",
-  GOOD: "dobrych",
-  SATISFACTORY: "dostatecznych",
-  ACCEPTABLE: "dopuszczających",
-  FAILING: "niedostatecznych",
+  EXCELLENT: "celujący",
+  VERY_GOOD: "bardzo dobry",
+  GOOD: "dobry",
+  SATISFACTORY: "dostateczny",
+  ACCEPTABLE: "dopuszczający",
+  FAILING: "niedostateczny",
   UNCLASSIFIED: "nieklasyfikowany",
 } as const;
 
 /**
  * Parses the "Dodatkowe informacje 2" sheet to extract failure statistics.
  *
- * The Vulcan export contains failure stats in format:
- * - First column: count (number)
- * - Second column: Polish label (e.g., "uczniów bez ocen niedostatecznych")
+ * The Vulcan export contains failure stats in a multi-column table:
+ * - Column 2 (index 2): Polish label (e.g., "bez ocen niedostatecznych")
+ * - Column 3 (index 3): Count (number)
  *
  * @param sheet - The worksheet to parse
  * @returns FailureStatistics or null if not found
@@ -122,12 +125,13 @@ export function parseFailureStatistics(sheet: WorkSheet): FailureStatistics | nu
   let foundAny = false;
 
   for (const row of data) {
-    if (!row || !Array.isArray(row) || row.length < 2) continue;
+    if (!row || !Array.isArray(row) || row.length < 4) continue;
 
-    const value = Number(row[0]);
-    if (isNaN(value)) continue;
+    // Failure stats are in columns 2 (label) and 3 (count)
+    const label = String(row[2] ?? "").toLowerCase();
+    const value = Number(row[3]);
 
-    const label = String(row[1] ?? "").toLowerCase();
+    if (isNaN(value) || !label) continue;
 
     if (label.includes(FAILURE_LABELS.NO_FAILING)) {
       result.noFailingGrades = value;
@@ -150,9 +154,9 @@ export function parseFailureStatistics(sheet: WorkSheet): FailureStatistics | nu
 /**
  * Parses the "Dodatkowe informacje 2" sheet to extract aggregate grade distribution.
  *
- * The Vulcan export contains grade counts in format:
- * - First column: count (number)
- * - Second column: Polish label (e.g., "celujących", "bardzo dobrych")
+ * The Vulcan export contains grade counts in a multi-column table:
+ * - Column 4 (index 4): Polish label (e.g., "Celujący", "Bardzo dobry")
+ * - Column 5 (index 5): Count (number)
  *
  * @param sheet - The worksheet to parse
  * @returns AggregateGradeDistribution or null if not found
@@ -180,15 +184,15 @@ export function parseAggregateGradeDistribution(
   let foundAny = false;
 
   for (const row of data) {
-    if (!row || !Array.isArray(row) || row.length < 2) continue;
+    if (!row || !Array.isArray(row) || row.length < 6) continue;
 
-    const value = Number(row[0]);
-    if (isNaN(value)) continue;
+    // Grade distribution is in columns 4 (label) and 5 (count)
+    const label = String(row[4] ?? "").toLowerCase();
+    const value = Number(row[5]);
 
-    const label = String(row[1] ?? "").toLowerCase();
+    if (isNaN(value) || !label) continue;
 
     // Order matters: check more specific labels first
-    // "nieklasyfikowany" should match unclassified grades, not the failure stat
     if (label.includes(GRADE_LABELS.EXCELLENT)) {
       result.excellent = value;
       foundAny = true;
@@ -199,21 +203,16 @@ export function parseAggregateGradeDistribution(
       result.good = value;
       foundAny = true;
     } else if (label.includes(GRADE_LABELS.SATISFACTORY) && !label.includes(GRADE_LABELS.FAILING)) {
-      // Exclude "niedostatecznych" which contains "dostatecznych" as substring
+      // "niedostateczny" contains "dostateczny" as substring, so exclude it
       result.satisfactory = value;
       foundAny = true;
     } else if (label.includes(GRADE_LABELS.ACCEPTABLE)) {
       result.acceptable = value;
       foundAny = true;
-    } else if (label.includes(GRADE_LABELS.FAILING) && !label.includes("uczniów")) {
-      // Exclude failure stats which also contain "niedostatecznych"
+    } else if (label.includes(GRADE_LABELS.FAILING)) {
       result.failing = value;
       foundAny = true;
-    } else if (
-      label.includes(GRADE_LABELS.UNCLASSIFIED) &&
-      !label.includes("uczniów")
-    ) {
-      // Exclude unclassified students stat
+    } else if (label.includes(GRADE_LABELS.UNCLASSIFIED)) {
       result.unclassified = value;
       foundAny = true;
     }

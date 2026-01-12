@@ -16,14 +16,73 @@ function createMockSheet(rows: unknown[][]): WorkSheet {
   return ws;
 }
 
+/**
+ * Creates a realistic Vulcan "Dodatkowe informacje 2" sheet structure.
+ * The actual format has a multi-column table with:
+ * - Columns 0-1: Behavior (label, count)
+ * - Columns 2-3: Failure stats (label, count)
+ * - Columns 4-5: Grade distribution (label, count)
+ */
+function createVulcanSheet(options: {
+  failureStats?: {
+    noFailing?: number;
+    oneTwoFailing?: number;
+    threePlusFailing?: number;
+    unclassified?: number;
+  };
+  gradeDistribution?: {
+    excellent?: number;
+    veryGood?: number;
+    good?: number;
+    satisfactory?: number;
+    acceptable?: number;
+    failing?: number;
+    unclassified?: number;
+  };
+}): WorkSheet {
+  const { failureStats = {}, gradeDistribution = {} } = options;
+  const rows = [
+    ["Dodatkowe informacje dla oddziału 5b w roku szkolnym 2025/2026"],
+    [],
+    ["Dane podstawowe"],
+    ["Wychowawca: Jan Kowalski"],
+    [],
+    ["Liczba uczniów w dniu"],
+    [],
+    ["Dzień", "Liczba uczniów"],
+    ["01.09.2025", 30],
+    [],
+    ["Frekwencja na dzień klasyfikacji"],
+    [],
+    ["Frekwencja", "Stan %"],
+    ["10.01.2026", 88.93],
+    [],
+    ["Liczba ocen w oddziale"],
+    [],
+    // Header row for the multi-column table
+    ["Zachowanie", "Liczba", "Uczniowie", "Liczba uczniów", "Oceny", "Liczba ocen"],
+    // Data rows with behavior, failure stats, and grade distribution
+    ["wzorowe", 12, "bez ocen niedostatecznych", failureStats.noFailing ?? 29, "Celujący", gradeDistribution.excellent ?? 65],
+    ["bardzo dobre", 18, "z 1-2 ocenami ndst.", failureStats.oneTwoFailing ?? 1, "Bardzo dobry", gradeDistribution.veryGood ?? 145],
+    ["dobre", 0, "z 3 i więcej ocenami ndst.", failureStats.threePlusFailing ?? 0, "Dobry", gradeDistribution.good ?? 94],
+    ["poprawne", 0, "nieklasyfikowani", failureStats.unclassified ?? 0, "Dostateczny", gradeDistribution.satisfactory ?? 44],
+    ["nieodpowiednie", 0, "", "", "Dopuszczający", gradeDistribution.acceptable ?? 8],
+    ["naganne", 0, "", "", "Niedostateczny", gradeDistribution.failing ?? 1],
+    ["", "", "", "", "Nieklasyfikowany", gradeDistribution.unclassified ?? 0],
+  ];
+  return createMockSheet(rows);
+}
+
 describe("parseFailureStatistics", () => {
-  it("parses all failure statistics when all labels present", () => {
-    const sheet = createMockSheet([
-      [15, "uczniów bez ocen niedostatecznych"],
-      [3, "uczniów z 1 lub 2 ocenami niedostatecznymi"],
-      [1, "uczniów z 3 i więcej ocenami niedostatecznymi"],
-      [2, "uczniów nieklasyfikowanych"],
-    ]);
+  it("parses all failure statistics from Vulcan format", () => {
+    const sheet = createVulcanSheet({
+      failureStats: {
+        noFailing: 15,
+        oneTwoFailing: 3,
+        threePlusFailing: 1,
+        unclassified: 2,
+      },
+    });
 
     const result = parseFailureStatistics(sheet);
 
@@ -35,12 +94,13 @@ describe("parseFailureStatistics", () => {
     });
   });
 
-  it("parses partial data when some labels missing", () => {
+  it("parses partial data when some rows have empty labels", () => {
     const sheet = createMockSheet([
-      [10, "uczniów bez ocen niedostatecznych"],
-      [5, "uczniów z 1 lub 2 ocenami niedostatecznymi"],
-      // missing: uczniów z 3 i więcej ocenami niedostatecznymi
-      // missing: uczniów nieklasyfikowanych
+      // Multi-column row with only some failure stats
+      ["wzorowe", 12, "bez ocen niedostatecznych", 10, "Celujący", 65],
+      ["bardzo dobre", 18, "z 1-2 ocenami ndst.", 5, "Bardzo dobry", 145],
+      // Rows without failure stats (empty column 2)
+      ["dobre", 0, "", "", "Dobry", 94],
     ]);
 
     const result = parseFailureStatistics(sheet);
@@ -63,9 +123,8 @@ describe("parseFailureStatistics", () => {
 
   it("returns null when no matching labels found", () => {
     const sheet = createMockSheet([
-      ["Header", "Description"],
-      [100, "some other data"],
-      [50, "more unrelated content"],
+      ["Header", "Description", "Other", "Data", "More", "Values"],
+      ["row1", 100, "some other data", 50, "irrelevant", 25],
     ]);
 
     const result = parseFailureStatistics(sheet);
@@ -75,8 +134,8 @@ describe("parseFailureStatistics", () => {
 
   it("handles case insensitivity in labels", () => {
     const sheet = createMockSheet([
-      [20, "UCZNIÓW BEZ OCEN NIEDOSTATECZNYCH"],
-      [4, "Uczniów Z 1 Lub 2 Ocenami Niedostatecznymi"],
+      ["behavior", 12, "BEZ OCEN NIEDOSTATECZNYCH", 20, "grade", 65],
+      ["behavior", 18, "Z 1-2 Ocenami Ndst.", 4, "grade", 145],
     ]);
 
     const result = parseFailureStatistics(sheet);
@@ -89,9 +148,9 @@ describe("parseFailureStatistics", () => {
     });
   });
 
-  it("handles labels with extra whitespace or text", () => {
+  it("handles labels with extra whitespace", () => {
     const sheet = createMockSheet([
-      [12, "  uczniów bez ocen niedostatecznych  (stan na 10.01)"],
+      ["behavior", 12, "  bez ocen niedostatecznych  ", 12, "grade", 65],
     ]);
 
     const result = parseFailureStatistics(sheet);
@@ -104,10 +163,10 @@ describe("parseFailureStatistics", () => {
     });
   });
 
-  it("skips rows with non-numeric values in first column", () => {
+  it("skips rows with non-numeric values in count column", () => {
     const sheet = createMockSheet([
-      ["Header", "uczniów bez ocen niedostatecznych"],
-      [15, "uczniów bez ocen niedostatecznych"],
+      ["Header", "Liczba", "Uczniowie", "Liczba uczniów", "Oceny", "Liczba ocen"],
+      ["behavior", 12, "bez ocen niedostatecznych", 15, "grade", 65],
     ]);
 
     const result = parseFailureStatistics(sheet);
@@ -120,10 +179,10 @@ describe("parseFailureStatistics", () => {
     });
   });
 
-  it("skips rows with less than 2 columns", () => {
+  it("skips rows with less than 4 columns", () => {
     const sheet = createMockSheet([
-      [15],
-      [15, "uczniów bez ocen niedostatecznych"],
+      ["only", "three", "columns"],
+      ["behavior", 12, "bez ocen niedostatecznych", 15, "grade", 65],
     ]);
 
     const result = parseFailureStatistics(sheet);
@@ -136,21 +195,21 @@ describe("parseFailureStatistics", () => {
     });
   });
 
-  it("handles rows interspersed with other data", () => {
-    const sheet = createMockSheet([
-      ["Title", "Dodatkowe informacje 2"],
-      [],
-      [100, "other metric"],
-      [15, "uczniów bez ocen niedostatecznych"],
-      [50, "irrelevant data"],
-      [3, "uczniów z 1 lub 2 ocenami niedostatecznymi"],
-    ]);
+  it("handles realistic Vulcan export format", () => {
+    const sheet = createVulcanSheet({
+      failureStats: {
+        noFailing: 29,
+        oneTwoFailing: 1,
+        threePlusFailing: 0,
+        unclassified: 0,
+      },
+    });
 
     const result = parseFailureStatistics(sheet);
 
     expect(result).toEqual({
-      noFailingGrades: 15,
-      oneToTwoFailingGrades: 3,
+      noFailingGrades: 29,
+      oneToTwoFailingGrades: 1,
       threeOrMoreFailingGrades: 0,
       unclassified: 0,
     });
@@ -158,16 +217,18 @@ describe("parseFailureStatistics", () => {
 });
 
 describe("parseAggregateGradeDistribution", () => {
-  it("parses all grade counts when all labels present", () => {
-    const sheet = createMockSheet([
-      [10, "celujących"],
-      [20, "bardzo dobrych"],
-      [30, "dobrych"],
-      [15, "dostatecznych"],
-      [5, "dopuszczających"],
-      [2, "niedostatecznych"],
-      [1, "nieklasyfikowany"],
-    ]);
+  it("parses all grade counts from Vulcan format", () => {
+    const sheet = createVulcanSheet({
+      gradeDistribution: {
+        excellent: 10,
+        veryGood: 20,
+        good: 30,
+        satisfactory: 15,
+        acceptable: 5,
+        failing: 2,
+        unclassified: 1,
+      },
+    });
 
     const result = parseAggregateGradeDistribution(sheet);
 
@@ -182,11 +243,11 @@ describe("parseAggregateGradeDistribution", () => {
     });
   });
 
-  it("parses partial data when some grades missing", () => {
+  it("parses partial data when some rows are missing", () => {
     const sheet = createMockSheet([
-      [10, "celujących"],
-      [20, "bardzo dobrych"],
-      [30, "dobrych"],
+      ["behavior", 12, "label", 29, "Celujący", 10],
+      ["behavior", 18, "label", 1, "Bardzo dobry", 20],
+      ["behavior", 0, "label", 0, "Dobry", 30],
     ]);
 
     const result = parseAggregateGradeDistribution(sheet);
@@ -212,8 +273,8 @@ describe("parseAggregateGradeDistribution", () => {
 
   it("returns null when no matching labels found", () => {
     const sheet = createMockSheet([
-      ["Header", "Description"],
-      [100, "some other data"],
+      ["col0", "col1", "col2", "col3", "col4", "col5"],
+      ["a", 100, "b", 200, "some other data", 300],
     ]);
 
     const result = parseAggregateGradeDistribution(sheet);
@@ -221,10 +282,10 @@ describe("parseAggregateGradeDistribution", () => {
     expect(result).toBeNull();
   });
 
-  it("distinguishes 'dobrych' from 'bardzo dobrych'", () => {
+  it("distinguishes 'Dobry' from 'Bardzo dobry'", () => {
     const sheet = createMockSheet([
-      [20, "bardzo dobrych"],
-      [30, "dobrych"],
+      ["behavior", 12, "label", 29, "Bardzo dobry", 20],
+      ["behavior", 18, "label", 1, "Dobry", 30],
     ]);
 
     const result = parseAggregateGradeDistribution(sheet);
@@ -233,27 +294,10 @@ describe("parseAggregateGradeDistribution", () => {
     expect(result?.good).toBe(30);
   });
 
-  it("excludes failure stats labels containing 'uczniów'", () => {
-    // The sheet may contain both grade counts and failure stats
-    // Grade counts: "niedostatecznych" (without "uczniów")
-    // Failure stats: "uczniów z ... niedostatecznymi" (with "uczniów")
-    const sheet = createMockSheet([
-      [2, "niedostatecznych"],
-      [5, "uczniów z 1 lub 2 ocenami niedostatecznymi"],
-      [1, "nieklasyfikowany"],
-      [3, "uczniów nieklasyfikowanych"],
-    ]);
-
-    const result = parseAggregateGradeDistribution(sheet);
-
-    expect(result?.failing).toBe(2);
-    expect(result?.unclassified).toBe(1);
-  });
-
   it("handles case insensitivity in labels", () => {
     const sheet = createMockSheet([
-      [10, "CELUJĄCYCH"],
-      [20, "Bardzo Dobrych"],
+      ["behavior", 12, "label", 29, "CELUJĄCY", 10],
+      ["behavior", 18, "label", 1, "Bardzo Dobry", 20],
     ]);
 
     const result = parseAggregateGradeDistribution(sheet);
@@ -269,48 +313,36 @@ describe("parseAggregateGradeDistribution", () => {
     });
   });
 
-  it("handles realistic Vulcan export format with mixed data", () => {
-    // Simulates real Vulcan export structure with various data interspersed
-    const sheet = createMockSheet([
-      ["Dodatkowe informacje dla oddziału 5b", null],
-      [],
-      ["Wychowawca", "Jan Kowalski"],
-      [],
-      [20, "uczniów w klasie"],
-      [],
-      // Failure stats section
-      [15, "uczniów bez ocen niedostatecznych"],
-      [3, "uczniów z 1 lub 2 ocenami niedostatecznymi"],
-      [1, "uczniów z 3 i więcej ocenami niedostatecznymi"],
-      [1, "uczniów nieklasyfikowanych"],
-      [],
-      // Grade distribution section
-      [5, "celujących"],
-      [25, "bardzo dobrych"],
-      [40, "dobrych"],
-      [20, "dostatecznych"],
-      [8, "dopuszczających"],
-      [2, "niedostatecznych"],
-      [0, "nieklasyfikowany"],
-    ]);
+  it("handles realistic Vulcan export format", () => {
+    const sheet = createVulcanSheet({
+      gradeDistribution: {
+        excellent: 65,
+        veryGood: 145,
+        good: 94,
+        satisfactory: 44,
+        acceptable: 8,
+        failing: 1,
+        unclassified: 0,
+      },
+    });
 
     const result = parseAggregateGradeDistribution(sheet);
 
     expect(result).toEqual({
-      excellent: 5,
-      veryGood: 25,
-      good: 40,
-      satisfactory: 20,
+      excellent: 65,
+      veryGood: 145,
+      good: 94,
+      satisfactory: 44,
       acceptable: 8,
-      failing: 2,
+      failing: 1,
       unclassified: 0,
     });
   });
 
-  it("skips rows with non-numeric values in first column", () => {
+  it("skips rows with non-numeric values in count column", () => {
     const sheet = createMockSheet([
-      ["Ocena", "celujących"],
-      [10, "celujących"],
+      ["Header", "Liczba", "Uczniowie", "Liczba", "Oceny", "Liczba ocen"],
+      ["behavior", 12, "label", 29, "Celujący", 10],
     ]);
 
     const result = parseAggregateGradeDistribution(sheet);
@@ -320,8 +352,8 @@ describe("parseAggregateGradeDistribution", () => {
 
   it("handles zero counts correctly", () => {
     const sheet = createMockSheet([
-      [0, "celujących"],
-      [0, "niedostatecznych"],
+      ["behavior", 12, "label", 29, "Celujący", 0],
+      ["behavior", 18, "label", 1, "Niedostateczny", 0],
     ]);
 
     const result = parseAggregateGradeDistribution(sheet);
@@ -335,6 +367,17 @@ describe("parseAggregateGradeDistribution", () => {
       failing: 0,
       unclassified: 0,
     });
+  });
+
+  it("skips rows with less than 6 columns", () => {
+    const sheet = createMockSheet([
+      ["only", "five", "columns", "here", "now"],
+      ["behavior", 12, "label", 29, "Celujący", 10],
+    ]);
+
+    const result = parseAggregateGradeDistribution(sheet);
+
+    expect(result?.excellent).toBe(10);
   });
 });
 
@@ -432,5 +475,16 @@ describe("parseClassAttendance", () => {
     const result = parseClassAttendance(sheet);
 
     expect(result?.date).toBe("10.01.2026");
+  });
+
+  it("parses attendance from realistic Vulcan format", () => {
+    const sheet = createVulcanSheet({});
+
+    const result = parseClassAttendance(sheet);
+
+    expect(result).toEqual({
+      percentage: 88.93,
+      date: "10.01.2026",
+    });
   });
 });
