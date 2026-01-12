@@ -14,7 +14,7 @@
  * - Attendance: 92.5%
  * - Behavior grades: wzorowe, bardzo dobre, dobre, poprawne
  */
-import { describe, it, expect, vi, beforeAll, afterAll } from 'vitest';
+import { describe, it, expect, beforeAll } from 'vitest';
 import * as path from 'node:path';
 import { parseVulcanXlsx } from '../parser/index.js';
 import { generatePresentation } from '../generator/index.js';
@@ -36,10 +36,6 @@ describe('E2E: Full Pipeline', () => {
     html = await generatePresentation(classData, {
       meetingDate: '15 stycznia 2025',
     });
-  });
-
-  afterAll(() => {
-    vi.restoreAllMocks();
   });
 
   describe('Pipeline Output', () => {
