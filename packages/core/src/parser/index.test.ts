@@ -5,6 +5,7 @@ import { parseVulcanXlsx, detectFormat } from "./index.js";
 import { parseGradesSheet } from "./sheets/grades.js";
 import { parseAveragesSheet } from "./sheets/averages.js";
 import { parseMetadataSheet } from "./sheets/metadata.js";
+import { parseAttendanceSheet } from "./sheets/attendance.js";
 
 // Mock fs module
 vi.mock("node:fs");
@@ -145,6 +146,13 @@ describe("parseVulcanXlsx", () => {
       ["Oddział", "3A", "Wychowawca", null, null, "Maria Wiśniewska"],
     ];
 
+    // Attendance sheet: [name, present, absent, excused, late]
+    const attendanceSheetData = [
+      ["Dane ucznia", "Obecności", "Nieobecności nieusprawiedliwione", "Nieobecności usprawiedliwione", "Spóźnienia"],
+      ["Jan Kowalski", 90, 5, 3, 2],
+      ["Anna Nowak", 85, 10, 5, 1],
+    ];
+
     // Mock workbook with all 6 Vulcan sheets (format detection requires 4+)
     vi.mocked(XLSX.read).mockReturnValue({
       SheetNames: [
@@ -166,11 +174,12 @@ describe("parseVulcanXlsx", () => {
     } as XLSX.WorkBook);
 
     // Mock sheet_to_json to return data in expected call order:
-    // 1. metadata, 2. grades, 3. averages
+    // 1. metadata, 2. grades, 3. averages, 4. attendance
     vi.mocked(XLSX.utils.sheet_to_json)
       .mockReturnValueOnce(metadataSheetData)
       .mockReturnValueOnce(gradesSheetData)
-      .mockReturnValueOnce(averagesSheetData);
+      .mockReturnValueOnce(averagesSheetData)
+      .mockReturnValueOnce(attendanceSheetData);
 
     const result = parseVulcanXlsx("/path/to/file.xlsx");
 
@@ -190,6 +199,12 @@ describe("parseVulcanXlsx", () => {
       ],
       average: 4.5,
       behavior: "exemplary",
+      attendance: {
+        present: 90,
+        absent: 5,
+        excused: 3,
+        late: 2,
+      },
     });
 
     expect(result.students[1]).toEqual({
@@ -200,6 +215,12 @@ describe("parseVulcanXlsx", () => {
       ],
       average: 4.0,
       behavior: "veryGood",
+      attendance: {
+        present: 85,
+        absent: 10,
+        excused: 5,
+        late: 1,
+      },
     });
 
     // Critical: Verify no names in output
@@ -356,6 +377,147 @@ describe("parseMetadataSheet", () => {
 
     expect(() => parseMetadataSheet({} as XLSX.WorkSheet)).toThrow(
       "Invalid data structure in sheet: Dodatkowe informacje 1"
+    );
+  });
+});
+
+describe("parseAttendanceSheet", () => {
+  it("parses attendance data correctly", () => {
+    const sheetData = [
+      ["Dane ucznia", "Obecności", "Nieobecności nieusprawiedliwione", "Nieobecności usprawiedliwione", "Spóźnienia"],
+      ["Jan Kowalski", 90, 5, 3, 2],
+      ["Anna Nowak", 85, 10, 5, 1],
+    ];
+
+    vi.mocked(XLSX.utils.sheet_to_json).mockReturnValue(sheetData);
+
+    const result = parseAttendanceSheet({} as XLSX.WorkSheet);
+
+    expect(result.get("Jan Kowalski")).toEqual({
+      present: 90,
+      absent: 5,
+      excused: 3,
+      late: 2,
+    });
+    expect(result.get("Anna Nowak")).toEqual({
+      present: 85,
+      absent: 10,
+      excused: 5,
+      late: 1,
+    });
+  });
+
+  it("handles different column order", () => {
+    const sheetData = [
+      ["Spóźnienia", "Dane ucznia", "Usprawiedliwione", "Nieusprawiedliwione", "Obecne"],
+      [3, "Jan Kowalski", 5, 2, 100],
+    ];
+
+    vi.mocked(XLSX.utils.sheet_to_json).mockReturnValue(sheetData);
+
+    const result = parseAttendanceSheet({} as XLSX.WorkSheet);
+
+    expect(result.get("Jan Kowalski")).toEqual({
+      present: 100,
+      absent: 2,
+      excused: 5,
+      late: 3,
+    });
+  });
+
+  it("handles missing attendance columns gracefully", () => {
+    const sheetData = [
+      ["Dane ucznia", "Obecności"],
+      ["Jan Kowalski", 90],
+    ];
+
+    vi.mocked(XLSX.utils.sheet_to_json).mockReturnValue(sheetData);
+
+    const result = parseAttendanceSheet({} as XLSX.WorkSheet);
+
+    expect(result.get("Jan Kowalski")).toEqual({
+      present: 90,
+      absent: 0,
+      excused: 0,
+      late: 0,
+    });
+  });
+
+  it("handles string numbers", () => {
+    const sheetData = [
+      ["Dane ucznia", "Obecności", "Nieobecności"],
+      ["Jan Kowalski", "90", "5"],
+    ];
+
+    vi.mocked(XLSX.utils.sheet_to_json).mockReturnValue(sheetData);
+
+    const result = parseAttendanceSheet({} as XLSX.WorkSheet);
+
+    expect(result.get("Jan Kowalski")).toEqual({
+      present: 90,
+      absent: 5,
+      excused: 0,
+      late: 0,
+    });
+  });
+
+  it("treats invalid/empty cells as 0", () => {
+    const sheetData = [
+      ["Dane ucznia", "Obecności", "Nieobecności", "Usprawiedliwione", "Spóźnienia"],
+      ["Jan Kowalski", null, "", "abc", undefined],
+    ];
+
+    vi.mocked(XLSX.utils.sheet_to_json).mockReturnValue(sheetData);
+
+    const result = parseAttendanceSheet({} as XLSX.WorkSheet);
+
+    expect(result.get("Jan Kowalski")).toEqual({
+      present: 0,
+      absent: 0,
+      excused: 0,
+      late: 0,
+    });
+  });
+
+  it("skips rows with missing student name", () => {
+    const sheetData = [
+      ["Dane ucznia", "Obecności"],
+      [null, 90],
+      ["", 85],
+      ["Jan Kowalski", 80],
+    ];
+
+    vi.mocked(XLSX.utils.sheet_to_json).mockReturnValue(sheetData);
+
+    const result = parseAttendanceSheet({} as XLSX.WorkSheet);
+
+    expect(result.size).toBe(1);
+    expect(result.get("Jan Kowalski")).toEqual({
+      present: 80,
+      absent: 0,
+      excused: 0,
+      late: 0,
+    });
+  });
+
+  it("throws on empty sheet", () => {
+    vi.mocked(XLSX.utils.sheet_to_json).mockReturnValue([]);
+
+    expect(() => parseAttendanceSheet({} as XLSX.WorkSheet)).toThrow(
+      "Invalid data structure in sheet: Dodatkowe informacje 2"
+    );
+  });
+
+  it("throws when student name column is missing", () => {
+    const sheetData = [
+      ["Obecności", "Nieobecności"],
+      [90, 5],
+    ];
+
+    vi.mocked(XLSX.utils.sheet_to_json).mockReturnValue(sheetData);
+
+    expect(() => parseAttendanceSheet({} as XLSX.WorkSheet)).toThrow(
+      "Invalid data structure in sheet: Dodatkowe informacje 2 - missing student name column"
     );
   });
 });

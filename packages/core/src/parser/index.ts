@@ -1,10 +1,11 @@
 import * as fs from "node:fs";
 import * as XLSX from "xlsx";
-import type { ClassData, RawStudent, Student } from "../types/index.js";
+import type { AttendanceStats, ClassData, RawStudent, Student } from "../types/index.js";
 import { stripStudentPII } from "../types/index.js";
 import { parseGradesSheet } from "./sheets/grades.js";
 import { parseAveragesSheet } from "./sheets/averages.js";
 import { parseMetadataSheet } from "./sheets/metadata.js";
+import { parseAttendanceSheet } from "./sheets/attendance.js";
 
 /**
  * All 6 sheet names that appear in Vulcan UONET+ XLSX exports.
@@ -27,6 +28,13 @@ const REQUIRED_SHEETS = {
   GRADES: "Okres klasyfikacyjny",
   AVERAGES: "Średnia uczniów",
   METADATA: "Dodatkowe informacje 1",
+} as const;
+
+/**
+ * Optional sheets that will be parsed if present.
+ */
+const OPTIONAL_SHEETS = {
+  ATTENDANCE: "Dodatkowe informacje 2",
 } as const;
 
 /**
@@ -116,6 +124,12 @@ export function parseVulcanXlsx(filePath: string): ClassData {
   const averagesSheet = workbook.Sheets[REQUIRED_SHEETS.AVERAGES]!;
   const averagesMap = parseAveragesSheet(averagesSheet);
 
+  // Parse optional attendance sheet if present
+  const attendanceSheet = workbook.Sheets[OPTIONAL_SHEETS.ATTENDANCE];
+  const attendanceMap: Map<string, AttendanceStats> = attendanceSheet
+    ? parseAttendanceSheet(attendanceSheet)
+    : new Map();
+
   // Build RawStudent records by correlating data across sheets
   // Note: Behavior comes from the grades sheet (embedded in column 2)
   const rawStudents: RawStudent[] = gradesData.map((row) => {
@@ -125,6 +139,7 @@ export function parseVulcanXlsx(filePath: string): ClassData {
       grades: row.grades,
       average: averagesMap.get(row.name),
       behavior: row.behavior,
+      attendance: attendanceMap.get(row.name),
     };
     return rawStudent;
   });
