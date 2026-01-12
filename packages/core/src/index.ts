@@ -1,4 +1,5 @@
-export const VERSION = '0.0.0';
+import packageJson from '../package.json' with { type: 'json' };
+export const VERSION: string = packageJson.version;
 
 // Types (public API - all GDPR-safe)
 export type {

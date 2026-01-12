@@ -1,15 +1,19 @@
 import { describe, it, expect } from 'vitest';
 import { exec as execCallback } from 'node:child_process';
+import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { promisify } from 'node:util';
 import { VERSION } from './index.js';
 
 const exec = promisify(execCallback);
 const CLI_PATH = resolve(__dirname, '../dist/index.js');
+const corePackageJson = JSON.parse(
+  readFileSync(resolve(__dirname, '../../core/package.json'), 'utf-8'),
+);
 
 describe('@klassroom/cli', () => {
-  it('re-exports VERSION from core', () => {
-    expect(VERSION).toBe('0.0.0');
+  it('re-exports VERSION from core package.json', () => {
+    expect(VERSION).toBe(corePackageJson.version);
   });
 
   describe('CLI Execution', () => {
