@@ -5,6 +5,7 @@ import { writeFile } from "node:fs/promises";
 // Mock modules before importing the CLI
 vi.mock("node:fs", () => ({
   existsSync: vi.fn(),
+  realpathSync: vi.fn(),
 }));
 
 vi.mock("node:fs/promises", () => ({
@@ -91,6 +92,7 @@ describe("generate function", () => {
       metadata: {
         className: "5b",
         period: "2024/2025 - Semestr 1" as import("@klassroom/core").ClassPeriod,
+        teacher: "Jan Kowalski",
       },
       students: [],
     });
@@ -108,6 +110,7 @@ describe("generate function", () => {
       metadata: {
         className: "5b",
         period: "2024/2025 - Semestr 1" as import("@klassroom/core").ClassPeriod,
+        teacher: "Jan Kowalski",
       },
       students: [],
     });
@@ -126,6 +129,7 @@ describe("generate function", () => {
       metadata: {
         className: "5b",
         period: "2024/2025 - Semestr 1" as import("@klassroom/core").ClassPeriod,
+        teacher: "Jan Kowalski",
       },
       students: [],
     });

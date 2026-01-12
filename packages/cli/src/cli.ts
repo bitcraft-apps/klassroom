@@ -76,11 +76,22 @@ export function createProgram(): Command {
 }
 
 // Only run when executed directly (not when imported for testing)
-const isMainModule =
-  typeof process !== "undefined" &&
-  process.argv[1] &&
-  (process.argv[1].endsWith("cli.js") || process.argv[1].endsWith("cli.ts"));
+// Using import.meta.url for reliable ES module main detection
+import { fileURLToPath } from "node:url";
+import { realpathSync } from "node:fs";
+import { resolve } from "node:path";
 
-if (isMainModule) {
+function isMain(): boolean {
+  if (!process.argv[1]) return false;
+  try {
+    const scriptPath = realpathSync(resolve(process.argv[1]));
+    const modulePath = fileURLToPath(import.meta.url);
+    return scriptPath === modulePath;
+  } catch {
+    return false;
+  }
+}
+
+if (isMain()) {
   createProgram().parse();
 }
