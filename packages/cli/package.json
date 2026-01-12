@@ -5,7 +5,7 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "bin": {
-    "klassroom": "dist/cli.js"
+    "klassroom": "./dist/index.js"
   },
   "exports": {
     ".": {
