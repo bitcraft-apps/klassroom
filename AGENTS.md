@@ -38,7 +38,7 @@ Vulcan UONET+ "additional internal documentation" XLSX export contains 6 Polish-
 | **Okres klasyfikacyjny** | Grades matrix with embedded behavior | ✅ Required |
 | **Dodatkowe informacje 1** | Class metadata (horizontal form) | ✅ Required |
 | **Średnia uczniów** | Student averages | ✅ Required |
-| **Dodatkowe informacje 2** | Attendance stats | ❌ Not parsed |
+| **Dodatkowe informacje 2** | Attendance stats | ✅ Optional |
 | **Zachowanie** | Behavior summary (counts only) | ❌ Not parsed |
 | **Informacje o uczniach** | Student details | ❌ Not parsed |
 
@@ -58,6 +58,12 @@ Vulcan UONET+ "additional internal documentation" XLSX export contains 6 Polish-
 **Średnia uczniów (Averages)**:
 - Row 0: Headers `["Numer w dzienniku", "Dane ucznia", "Średnia"]`
 - Row 1+: Student data `[number, name, average]`
+
+**Dodatkowe informacje 2 (Attendance)**:
+- Row 0: Headers containing student name and attendance columns (column order may vary)
+- Row 1+: Student data with attendance counts
+- Parser matches columns by Polish header patterns (e.g., "Dane ucznia", "Obecności", "Nieobecności", "Spóźnienia")
+- Missing columns default to 0
 
 ### Behavior Grade Mapping
 
