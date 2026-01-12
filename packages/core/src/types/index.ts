@@ -2,7 +2,7 @@
  * Branded type for student ID (GDPR-safe identifier).
  * Uses the student's class number, never their name.
  */
-export type StudentNumber = number & { readonly __brand: "StudentNumber" };
+export type StudentNumber = number & { readonly __brand: 'StudentNumber' };
 
 /**
  * Creates a type-safe StudentNumber from a plain number.
@@ -21,7 +21,7 @@ export function studentNumber(n: number): StudentNumber {
  * Branded type for classification period identifier.
  * Typically contains school year and semester (e.g., "2024/2025 - Semestr 1").
  */
-export type ClassPeriod = string & { readonly __brand: "ClassPeriod" };
+export type ClassPeriod = string & { readonly __brand: 'ClassPeriod' };
 
 /**
  * Creates a type-safe ClassPeriod from a plain string.
@@ -30,8 +30,8 @@ export type ClassPeriod = string & { readonly __brand: "ClassPeriod" };
  * @throws Error if period is empty
  */
 export function classPeriod(period: string): ClassPeriod {
-  if (!period || period.trim() === "") {
-    throw new Error("Invalid class period: must be a non-empty string.");
+  if (!period || period.trim() === '') {
+    throw new Error('Invalid class period: must be a non-empty string.');
   }
   return period as ClassPeriod;
 }
@@ -41,12 +41,12 @@ export function classPeriod(period: string): ClassPeriod {
  * Ordered from best to worst behavior.
  */
 export const BEHAVIOR_GRADES = [
-  "exemplary",
-  "veryGood",
-  "good",
-  "acceptable",
-  "inappropriate",
-  "reprehensible",
+  'exemplary',
+  'veryGood',
+  'good',
+  'acceptable',
+  'inappropriate',
+  'reprehensible',
 ] as const;
 
 /**
@@ -61,12 +61,12 @@ export type BehaviorGrade = (typeof BEHAVIOR_GRADES)[number];
  * Used during XLSX parsing to normalize behavior grades.
  */
 export const POLISH_TO_BEHAVIOR: Readonly<Record<string, BehaviorGrade>> = {
-  wzorowe: "exemplary",
-  "bardzo dobre": "veryGood",
-  dobre: "good",
-  poprawne: "acceptable",
-  nieodpowiednie: "inappropriate",
-  naganne: "reprehensible",
+  wzorowe: 'exemplary',
+  'bardzo dobre': 'veryGood',
+  dobre: 'good',
+  poprawne: 'acceptable',
+  nieodpowiednie: 'inappropriate',
+  naganne: 'reprehensible',
 };
 
 /**
@@ -296,4 +296,3 @@ export interface AggregateGradeDistribution {
   /** Count of unclassified grades */
   unclassified: number;
 }
-

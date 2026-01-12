@@ -1,4 +1,4 @@
-import type { Student, GradeCounts, NumericGrade } from "../types/index.js";
+import type { Student, GradeCounts, NumericGrade } from '../types/index.js';
 
 /**
  * Creates an empty GradeCounts object with all values initialized to 0.
@@ -16,7 +16,7 @@ export function emptyGradeCounts(): GradeCounts {
  * @returns Numeric grade 1-6, or undefined if not parseable
  */
 export function parseNumericGrade(value: string | null): NumericGrade | undefined {
-  if (value === null || value === "") {
+  if (value === null || value === '') {
     return undefined;
   }
   // Extract leading digit(s) - handles "4+", "5-", "4", etc.
@@ -68,9 +68,7 @@ export function countGradesByType(students: Student[]): GradeCounts {
  * const bySubject = countGradesBySubject(students);
  * const mathCounts = bySubject.get("Matematyka");
  */
-export function countGradesBySubject(
-  students: Student[]
-): Map<string, GradeCounts> {
+export function countGradesBySubject(students: Student[]): Map<string, GradeCounts> {
   const result = new Map<string, GradeCounts>();
 
   for (const student of students) {

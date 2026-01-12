@@ -27,12 +27,12 @@ export interface ChartDataset {
  * Subset of options used by our chart generators.
  */
 export interface ChartOptions {
-  indexAxis?: "x" | "y";
+  indexAxis?: 'x' | 'y';
   responsive?: boolean;
   plugins?: {
     legend?: {
       display?: boolean;
-      position?: "top" | "bottom" | "left" | "right";
+      position?: 'top' | 'bottom' | 'left' | 'right';
     };
     title?: {
       display?: boolean;
@@ -61,14 +61,14 @@ export interface ScaleOptions {
 /**
  * Bar chart configuration type.
  */
-export type BarChartConfig = ChartConfig<"bar">;
+export type BarChartConfig = ChartConfig<'bar'>;
 
 /**
  * Doughnut chart configuration type.
  */
-export type DoughnutChartConfig = ChartConfig<"doughnut">;
+export type DoughnutChartConfig = ChartConfig<'doughnut'>;
 
 /**
  * Pie chart configuration type.
  */
-export type PieChartConfig = ChartConfig<"pie">;
+export type PieChartConfig = ChartConfig<'pie'>;

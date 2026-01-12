@@ -5,6 +5,7 @@
 This project is a monorepo managed by [pnpm](https://pnpm.io/).
 
 ### Prerequisites
+
 - Node.js >= 20
 - pnpm
 
@@ -20,6 +21,22 @@ To build all packages:
 
 ```bash
 pnpm build
+```
+
+### Linting & Formatting
+
+This project uses [ESLint](https://eslint.org/) and [Prettier](https://prettier.io/).
+
+To lint the code:
+
+```bash
+pnpm lint
+```
+
+To format the code:
+
+```bash
+pnpm format
 ```
 
 To clean build artifacts:

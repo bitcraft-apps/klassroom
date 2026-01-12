@@ -1,5 +1,5 @@
-import type { WorkSheet } from "xlsx";
-import * as XLSX from "xlsx";
+import type { WorkSheet } from 'xlsx';
+import * as XLSX from 'xlsx';
 
 /**
  * Parses the "Średnia uczniów" (student averages) sheet.
@@ -17,7 +17,7 @@ export function parseAveragesSheet(sheet: WorkSheet): Map<string, number> {
   const data = XLSX.utils.sheet_to_json<unknown[]>(sheet, { header: 1 });
 
   if (data.length < 2) {
-    throw new Error("Invalid data structure in sheet: Średnia uczniów");
+    throw new Error('Invalid data structure in sheet: Średnia uczniów');
   }
 
   const results = new Map<string, number>();

@@ -1,10 +1,10 @@
-import type { WorkSheet } from "xlsx";
-import * as XLSX from "xlsx";
+import type { WorkSheet } from 'xlsx';
+import * as XLSX from 'xlsx';
 import type {
   ClassAttendance,
   FailureStatistics,
   AggregateGradeDistribution,
-} from "../../types/index.js";
+} from '../../types/index.js';
 
 /**
  * Parses the "Dodatkowe informacje 2" sheet to extract class-level attendance.
@@ -26,8 +26,8 @@ export function parseClassAttendance(sheet: WorkSheet): ClassAttendance | null {
     const row = data[i];
     if (!row || !Array.isArray(row)) continue;
 
-    const rowStr = row.map((cell) => String(cell ?? "").toLowerCase()).join(" ");
-    if (rowStr.includes("frekwencja") && rowStr.includes("stan %")) {
+    const rowStr = row.map((cell) => String(cell ?? '').toLowerCase()).join(' ');
+    if (rowStr.includes('frekwencja') && rowStr.includes('stan %')) {
       headerRowIndex = i;
       break;
     }
@@ -76,10 +76,10 @@ export function parseClassAttendance(sheet: WorkSheet): ClassAttendance | null {
  * Labels appear in column 2 (index 2) of the multi-column table.
  */
 const FAILURE_LABELS = {
-  NO_FAILING: "bez ocen niedostatecznych",
-  ONE_TWO_FAILING: "1-2", // matches "z 1-2 ocenami ndst."
-  THREE_PLUS_FAILING: "3 i więcej", // matches "z 3 i więcej ocenami ndst."
-  UNCLASSIFIED: "nieklasyfikowani",
+  NO_FAILING: 'bez ocen niedostatecznych',
+  ONE_TWO_FAILING: '1-2', // matches "z 1-2 ocenami ndst."
+  THREE_PLUS_FAILING: '3 i więcej', // matches "z 3 i więcej ocenami ndst."
+  UNCLASSIFIED: 'nieklasyfikowani',
 } as const;
 
 /**
@@ -88,13 +88,13 @@ const FAILURE_LABELS = {
  * Uses nominative case (e.g., "Celujący") not genitive (e.g., "celujących").
  */
 const GRADE_LABELS = {
-  EXCELLENT: "celujący",
-  VERY_GOOD: "bardzo dobry",
-  GOOD: "dobry",
-  SATISFACTORY: "dostateczny",
-  ACCEPTABLE: "dopuszczający",
-  FAILING: "niedostateczny",
-  UNCLASSIFIED: "nieklasyfikowany",
+  EXCELLENT: 'celujący',
+  VERY_GOOD: 'bardzo dobry',
+  GOOD: 'dobry',
+  SATISFACTORY: 'dostateczny',
+  ACCEPTABLE: 'dopuszczający',
+  FAILING: 'niedostateczny',
+  UNCLASSIFIED: 'nieklasyfikowany',
 } as const;
 
 /**
@@ -128,7 +128,7 @@ export function parseFailureStatistics(sheet: WorkSheet): FailureStatistics | nu
     if (!row || !Array.isArray(row) || row.length < 4) continue;
 
     // Failure stats are in columns 2 (label) and 3 (count)
-    const label = String(row[2] ?? "").toLowerCase();
+    const label = String(row[2] ?? '').toLowerCase();
     const value = Number(row[3]);
 
     if (isNaN(value) || !label) continue;
@@ -163,7 +163,7 @@ export function parseFailureStatistics(sheet: WorkSheet): FailureStatistics | nu
  * @internal
  */
 export function parseAggregateGradeDistribution(
-  sheet: WorkSheet
+  sheet: WorkSheet,
 ): AggregateGradeDistribution | null {
   const data = XLSX.utils.sheet_to_json<unknown[]>(sheet, { header: 1 });
 
@@ -187,7 +187,7 @@ export function parseAggregateGradeDistribution(
     if (!row || !Array.isArray(row) || row.length < 6) continue;
 
     // Grade distribution is in columns 4 (label) and 5 (count)
-    const label = String(row[4] ?? "").toLowerCase();
+    const label = String(row[4] ?? '').toLowerCase();
     const value = Number(row[5]);
 
     if (isNaN(value) || !label) continue;

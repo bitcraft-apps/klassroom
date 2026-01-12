@@ -1,8 +1,8 @@
-import type { Student, StudentNumber } from "../types/index.js";
-import type { BarChartConfig } from "./types.js";
+import type { Student, StudentNumber } from '../types/index.js';
+import type { BarChartConfig } from './types.js';
 
 /** Default color for student average bars */
-const STUDENT_BAR_COLOR = "#0891B2";
+const STUDENT_BAR_COLOR = '#0891B2';
 
 /**
  * GDPR-safe student data for chart generation.
@@ -28,9 +28,7 @@ export interface ChartStudentData {
  *   new Chart(ctx, config);
  * }
  */
-export function createStudentAveragesChart(
-  students: Student[]
-): BarChartConfig | null {
+export function createStudentAveragesChart(students: Student[]): BarChartConfig | null {
   // Filter to students with averages and map to chart-safe data
   const chartData: ChartStudentData[] = students
     .filter((s): s is Student & { average: number } => s.average !== undefined)
@@ -47,12 +45,12 @@ export function createStudentAveragesChart(
   const data = chartData.map((s) => s.average);
 
   return {
-    type: "bar",
+    type: 'bar',
     data: {
       labels,
       datasets: [
         {
-          label: "Średnia ocen",
+          label: 'Średnia ocen',
           data,
           backgroundColor: STUDENT_BAR_COLOR,
         },
@@ -64,7 +62,7 @@ export function createStudentAveragesChart(
         x: {
           title: {
             display: true,
-            text: "Numer ucznia",
+            text: 'Numer ucznia',
           },
         },
         y: {
@@ -72,7 +70,7 @@ export function createStudentAveragesChart(
           max: 6,
           title: {
             display: true,
-            text: "Średnia ocen",
+            text: 'Średnia ocen',
           },
         },
       },

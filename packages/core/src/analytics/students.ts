@@ -1,5 +1,5 @@
-import type { Student, AverageRangeCounts } from "../types/index.js";
-import { parseNumericGrade } from "./grades.js";
+import type { Student, AverageRangeCounts } from '../types/index.js';
+import { parseNumericGrade } from './grades.js';
 
 /** Minimum average for honors distinction (4.75+) */
 export const HONORS_THRESHOLD = 4.75;
@@ -75,9 +75,7 @@ export function calculateMinMaxAverage(students: Student[]): {
  * const subjectAvgs = calculateSubjectAverages(students);
  * const mathAvg = subjectAvgs.get("Matematyka");
  */
-export function calculateSubjectAverages(
-  students: Student[]
-): Map<string, number> {
+export function calculateSubjectAverages(students: Student[]): Map<string, number> {
   const subjectSums = new Map<string, { sum: number; count: number }>();
 
   for (const student of students) {
@@ -119,10 +117,10 @@ export function calculateSubjectAverages(
  */
 export function getTopStudents(
   students: Student[],
-  threshold: number = HONORS_THRESHOLD
+  threshold: number = HONORS_THRESHOLD,
 ): Student[] {
   return students.filter(
-    (student) => student.average !== undefined && student.average >= threshold
+    (student) => student.average !== undefined && student.average >= threshold,
   );
 }
 
@@ -141,9 +139,7 @@ export function getTopStudents(
  * const ranges = countStudentsByAverageRange(students);
  * console.log(ranges.honors); // Number of honor students
  */
-export function countStudentsByAverageRange(
-  students: Student[]
-): AverageRangeCounts {
+export function countStudentsByAverageRange(students: Student[]): AverageRangeCounts {
   const counts: AverageRangeCounts = {
     satisfactory: 0,
     good: 0,

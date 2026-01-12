@@ -1,7 +1,6 @@
-import { describe, it, expect, vi } from "vitest";
-import { generatePresentation } from "./index.js";
-import { studentNumber, classPeriod, type ClassData } from "../types/index.js";
-import { PLACEHOLDER_IMAGE } from "./render-charts.js";
+import { describe, it, expect, vi } from 'vitest';
+import { generatePresentation } from './index.js';
+import { studentNumber, classPeriod, type ClassData } from '../types/index.js';
 
 // Helper to create test class data
 function createClassData(
@@ -9,21 +8,15 @@ function createClassData(
     num: number;
     grades?: Array<{ subject: string; value: string | null }>;
     average?: number;
-    behavior?:
-      | "exemplary"
-      | "veryGood"
-      | "good"
-      | "acceptable"
-      | "inappropriate"
-      | "reprehensible";
+    behavior?: 'exemplary' | 'veryGood' | 'good' | 'acceptable' | 'inappropriate' | 'reprehensible';
   }>,
-  metadata?: Partial<ClassData["metadata"]>,
-  classAttendance?: ClassData["classAttendance"]
+  metadata?: Partial<ClassData['metadata']>,
+  classAttendance?: ClassData['classAttendance'],
 ): ClassData {
   return {
     metadata: {
-      className: metadata?.className ?? "3A",
-      period: metadata?.period ?? classPeriod("2024/2025 - Semestr 1"),
+      className: metadata?.className ?? '3A',
+      period: metadata?.period ?? classPeriod('2024/2025 - Semestr 1'),
       teacher: metadata?.teacher,
     },
     students: students.map((s) => ({
@@ -36,31 +29,31 @@ function createClassData(
   };
 }
 
-describe("generatePresentation", () => {
-  it("returns valid HTML with DOCTYPE", async () => {
+describe('generatePresentation', () => {
+  it('returns valid HTML with DOCTYPE', async () => {
     const data = createClassData([]);
     const html = await generatePresentation(data);
 
     expect(html).toMatch(/^<!DOCTYPE html>/);
     expect(html).toContain('<html lang="pl">');
-    expect(html).toContain("</html>");
+    expect(html).toContain('</html>');
   });
 
-  it("includes class metadata in title slide", async () => {
+  it('includes class metadata in title slide', async () => {
     const data = createClassData([], {
-      className: "5B",
-      period: classPeriod("2024/2025 - Semestr 2"),
-      teacher: "Jan Kowalski",
+      className: '5B',
+      period: classPeriod('2024/2025 - Semestr 2'),
+      teacher: 'Jan Kowalski',
     });
 
     const html = await generatePresentation(data);
 
-    expect(html).toContain("Klasa:</strong> 5B");
-    expect(html).toContain("Semestr:</strong> 2024/2025 - Semestr 2");
-    expect(html).toContain("Wychowawca:</strong> Jan Kowalski");
+    expect(html).toContain('Klasa:</strong> 5B');
+    expect(html).toContain('Semestr:</strong> 2024/2025 - Semestr 2');
+    expect(html).toContain('Wychowawca:</strong> Jan Kowalski');
   });
 
-  it("renders student count in overview", async () => {
+  it('renders student count in overview', async () => {
     const data = createClassData([
       { num: 1, average: 4.5 },
       { num: 2, average: 4.0 },
@@ -70,10 +63,10 @@ describe("generatePresentation", () => {
     const html = await generatePresentation(data);
 
     expect(html).toContain('<div class="value">3</div>');
-    expect(html).toContain("Liczba uczniów");
+    expect(html).toContain('Liczba uczniów');
   });
 
-  it("renders class average statistics", async () => {
+  it('renders class average statistics', async () => {
     const data = createClassData([
       { num: 1, average: 4.0 },
       { num: 2, average: 5.0 },
@@ -81,41 +74,41 @@ describe("generatePresentation", () => {
 
     const html = await generatePresentation(data);
 
-    expect(html).toContain("4.50"); // class average
-    expect(html).toContain("4.00"); // min
-    expect(html).toContain("5.00"); // max
-    expect(html).toContain("Średnia klasy");
-    expect(html).toContain("Najniższa średnia");
-    expect(html).toContain("Najwyższa średnia");
+    expect(html).toContain('4.50'); // class average
+    expect(html).toContain('4.00'); // min
+    expect(html).toContain('5.00'); // max
+    expect(html).toContain('Średnia klasy');
+    expect(html).toContain('Najniższa średnia');
+    expect(html).toContain('Najwyższa średnia');
   });
 
-  it("renders grade distribution table with Polish labels", async () => {
+  it('renders grade distribution table with Polish labels', async () => {
     const data = createClassData([
-      { num: 1, grades: [{ subject: "Matematyka", value: "5" }] },
-      { num: 2, grades: [{ subject: "Matematyka", value: "4" }] },
+      { num: 1, grades: [{ subject: 'Matematyka', value: '5' }] },
+      { num: 2, grades: [{ subject: 'Matematyka', value: '4' }] },
     ]);
 
     const html = await generatePresentation(data);
 
-    expect(html).toContain("Rozkład ocen");
-    expect(html).toContain("Przedmiot");
-    expect(html).toContain("Matematyka");
+    expect(html).toContain('Rozkład ocen');
+    expect(html).toContain('Przedmiot');
+    expect(html).toContain('Matematyka');
   });
 
-  it("renders behavior counts with Polish labels", async () => {
+  it('renders behavior counts with Polish labels', async () => {
     const data = createClassData([
-      { num: 1, behavior: "exemplary" },
-      { num: 2, behavior: "good" },
-      { num: 3, behavior: "good" },
+      { num: 1, behavior: 'exemplary' },
+      { num: 2, behavior: 'good' },
+      { num: 3, behavior: 'good' },
     ]);
 
     const html = await generatePresentation(data);
 
-    expect(html).toContain("Zachowanie");
-    expect(html).toContain("Wzorowe");
-    expect(html).toContain("Bardzo dobre");
-    expect(html).toContain("Dobre");
-    expect(html).toContain("Poprawne");
+    expect(html).toContain('Zachowanie');
+    expect(html).toContain('Wzorowe');
+    expect(html).toContain('Bardzo dobre');
+    expect(html).toContain('Dobre');
+    expect(html).toContain('Poprawne');
   });
 
   it("shows 'Brak danych' when no data available", async () => {
@@ -123,25 +116,25 @@ describe("generatePresentation", () => {
 
     const html = await generatePresentation(data);
 
-    expect(html).toContain("Brak danych");
+    expect(html).toContain('Brak danych');
   });
 
-  it("renders charts as base64 images when data available", async () => {
+  it('renders charts as base64 images when data available', async () => {
     const data = createClassData([
       {
         num: 1,
-        grades: [{ subject: "Matematyka", value: "5" }],
+        grades: [{ subject: 'Matematyka', value: '5' }],
         average: 4.5,
       },
     ]);
 
     const html = await generatePresentation(data);
 
-    expect(html).toContain("data:image/png;base64,");
+    expect(html).toContain('data:image/png;base64,');
   });
 
-  describe("GDPR compliance", () => {
-    it("data passed to template does not contain student names", async () => {
+  describe('GDPR compliance', () => {
+    it('data passed to template does not contain student names', async () => {
       // This test verifies that the template data structure
       // doesn't include any student name fields
       const data = createClassData([
@@ -152,12 +145,12 @@ describe("generatePresentation", () => {
       const html = await generatePresentation(data);
 
       // Verify it's valid HTML (function ran without exposing names)
-      expect(html).toContain("<!DOCTYPE html>");
+      expect(html).toContain('<!DOCTYPE html>');
       // Class metadata uses studentCount, not individual student data with names
-      expect(html).toContain("Liczba uczniów");
+      expect(html).toContain('Liczba uczniów');
     });
 
-    it("generates presentation without throwing for student data", async () => {
+    it('generates presentation without throwing for student data', async () => {
       const data = createClassData([
         { num: 1, average: 4.5 },
         { num: 15, average: 5.0 },
@@ -165,52 +158,52 @@ describe("generatePresentation", () => {
 
       // Should complete without error - indicates GDPR-safe data handling
       const html = await generatePresentation(data);
-      expect(html).toContain("</html>");
+      expect(html).toContain('</html>');
     });
   });
 
-  describe("Polish localization", () => {
-    it("uses Polish slide titles", async () => {
+  describe('Polish localization', () => {
+    it('uses Polish slide titles', async () => {
       const data = createClassData([]);
 
       const html = await generatePresentation(data);
 
-      expect(html).toContain("Zebranie z rodzicami");
-      expect(html).toContain("Podsumowanie klasy");
-      expect(html).toContain("Średnie ocen z przedmiotów");
-      expect(html).toContain("Rozkład ocen");
-      expect(html).toContain("Średnie ocen uczniów");
-      expect(html).toContain("Zachowanie");
+      expect(html).toContain('Zebranie z rodzicami');
+      expect(html).toContain('Podsumowanie klasy');
+      expect(html).toContain('Średnie ocen z przedmiotów');
+      expect(html).toContain('Rozkład ocen');
+      expect(html).toContain('Średnie ocen uczniów');
+      expect(html).toContain('Zachowanie');
     });
 
-    it("formats date in Polish", async () => {
+    it('formats date in Polish', async () => {
       const data = createClassData([]);
 
       const html = await generatePresentation(data);
 
       // Should contain Polish month name
-      expect(html).toContain("Data:");
+      expect(html).toContain('Data:');
       // Month names in Polish: styczeń, luty, marzec, kwiecień, maj, czerwiec,
       // lipiec, sierpień, wrzesień, październik, listopad, grudzień
       expect(html).toMatch(
-        /\d{1,2}\s+(stycznia|lutego|marca|kwietnia|maja|czerwca|lipca|sierpnia|września|października|listopada|grudnia)\s+\d{4}/
+        /\d{1,2}\s+(stycznia|lutego|marca|kwietnia|maja|czerwca|lipca|sierpnia|września|października|listopada|grudnia)\s+\d{4}/,
       );
     });
   });
 
-  describe("edge cases", () => {
-    it("handles empty student list with zero values in overview", async () => {
+  describe('edge cases', () => {
+    it('handles empty student list with zero values in overview', async () => {
       const data = createClassData([]);
 
       const html = await generatePresentation(data);
 
       // With no students, averages should show 0.00 (not NaN)
       expect(html).toContain('<div class="value">0</div>'); // student count
-      expect(html).toContain("0.00"); // averages default to 0
-      expect(html).not.toContain("NaN");
+      expect(html).toContain('0.00'); // averages default to 0
+      expect(html).not.toContain('NaN');
     });
 
-    it("handles students without averages gracefully", async () => {
+    it('handles students without averages gracefully', async () => {
       const data = createClassData([
         { num: 1 }, // no average
         { num: 2 }, // no average
@@ -221,13 +214,13 @@ describe("generatePresentation", () => {
       // Student count should be 2
       expect(html).toContain('<div class="value">2</div>');
       // Averages should show 0.00 when no student has an average
-      expect(html).toContain("0.00");
-      expect(html).not.toContain("NaN");
+      expect(html).toContain('0.00');
+      expect(html).not.toContain('NaN');
     });
   });
 
-  describe("top students slide", () => {
-    it("renders top students slide when students have 4.75+ average", async () => {
+  describe('top students slide', () => {
+    it('renders top students slide when students have 4.75+ average', async () => {
       const data = createClassData([
         { num: 1, average: 5.25 },
         { num: 2, average: 4.8 },
@@ -236,12 +229,12 @@ describe("generatePresentation", () => {
 
       const html = await generatePresentation(data);
 
-      expect(html).toContain("Najwyższe średnie");
-      expect(html).toContain("Średnia 4,75 i wyżej");
-      expect(html).toContain("(2 uczniów)");
+      expect(html).toContain('Najwyższe średnie');
+      expect(html).toContain('Średnia 4,75 i wyżej');
+      expect(html).toContain('(2 uczniów)');
     });
 
-    it("skips slide when no students meet threshold", async () => {
+    it('skips slide when no students meet threshold', async () => {
       const data = createClassData([
         { num: 1, average: 4.5 },
         { num: 2, average: 4.0 },
@@ -249,10 +242,10 @@ describe("generatePresentation", () => {
 
       const html = await generatePresentation(data);
 
-      expect(html).not.toContain("Najwyższe średnie");
+      expect(html).not.toContain('Najwyższe średnie');
     });
 
-    it("sorts by average descending, then by number ascending", async () => {
+    it('sorts by average descending, then by number ascending', async () => {
       const data = createClassData([
         { num: 3, average: 4.8 },
         { num: 1, average: 5.0 },
@@ -263,10 +256,10 @@ describe("generatePresentation", () => {
       const html = await generatePresentation(data);
 
       // Find positions in HTML to verify order
-      const pos1 = html.indexOf("<td>1</td>");
-      const pos2 = html.indexOf("<td>2</td>");
-      const pos3 = html.indexOf("<td>3</td>");
-      const pos5 = html.indexOf("<td>5</td>");
+      const pos1 = html.indexOf('<td>1</td>');
+      const pos2 = html.indexOf('<td>2</td>');
+      const pos3 = html.indexOf('<td>3</td>');
+      const pos5 = html.indexOf('<td>5</td>');
 
       // Order should be: 1 (5.00), 2 (4.90), 3 (4.80), 5 (4.80)
       expect(pos1).toBeLessThan(pos2);
@@ -274,42 +267,36 @@ describe("generatePresentation", () => {
       expect(pos3).toBeLessThan(pos5);
     });
 
-    it("displays only student numbers, never names (GDPR)", async () => {
+    it('displays only student numbers, never names (GDPR)', async () => {
       const data = createClassData([{ num: 7, average: 5.0 }]);
 
       const html = await generatePresentation(data);
 
-      expect(html).toContain("Numer ucznia");
-      expect(html).toContain("<td>7</td>");
+      expect(html).toContain('Numer ucznia');
+      expect(html).toContain('<td>7</td>');
       // The slide should not have any name-related columns
-      expect(html).not.toMatch(
-        /<th[^>]*>.*(?:Imię|Nazwisko|Uczeń|Name).*<\/th>/i
-      );
+      expect(html).not.toMatch(/<th[^>]*>.*(?:Imię|Nazwisko|Uczeń|Name).*<\/th>/i);
     });
 
-    it("formats average with comma as decimal separator", async () => {
-      const data = createClassData([{ num: 1, average: 5.25 }]);
+    it('formats average with comma as decimal separator', async () => {
 
-      const html = await generatePresentation(data);
-
-      expect(html).toContain("<td>5,25</td>");
+      expect(html).toContain('<td>5,25</td>');
     });
   });
 
-  describe("chart rendering fallback", () => {
-    it("uses placeholder image when chart rendering fails", async () => {
+  describe('chart rendering fallback', () => {
+    it('uses placeholder image when chart rendering fails', async () => {
       // Mock renderChartToDataUrl to throw an error
-      const renderChartsModule = await import("./render-charts.js");
-      const originalRenderChart = renderChartsModule.renderChartToDataUrl;
+      const renderChartsModule = await import('./render-charts.js');
 
-      vi.spyOn(renderChartsModule, "renderChartToDataUrl").mockRejectedValue(
-        new Error("Canvas initialization failed")
+      vi.spyOn(renderChartsModule, 'renderChartToDataUrl').mockRejectedValue(
+        new Error('Canvas initialization failed'),
       );
 
       const data = createClassData([
         {
           num: 1,
-          grades: [{ subject: "Matematyka", value: "5" }],
+          grades: [{ subject: 'Matematyka', value: '5' }],
           average: 4.5,
         },
       ]);
@@ -318,25 +305,25 @@ describe("generatePresentation", () => {
       const html = await generatePresentation(data);
 
       // Presentation should still render
-      expect(html).toContain("<!DOCTYPE html>");
-      expect(html).toContain("Zebranie z rodzicami");
+      expect(html).toContain('<!DOCTYPE html>');
+      expect(html).toContain('Zebranie z rodzicami');
 
       // Restore original implementation
       vi.restoreAllMocks();
     });
 
-    it("logs warning when chart rendering fails", async () => {
-      const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
+    it('logs warning when chart rendering fails', async () => {
+      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
 
-      const renderChartsModule = await import("./render-charts.js");
-      vi.spyOn(renderChartsModule, "renderChartToDataUrl").mockRejectedValue(
-        new Error("Memory error")
+      const renderChartsModule = await import('./render-charts.js');
+      vi.spyOn(renderChartsModule, 'renderChartToDataUrl').mockRejectedValue(
+        new Error('Memory error'),
       );
 
       const data = createClassData([
         {
           num: 1,
-          grades: [{ subject: "Test", value: "4" }],
+          grades: [{ subject: 'Test', value: '4' }],
           average: 4.0,
         },
       ]);
@@ -349,49 +336,67 @@ describe("generatePresentation", () => {
     });
   });
 
+<<<<<<< HEAD
   describe("attendance slide", () => {
     it("renders attendance slide when classAttendance provided", async () => {
       const data = createClassData([{ num: 1, average: 4.0 }], undefined, {
         percentage: 92.5,
         date: "10.01.2026",
+=======
+  describe('attendance slide', () => {
+    it('renders attendance slide when classAttendance provided', async () => {
+      const data = createClassData([{ num: 1, average: 4.0 }], undefined, {
+        percentage: 92.5,
+        date: '10.01.2026',
+>>>>>>> 1bcaf43 (feat: setup ESLint and Prettier (#17))
       });
 
       const html = await generatePresentation(data);
 
-      expect(html).toContain("Frekwencja");
-      expect(html).toContain("Średnia frekwencja klasy");
-      expect(html).toContain("92,5%");
-      expect(html).toContain("stan na 10.01.2026");
+      expect(html).toContain('Frekwencja');
+      expect(html).toContain('Średnia frekwencja klasy');
+      expect(html).toContain('92,5%');
+      expect(html).toContain('stan na 10.01.2026');
     });
 
-    it("skips attendance slide when classAttendance is undefined", async () => {
+    it('skips attendance slide when classAttendance is undefined', async () => {
       const data = createClassData([{ num: 1, average: 4.0 }]);
 
       const html = await generatePresentation(data);
 
-      expect(html).not.toContain("Frekwencja");
+      expect(html).not.toContain('Frekwencja');
     });
 
+<<<<<<< HEAD
     it("renders attendance without date when date not provided", async () => {
       const data = createClassData([{ num: 1, average: 4.0 }], undefined, {
         percentage: 88.0,
       });
+=======
+    it('renders attendance without date when date not provided', async () => {
+      const data = createClassData([{ num: 1, average: 4.0 }], undefined, { percentage: 88.0 });
+>>>>>>> 1bcaf43 (feat: setup ESLint and Prettier (#17))
 
       const html = await generatePresentation(data);
 
-      expect(html).toContain("88,0%");
-      expect(html).not.toContain("stan na");
+      expect(html).toContain('88,0%');
+      expect(html).not.toContain('stan na');
     });
 
+<<<<<<< HEAD
     it("uses Polish decimal separator (comma) for percentage", async () => {
       const data = createClassData([{ num: 1, average: 4.0 }], undefined, {
         percentage: 93.75,
       });
+=======
+    it('uses Polish decimal separator (comma) for percentage', async () => {
+      const data = createClassData([{ num: 1, average: 4.0 }], undefined, { percentage: 93.75 });
+>>>>>>> 1bcaf43 (feat: setup ESLint and Prettier (#17))
 
       const html = await generatePresentation(data);
 
-      expect(html).toContain("93,8%");
-      expect(html).not.toContain("93.8%");
+      expect(html).toContain('93,8%');
+      expect(html).not.toContain('93.8%');
     });
   });
 

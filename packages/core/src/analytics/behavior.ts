@@ -1,4 +1,4 @@
-import type { Student, BehaviorCounts } from "../types/index.js";
+import type { Student, BehaviorCounts } from '../types/index.js';
 
 /**
  * Counts students by their behavior grade.

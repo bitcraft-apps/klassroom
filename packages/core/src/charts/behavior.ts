@@ -1,24 +1,24 @@
-import type { BehaviorCounts } from "../types/index.js";
-import type { DoughnutChartConfig } from "./types.js";
+import type { BehaviorCounts } from '../types/index.js';
+import type { DoughnutChartConfig } from './types.js';
 
 /** Colors for behavior grades (best to worst) */
 const BEHAVIOR_COLORS = [
-  "#10B981", // exemplary - emerald
-  "#22C55E", // veryGood - green
-  "#84CC16", // good - lime
-  "#EAB308", // acceptable - yellow
-  "#F97316", // inappropriate - orange
-  "#EF4444", // reprehensible - red
+  '#10B981', // exemplary - emerald
+  '#22C55E', // veryGood - green
+  '#84CC16', // good - lime
+  '#EAB308', // acceptable - yellow
+  '#F97316', // inappropriate - orange
+  '#EF4444', // reprehensible - red
 ];
 
 /** Behavior grade labels (Polish) */
 const BEHAVIOR_LABELS = [
-  "Wzorowe",
-  "Bardzo dobre",
-  "Dobre",
-  "Poprawne",
-  "Nieodpowiednie",
-  "Naganne",
+  'Wzorowe',
+  'Bardzo dobre',
+  'Dobre',
+  'Poprawne',
+  'Nieodpowiednie',
+  'Naganne',
 ];
 
 /**
@@ -35,13 +35,8 @@ const BEHAVIOR_LABELS = [
  *   new Chart(ctx, config);
  * }
  */
-export function createBehaviorChart(
-  behaviorCounts: BehaviorCounts
-): DoughnutChartConfig | null {
-  const total = Object.values(behaviorCounts).reduce(
-    (sum, count) => sum + count,
-    0
-  );
+export function createBehaviorChart(behaviorCounts: BehaviorCounts): DoughnutChartConfig | null {
+  const total = Object.values(behaviorCounts).reduce((sum, count) => sum + count, 0);
 
   if (total === 0) {
     return null;
@@ -57,7 +52,7 @@ export function createBehaviorChart(
   ];
 
   return {
-    type: "doughnut",
+    type: 'doughnut',
     data: {
       labels: BEHAVIOR_LABELS,
       datasets: [
@@ -72,7 +67,7 @@ export function createBehaviorChart(
       plugins: {
         legend: {
           display: true,
-          position: "right",
+          position: 'right',
         },
       },
     },
