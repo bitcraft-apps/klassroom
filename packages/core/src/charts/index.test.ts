@@ -4,8 +4,15 @@ import {
   createStudentAveragesChart,
   createGradeDistributionChart,
   createBehaviorChart,
+  createAggregateGradesPieChart,
 } from "./index.js";
-import { studentNumber, type Student, type GradeCounts, type BehaviorCounts } from "../types/index.js";
+import {
+  studentNumber,
+  type Student,
+  type GradeCounts,
+  type BehaviorCounts,
+  type AggregateGradeDistribution,
+} from "../types/index.js";
 
 // Helper to create test students
 function createStudent(
@@ -292,5 +299,115 @@ describe("createBehaviorChart", () => {
 
     expect(colors).toHaveLength(6);
     expect(new Set(colors).size).toBe(6); // all unique
+  });
+});
+
+describe("createAggregateGradesPieChart", () => {
+  it("creates pie chart for aggregate grade distribution", () => {
+    const distribution: AggregateGradeDistribution = {
+      excellent: 10,
+      veryGood: 20,
+      good: 30,
+      satisfactory: 15,
+      acceptable: 5,
+      failing: 2,
+      unclassified: 1,
+    };
+
+    const config = createAggregateGradesPieChart(distribution);
+
+    expect(config).not.toBeNull();
+    expect(config!.type).toBe("pie");
+  });
+
+  it("uses Polish grade labels", () => {
+    const distribution: AggregateGradeDistribution = {
+      excellent: 1,
+      veryGood: 1,
+      good: 1,
+      satisfactory: 1,
+      acceptable: 1,
+      failing: 1,
+      unclassified: 1,
+    };
+
+    const config = createAggregateGradesPieChart(distribution);
+
+    expect(config!.data.labels).toEqual([
+      "Celujący (6)",
+      "Bardzo dobry (5)",
+      "Dobry (4)",
+      "Dostateczny (3)",
+      "Dopuszczający (2)",
+      "Niedostateczny (1)",
+      "Nieklasyfikowany",
+    ]);
+  });
+
+  it("maps counts in order: 6 to 1 then unclassified", () => {
+    const distribution: AggregateGradeDistribution = {
+      excellent: 10,
+      veryGood: 20,
+      good: 30,
+      satisfactory: 40,
+      acceptable: 50,
+      failing: 60,
+      unclassified: 70,
+    };
+
+    const config = createAggregateGradesPieChart(distribution);
+
+    expect(config!.data.datasets[0].data).toEqual([10, 20, 30, 40, 50, 60, 70]);
+  });
+
+  it("returns null when all counts are zero", () => {
+    const distribution: AggregateGradeDistribution = {
+      excellent: 0,
+      veryGood: 0,
+      good: 0,
+      satisfactory: 0,
+      acceptable: 0,
+      failing: 0,
+      unclassified: 0,
+    };
+
+    const config = createAggregateGradesPieChart(distribution);
+
+    expect(config).toBeNull();
+  });
+
+  it("shows legend on the right", () => {
+    const distribution: AggregateGradeDistribution = {
+      excellent: 1,
+      veryGood: 0,
+      good: 0,
+      satisfactory: 0,
+      acceptable: 0,
+      failing: 0,
+      unclassified: 0,
+    };
+
+    const config = createAggregateGradesPieChart(distribution);
+
+    expect(config!.options?.plugins?.legend?.display).toBe(true);
+    expect(config!.options?.plugins?.legend?.position).toBe("right");
+  });
+
+  it("uses different colors for each grade", () => {
+    const distribution: AggregateGradeDistribution = {
+      excellent: 1,
+      veryGood: 1,
+      good: 1,
+      satisfactory: 1,
+      acceptable: 1,
+      failing: 1,
+      unclassified: 1,
+    };
+
+    const config = createAggregateGradesPieChart(distribution);
+    const colors = config!.data.datasets[0].backgroundColor as string[];
+
+    expect(colors).toHaveLength(7);
+    expect(new Set(colors).size).toBe(7); // all unique
   });
 });

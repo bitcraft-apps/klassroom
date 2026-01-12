@@ -6,6 +6,7 @@ export type {
   ScaleOptions,
   BarChartConfig,
   DoughnutChartConfig,
+  PieChartConfig,
 } from "./types.js";
 
 // Subject averages chart
@@ -20,3 +21,6 @@ export { createGradeDistributionChart } from "./grades.js";
 
 // Behavior chart
 export { createBehaviorChart } from "./behavior.js";
+
+// Aggregate grade distribution pie chart
+export { createAggregateGradesPieChart } from "./aggregate-grades.js";

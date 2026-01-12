@@ -7,6 +7,8 @@ export type {
   BehaviorGrade,
   Grade,
   ClassAttendance,
+  FailureStatistics,
+  AggregateGradeDistribution,
   Student,
   ClassMetadata,
   ClassData,
@@ -58,6 +60,7 @@ export {
   createStudentAveragesChart,
   createGradeDistributionChart,
   createBehaviorChart,
+  createAggregateGradesPieChart,
 } from "./charts/index.js";
 
 export type {
@@ -67,6 +70,7 @@ export type {
   ScaleOptions,
   BarChartConfig,
   DoughnutChartConfig,
+  PieChartConfig,
   ChartStudentData,
 } from "./charts/index.js";
 

@@ -25,6 +25,9 @@ function createTestPresentationData(
     behaviorCounts: null,
     topStudents: null,
     classAttendance: null,
+    failureStatistics: null,
+    aggregateGradeDistribution: null,
+    aggregateGradesPieChart: null,
     ...overrides,
   };
 }
@@ -317,5 +320,185 @@ describe("renderPresentation - attendance slide", () => {
 
     expect(topStudentsIndex).toBeLessThan(attendanceIndex);
     expect(attendanceIndex).toBeLessThan(behaviorIndex);
+  });
+
+  it("renders failure statistics table when available", () => {
+    const data = createTestPresentationData({
+      failureStatistics: {
+        noFailingGrades: 15,
+        oneToTwoFailingGrades: 3,
+        threeOrMoreFailingGrades: 1,
+        unclassified: 1,
+      },
+    });
+
+    const html = renderPresentation(data);
+
+    expect(html).toContain("Zagrożenia");
+    expect(html).toContain("Bez ocen niedostatecznych");
+    expect(html).toContain("<td>15</td>");
+    expect(html).toContain("Z 1-2 ocenami niedostatecznymi");
+    expect(html).toContain("<td>3</td>");
+    expect(html).toContain("Z 3+ ocenami niedostatecznymi");
+    expect(html).toContain("<td>1</td>");
+    expect(html).toContain("Nieklasyfikowani");
+  });
+
+  it("renders attendance slide with only failure statistics when no attendance", () => {
+    const data = createTestPresentationData({
+      classAttendance: null,
+      failureStatistics: {
+        noFailingGrades: 10,
+        oneToTwoFailingGrades: 5,
+        threeOrMoreFailingGrades: 2,
+        unclassified: 0,
+      },
+    });
+
+    const html = renderPresentation(data);
+
+    expect(html).toContain("Frekwencja i zagrożenia");
+    expect(html).toContain("Zagrożenia");
+    expect(html).not.toContain("Średnia frekwencja klasy");
+  });
+
+  it("renders both attendance and failure statistics together", () => {
+    const data = createTestPresentationData({
+      classAttendance: {
+        percentage: 92.5,
+        date: "10.01.2026",
+      },
+      failureStatistics: {
+        noFailingGrades: 15,
+        oneToTwoFailingGrades: 3,
+        threeOrMoreFailingGrades: 1,
+        unclassified: 1,
+      },
+    });
+
+    const html = renderPresentation(data);
+
+    expect(html).toContain("92,5%");
+    expect(html).toContain("Zagrożenia");
+    expect(html).toContain("Bez ocen niedostatecznych");
+  });
+});
+
+describe("renderPresentation - aggregate grades slide", () => {
+  it("renders aggregate grades slide with Polish labels", () => {
+    const data = createTestPresentationData({
+      aggregateGradeDistribution: {
+        excellent: 10,
+        veryGood: 20,
+        good: 30,
+        satisfactory: 15,
+        acceptable: 5,
+        failing: 2,
+        unclassified: 1,
+      },
+    });
+
+    const html = renderPresentation(data);
+
+    expect(html).toContain("Rozkład wszystkich ocen");
+    expect(html).toContain("Celujący (6)");
+    expect(html).toContain("Bardzo dobry (5)");
+    expect(html).toContain("Dobry (4)");
+    expect(html).toContain("Dostateczny (3)");
+    expect(html).toContain("Dopuszczający (2)");
+    expect(html).toContain("Niedostateczny (1)");
+    expect(html).toContain("Nieklasyfikowany");
+  });
+
+  it("displays grade counts in table", () => {
+    const data = createTestPresentationData({
+      aggregateGradeDistribution: {
+        excellent: 10,
+        veryGood: 20,
+        good: 30,
+        satisfactory: 15,
+        acceptable: 5,
+        failing: 2,
+        unclassified: 1,
+      },
+    });
+
+    const html = renderPresentation(data);
+
+    expect(html).toContain("<td>10</td>");
+    expect(html).toContain("<td>20</td>");
+    expect(html).toContain("<td>30</td>");
+    expect(html).toContain("<td>15</td>");
+    expect(html).toContain("<td>5</td>");
+    expect(html).toContain("<td>2</td>");
+  });
+
+  it("skips slide when no aggregate grade data", () => {
+    const data = createTestPresentationData({
+      aggregateGradeDistribution: null,
+      aggregateGradesPieChart: null,
+    });
+
+    const html = renderPresentation(data);
+
+    expect(html).not.toContain("Rozkład wszystkich ocen");
+  });
+
+  it("renders slide between attendance and behavior", () => {
+    const data = createTestPresentationData({
+      classAttendance: {
+        percentage: 90.0,
+      },
+      aggregateGradeDistribution: {
+        excellent: 10,
+        veryGood: 20,
+        good: 30,
+        satisfactory: 15,
+        acceptable: 5,
+        failing: 2,
+        unclassified: 1,
+      },
+      behaviorCounts: {
+        exemplary: 1,
+        veryGood: 0,
+        good: 0,
+        acceptable: 0,
+        inappropriate: 0,
+        reprehensible: 0,
+      },
+    });
+
+    const html = renderPresentation(data);
+
+    const attendanceIndex = html.indexOf("Frekwencja");
+    const aggregateGradesIndex = html.indexOf("Rozkład wszystkich ocen");
+    const behaviorIndex = html.indexOf("Zachowanie");
+
+    expect(attendanceIndex).toBeLessThan(aggregateGradesIndex);
+    expect(aggregateGradesIndex).toBeLessThan(behaviorIndex);
+  });
+
+  it("renders table without chart when chart rendering fails", () => {
+    const data = createTestPresentationData({
+      aggregateGradeDistribution: {
+        excellent: 10,
+        veryGood: 20,
+        good: 30,
+        satisfactory: 15,
+        acceptable: 5,
+        failing: 2,
+        unclassified: 1,
+      },
+      aggregateGradesPieChart: null, // Chart failed to render
+    });
+
+    const html = renderPresentation(data);
+
+    // Slide should still render with table
+    expect(html).toContain("Rozkład wszystkich ocen");
+    expect(html).toContain("Celujący (6)");
+    expect(html).toContain("<td>10</td>");
+    // No chart image
+    expect(html).not.toContain("Wykres rozkładu ocen");
   });
 });

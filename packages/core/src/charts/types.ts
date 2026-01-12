@@ -67,3 +67,8 @@ export type BarChartConfig = ChartConfig<"bar">;
  * Doughnut chart configuration type.
  */
 export type DoughnutChartConfig = ChartConfig<"doughnut">;
+
+/**
+ * Pie chart configuration type.
+ */
+export type PieChartConfig = ChartConfig<"pie">;

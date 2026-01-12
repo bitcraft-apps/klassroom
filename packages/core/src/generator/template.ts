@@ -1,4 +1,11 @@
-import type { BehaviorCounts, ClassAttendance, GradeCounts, StudentNumber } from "../types/index.js";
+import type {
+  BehaviorCounts,
+  ClassAttendance,
+  FailureStatistics,
+  AggregateGradeDistribution,
+  GradeCounts,
+  StudentNumber,
+} from "../types/index.js";
 
 /**
  * GDPR-safe row for top students slide.
@@ -34,6 +41,9 @@ export interface PresentationData {
   behaviorCounts: BehaviorCounts | null;
   topStudents: TopStudentRow[] | null;
   classAttendance: ClassAttendance | null;
+  failureStatistics: FailureStatistics | null;
+  aggregateGradeDistribution: AggregateGradeDistribution | null;
+  aggregateGradesPieChart: string | null;
 }
 
 export interface GradeDistributionRow {
@@ -167,6 +177,11 @@ tr:hover {
   font-size: 1.25rem;
   color: #6b7280;
   margin-bottom: 1rem;
+}
+.section-heading {
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+  color: #374151;
 }
 @media print {
   body {
@@ -355,27 +370,142 @@ function renderTopStudentsSlide(data: PresentationData): string {
 }
 
 function renderAttendanceSlide(data: PresentationData): string {
-  if (!data.classAttendance) {
+  // Skip slide if no attendance and no failure statistics
+  if (!data.classAttendance && !data.failureStatistics) {
     return "";
   }
 
-  const { percentage, date } = data.classAttendance;
-
-  // Format percentage with Polish decimal separator (comma)
-  const formattedPercentage = `${percentage.toFixed(1).replace(".", ",")}%`;
-
-  // Show date if available
-  const dateInfo = date ? ` (stan na ${date})` : "";
-
-  return `
-  <section class="slide">
-    <h2>Frekwencja</h2>
-    <div class="stats-grid">
+  let attendanceCard = "";
+  if (data.classAttendance) {
+    const { percentage, date } = data.classAttendance;
+    // Format percentage with Polish decimal separator (comma)
+    const formattedPercentage = `${percentage.toFixed(1).replace(".", ",")}%`;
+    // Show date if available
+    const dateInfo = date ? ` (stan na ${date})` : "";
+    attendanceCard = `
       <div class="stat-card">
         <div class="value">${formattedPercentage}</div>
         <div class="label">Średnia frekwencja klasy${dateInfo}</div>
-      </div>
-    </div>
+      </div>`;
+  }
+
+  let failureStatsHtml = "";
+  if (data.failureStatistics) {
+    const { noFailingGrades, oneToTwoFailingGrades, threeOrMoreFailingGrades, unclassified } =
+      data.failureStatistics;
+    failureStatsHtml = `
+    <h3 class="section-heading">Zagrożenia</h3>
+    <table>
+      <thead>
+        <tr>
+          <th scope="col">Kategoria</th>
+          <th scope="col">Liczba uczniów</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Bez ocen niedostatecznych</td>
+          <td>${noFailingGrades}</td>
+        </tr>
+        <tr>
+          <td>Z 1-2 ocenami niedostatecznymi</td>
+          <td>${oneToTwoFailingGrades}</td>
+        </tr>
+        <tr>
+          <td>Z 3+ ocenami niedostatecznymi</td>
+          <td>${threeOrMoreFailingGrades}</td>
+        </tr>
+        <tr>
+          <td>Nieklasyfikowani</td>
+          <td>${unclassified}</td>
+        </tr>
+      </tbody>
+    </table>`;
+  }
+
+  return `
+  <section class="slide">
+    <h2>Frekwencja i zagrożenia</h2>
+    <div class="stats-grid">${attendanceCard}
+    </div>${failureStatsHtml}
+  </section>`;
+}
+
+function renderAggregateGradesSlide(data: PresentationData): string {
+  if (!data.aggregateGradeDistribution && !data.aggregateGradesPieChart) {
+    return "";
+  }
+
+  const chartUrl = safeDataUrl(data.aggregateGradesPieChart);
+  const chartContent = chartUrl
+    ? `<div class="chart-container">
+        <img src="${chartUrl}" alt="Wykres rozkładu ocen">
+      </div>`
+    : "";
+
+  // If we only have chart, show just the chart
+  if (!data.aggregateGradeDistribution) {
+    return chartContent
+      ? `
+  <section class="slide">
+    <h2>Rozkład wszystkich ocen</h2>
+    ${chartContent}
+  </section>`
+      : "";
+  }
+
+  const {
+    excellent,
+    veryGood,
+    good,
+    satisfactory,
+    acceptable,
+    failing,
+    unclassified,
+  } = data.aggregateGradeDistribution;
+
+  return `
+  <section class="slide">
+    <h2>Rozkład wszystkich ocen</h2>
+    ${chartContent}
+    <table>
+      <thead>
+        <tr>
+          <th scope="col">Ocena</th>
+          <th scope="col">Liczba</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Celujący (6)</td>
+          <td>${excellent}</td>
+        </tr>
+        <tr>
+          <td>Bardzo dobry (5)</td>
+          <td>${veryGood}</td>
+        </tr>
+        <tr>
+          <td>Dobry (4)</td>
+          <td>${good}</td>
+        </tr>
+        <tr>
+          <td>Dostateczny (3)</td>
+          <td>${satisfactory}</td>
+        </tr>
+        <tr>
+          <td>Dopuszczający (2)</td>
+          <td>${acceptable}</td>
+        </tr>
+        <tr>
+          <td>Niedostateczny (1)</td>
+          <td>${failing}</td>
+        </tr>
+        <tr>
+          <td>Nieklasyfikowany</td>
+          <td>${unclassified}</td>
+        </tr>
+      </tbody>
+    </table>
   </section>`;
 }
 
@@ -478,7 +608,7 @@ export function renderPresentation(data: PresentationData): string {
   <title>Zebranie z rodzicami - ${escapeHtml(data.metadata.className)}</title>
   <style>${STYLES}</style>
 </head>
-<body>${renderTitleSlide(data)}${renderOverviewSlide(data)}${renderSubjectAveragesSlide(data)}${renderGradeDistributionSlide(data)}${renderStudentAveragesSlide(data)}${renderTopStudentsSlide(data)}${renderAttendanceSlide(data)}${renderBehaviorSlide(data)}
+<body>${renderTitleSlide(data)}${renderOverviewSlide(data)}${renderSubjectAveragesSlide(data)}${renderGradeDistributionSlide(data)}${renderStudentAveragesSlide(data)}${renderTopStudentsSlide(data)}${renderAttendanceSlide(data)}${renderAggregateGradesSlide(data)}${renderBehaviorSlide(data)}
 </body>
 </html>`;
 }
