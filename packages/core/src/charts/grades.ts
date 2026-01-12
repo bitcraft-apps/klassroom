@@ -1,18 +1,18 @@
-import type { GradeCounts } from "../types/index.js";
-import type { BarChartConfig } from "./types.js";
+import type { GradeCounts } from '../types/index.js';
+import type { BarChartConfig } from './types.js';
 
 /** Colors for grades 1-6 (red to green gradient) */
 const GRADE_COLORS = [
-  "#EF4444", // 1 - red
-  "#F97316", // 2 - orange
-  "#EAB308", // 3 - yellow
-  "#84CC16", // 4 - lime
-  "#22C55E", // 5 - green
-  "#10B981", // 6 - emerald
+  '#EF4444', // 1 - red
+  '#F97316', // 2 - orange
+  '#EAB308', // 3 - yellow
+  '#84CC16', // 4 - lime
+  '#22C55E', // 5 - green
+  '#10B981', // 6 - emerald
 ];
 
 /** Grade labels 1-6 */
-const GRADE_LABELS = ["1", "2", "3", "4", "5", "6"];
+const GRADE_LABELS = ['1', '2', '3', '4', '5', '6'];
 
 /**
  * Creates a bar chart configuration for grade distribution.
@@ -28,9 +28,7 @@ const GRADE_LABELS = ["1", "2", "3", "4", "5", "6"];
  *   new Chart(ctx, config);
  * }
  */
-export function createGradeDistributionChart(
-  gradeCounts: GradeCounts
-): BarChartConfig | null {
+export function createGradeDistributionChart(gradeCounts: GradeCounts): BarChartConfig | null {
   const total = Object.values(gradeCounts).reduce((sum, count) => sum + count, 0);
 
   if (total === 0) {
@@ -47,12 +45,12 @@ export function createGradeDistributionChart(
   ];
 
   return {
-    type: "bar",
+    type: 'bar',
     data: {
       labels: GRADE_LABELS,
       datasets: [
         {
-          label: "Liczba",
+          label: 'Liczba',
           data,
           backgroundColor: GRADE_COLORS,
         },
@@ -64,14 +62,14 @@ export function createGradeDistributionChart(
         x: {
           title: {
             display: true,
-            text: "Ocena",
+            text: 'Ocena',
           },
         },
         y: {
           beginAtZero: true,
           title: {
             display: true,
-            text: "Liczba",
+            text: 'Liczba',
           },
         },
       },

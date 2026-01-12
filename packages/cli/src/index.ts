@@ -1,13 +1,13 @@
 #!/usr/bin/env node
 
-import { fileURLToPath } from "node:url";
-import { realpathSync } from "node:fs";
-import { resolve } from "node:path";
-import { VERSION } from "@klassroom/core";
-import { createProgram } from "./cli.js";
+import { fileURLToPath } from 'node:url';
+import { realpathSync } from 'node:fs';
+import { resolve } from 'node:path';
+import { VERSION } from '@klassroom/core';
+import { createProgram } from './cli.js';
 
 export { VERSION };
-export * from "./cli.js";
+export * from './cli.js';
 
 function isMain(): boolean {
   if (!process.argv[1]) return false;

@@ -1,7 +1,7 @@
-import type { BarChartConfig } from "./types.js";
+import type { BarChartConfig } from './types.js';
 
 /** Default color for subject average bars */
-const SUBJECT_BAR_COLOR = "#4F46E5";
+const SUBJECT_BAR_COLOR = '#4F46E5';
 
 /**
  * Creates a horizontal bar chart configuration for subject averages.
@@ -18,7 +18,7 @@ const SUBJECT_BAR_COLOR = "#4F46E5";
  * }
  */
 export function createSubjectAveragesChart(
-  subjectAverages: Map<string, number>
+  subjectAverages: Map<string, number>,
 ): BarChartConfig | null {
   if (subjectAverages.size === 0) {
     return null;
@@ -30,19 +30,19 @@ export function createSubjectAveragesChart(
   const data = sorted.map(([, avg]) => avg);
 
   return {
-    type: "bar",
+    type: 'bar',
     data: {
       labels,
       datasets: [
         {
-          label: "Średnia ocen",
+          label: 'Średnia ocen',
           data,
           backgroundColor: SUBJECT_BAR_COLOR,
         },
       ],
     },
     options: {
-      indexAxis: "y",
+      indexAxis: 'y',
       responsive: true,
       scales: {
         x: {
@@ -50,13 +50,13 @@ export function createSubjectAveragesChart(
           max: 6,
           title: {
             display: true,
-            text: "Ocena",
+            text: 'Ocena',
           },
         },
         y: {
           title: {
             display: true,
-            text: "Przedmiot",
+            text: 'Przedmiot',
           },
         },
       },

@@ -1,11 +1,11 @@
-import { describe, it, expect } from "vitest";
-import * as XLSX from "xlsx";
-import type { WorkSheet } from "xlsx";
+import { describe, it, expect } from 'vitest';
+import * as XLSX from 'xlsx';
+import type { WorkSheet } from 'xlsx';
 import {
   parseClassAttendance,
   parseFailureStatistics,
   parseAggregateGradeDistribution,
-} from "./attendance.js";
+} from './attendance.js';
 
 /**
  * Helper to create a mock WorkSheet from row data.
@@ -40,39 +40,67 @@ function createVulcanSheet(options: {
 }): WorkSheet {
   const { failureStats = {}, gradeDistribution = {} } = options;
   const rows = [
-    ["Dodatkowe informacje dla oddziału 5b w roku szkolnym 2025/2026"],
+    ['Dodatkowe informacje dla oddziału 5b w roku szkolnym 2025/2026'],
     [],
-    ["Dane podstawowe"],
-    ["Wychowawca: Jan Kowalski"],
+    ['Dane podstawowe'],
+    ['Wychowawca: Jan Kowalski'],
     [],
-    ["Liczba uczniów w dniu"],
+    ['Liczba uczniów w dniu'],
     [],
-    ["Dzień", "Liczba uczniów"],
-    ["01.09.2025", 30],
+    ['Dzień', 'Liczba uczniów'],
+    ['01.09.2025', 30],
     [],
-    ["Frekwencja na dzień klasyfikacji"],
+    ['Frekwencja na dzień klasyfikacji'],
     [],
-    ["Frekwencja", "Stan %"],
-    ["10.01.2026", 88.93],
+    ['Frekwencja', 'Stan %'],
+    ['10.01.2026', 88.93],
     [],
-    ["Liczba ocen w oddziale"],
+    ['Liczba ocen w oddziale'],
     [],
     // Header row for the multi-column table
-    ["Zachowanie", "Liczba", "Uczniowie", "Liczba uczniów", "Oceny", "Liczba ocen"],
+    ['Zachowanie', 'Liczba', 'Uczniowie', 'Liczba uczniów', 'Oceny', 'Liczba ocen'],
     // Data rows with behavior, failure stats, and grade distribution
-    ["wzorowe", 12, "bez ocen niedostatecznych", failureStats.noFailing ?? 29, "Celujący", gradeDistribution.excellent ?? 65],
-    ["bardzo dobre", 18, "z 1-2 ocenami ndst.", failureStats.oneTwoFailing ?? 1, "Bardzo dobry", gradeDistribution.veryGood ?? 145],
-    ["dobre", 0, "z 3 i więcej ocenami ndst.", failureStats.threePlusFailing ?? 0, "Dobry", gradeDistribution.good ?? 94],
-    ["poprawne", 0, "nieklasyfikowani", failureStats.unclassified ?? 0, "Dostateczny", gradeDistribution.satisfactory ?? 44],
-    ["nieodpowiednie", 0, "", "", "Dopuszczający", gradeDistribution.acceptable ?? 8],
-    ["naganne", 0, "", "", "Niedostateczny", gradeDistribution.failing ?? 1],
-    ["", "", "", "", "Nieklasyfikowany", gradeDistribution.unclassified ?? 0],
+    [
+      'wzorowe',
+      12,
+      'bez ocen niedostatecznych',
+      failureStats.noFailing ?? 29,
+      'Celujący',
+      gradeDistribution.excellent ?? 65,
+    ],
+    [
+      'bardzo dobre',
+      18,
+      'z 1-2 ocenami ndst.',
+      failureStats.oneTwoFailing ?? 1,
+      'Bardzo dobry',
+      gradeDistribution.veryGood ?? 145,
+    ],
+    [
+      'dobre',
+      0,
+      'z 3 i więcej ocenami ndst.',
+      failureStats.threePlusFailing ?? 0,
+      'Dobry',
+      gradeDistribution.good ?? 94,
+    ],
+    [
+      'poprawne',
+      0,
+      'nieklasyfikowani',
+      failureStats.unclassified ?? 0,
+      'Dostateczny',
+      gradeDistribution.satisfactory ?? 44,
+    ],
+    ['nieodpowiednie', 0, '', '', 'Dopuszczający', gradeDistribution.acceptable ?? 8],
+    ['naganne', 0, '', '', 'Niedostateczny', gradeDistribution.failing ?? 1],
+    ['', '', '', '', 'Nieklasyfikowany', gradeDistribution.unclassified ?? 0],
   ];
   return createMockSheet(rows);
 }
 
-describe("parseFailureStatistics", () => {
-  it("parses all failure statistics from Vulcan format", () => {
+describe('parseFailureStatistics', () => {
+  it('parses all failure statistics from Vulcan format', () => {
     const sheet = createVulcanSheet({
       failureStats: {
         noFailing: 15,
@@ -92,13 +120,13 @@ describe("parseFailureStatistics", () => {
     });
   });
 
-  it("parses partial data when some rows have empty labels", () => {
+  it('parses partial data when some rows have empty labels', () => {
     const sheet = createMockSheet([
       // Multi-column row with only some failure stats
-      ["wzorowe", 12, "bez ocen niedostatecznych", 10, "Celujący", 65],
-      ["bardzo dobre", 18, "z 1-2 ocenami ndst.", 5, "Bardzo dobry", 145],
+      ['wzorowe', 12, 'bez ocen niedostatecznych', 10, 'Celujący', 65],
+      ['bardzo dobre', 18, 'z 1-2 ocenami ndst.', 5, 'Bardzo dobry', 145],
       // Rows without failure stats (empty column 2)
-      ["dobre", 0, "", "", "Dobry", 94],
+      ['dobre', 0, '', '', 'Dobry', 94],
     ]);
 
     const result = parseFailureStatistics(sheet);
@@ -111,7 +139,7 @@ describe("parseFailureStatistics", () => {
     });
   });
 
-  it("returns null for empty sheet", () => {
+  it('returns null for empty sheet', () => {
     const sheet = createMockSheet([]);
 
     const result = parseFailureStatistics(sheet);
@@ -119,10 +147,10 @@ describe("parseFailureStatistics", () => {
     expect(result).toBeNull();
   });
 
-  it("returns null when no matching labels found", () => {
+  it('returns null when no matching labels found', () => {
     const sheet = createMockSheet([
-      ["Header", "Description", "Other", "Data", "More", "Values"],
-      ["row1", 100, "some other data", 50, "irrelevant", 25],
+      ['Header', 'Description', 'Other', 'Data', 'More', 'Values'],
+      ['row1', 100, 'some other data', 50, 'irrelevant', 25],
     ]);
 
     const result = parseFailureStatistics(sheet);
@@ -130,10 +158,10 @@ describe("parseFailureStatistics", () => {
     expect(result).toBeNull();
   });
 
-  it("handles case insensitivity in labels", () => {
+  it('handles case insensitivity in labels', () => {
     const sheet = createMockSheet([
-      ["behavior", 12, "BEZ OCEN NIEDOSTATECZNYCH", 20, "grade", 65],
-      ["behavior", 18, "Z 1-2 Ocenami Ndst.", 4, "grade", 145],
+      ['behavior', 12, 'BEZ OCEN NIEDOSTATECZNYCH', 20, 'grade', 65],
+      ['behavior', 18, 'Z 1-2 Ocenami Ndst.', 4, 'grade', 145],
     ]);
 
     const result = parseFailureStatistics(sheet);
@@ -146,9 +174,9 @@ describe("parseFailureStatistics", () => {
     });
   });
 
-  it("handles labels with extra whitespace", () => {
+  it('handles labels with extra whitespace', () => {
     const sheet = createMockSheet([
-      ["behavior", 12, "  bez ocen niedostatecznych  ", 12, "grade", 65],
+      ['behavior', 12, '  bez ocen niedostatecznych  ', 12, 'grade', 65],
     ]);
 
     const result = parseFailureStatistics(sheet);
@@ -161,10 +189,10 @@ describe("parseFailureStatistics", () => {
     });
   });
 
-  it("skips rows with non-numeric values in count column", () => {
+  it('skips rows with non-numeric values in count column', () => {
     const sheet = createMockSheet([
-      ["Header", "Liczba", "Uczniowie", "Liczba uczniów", "Oceny", "Liczba ocen"],
-      ["behavior", 12, "bez ocen niedostatecznych", 15, "grade", 65],
+      ['Header', 'Liczba', 'Uczniowie', 'Liczba uczniów', 'Oceny', 'Liczba ocen'],
+      ['behavior', 12, 'bez ocen niedostatecznych', 15, 'grade', 65],
     ]);
 
     const result = parseFailureStatistics(sheet);
@@ -177,10 +205,10 @@ describe("parseFailureStatistics", () => {
     });
   });
 
-  it("skips rows with less than 4 columns", () => {
+  it('skips rows with less than 4 columns', () => {
     const sheet = createMockSheet([
-      ["only", "three", "columns"],
-      ["behavior", 12, "bez ocen niedostatecznych", 15, "grade", 65],
+      ['only', 'three', 'columns'],
+      ['behavior', 12, 'bez ocen niedostatecznych', 15, 'grade', 65],
     ]);
 
     const result = parseFailureStatistics(sheet);
@@ -193,7 +221,7 @@ describe("parseFailureStatistics", () => {
     });
   });
 
-  it("handles realistic Vulcan export format", () => {
+  it('handles realistic Vulcan export format', () => {
     const sheet = createVulcanSheet({
       failureStats: {
         noFailing: 29,
@@ -214,8 +242,8 @@ describe("parseFailureStatistics", () => {
   });
 });
 
-describe("parseAggregateGradeDistribution", () => {
-  it("parses all grade counts from Vulcan format", () => {
+describe('parseAggregateGradeDistribution', () => {
+  it('parses all grade counts from Vulcan format', () => {
     const sheet = createVulcanSheet({
       gradeDistribution: {
         excellent: 10,
@@ -241,11 +269,11 @@ describe("parseAggregateGradeDistribution", () => {
     });
   });
 
-  it("parses partial data when some rows are missing", () => {
+  it('parses partial data when some rows are missing', () => {
     const sheet = createMockSheet([
-      ["behavior", 12, "label", 29, "Celujący", 10],
-      ["behavior", 18, "label", 1, "Bardzo dobry", 20],
-      ["behavior", 0, "label", 0, "Dobry", 30],
+      ['behavior', 12, 'label', 29, 'Celujący', 10],
+      ['behavior', 18, 'label', 1, 'Bardzo dobry', 20],
+      ['behavior', 0, 'label', 0, 'Dobry', 30],
     ]);
 
     const result = parseAggregateGradeDistribution(sheet);
@@ -261,7 +289,7 @@ describe("parseAggregateGradeDistribution", () => {
     });
   });
 
-  it("returns null for empty sheet", () => {
+  it('returns null for empty sheet', () => {
     const sheet = createMockSheet([]);
 
     const result = parseAggregateGradeDistribution(sheet);
@@ -269,10 +297,10 @@ describe("parseAggregateGradeDistribution", () => {
     expect(result).toBeNull();
   });
 
-  it("returns null when no matching labels found", () => {
+  it('returns null when no matching labels found', () => {
     const sheet = createMockSheet([
-      ["col0", "col1", "col2", "col3", "col4", "col5"],
-      ["a", 100, "b", 200, "some other data", 300],
+      ['col0', 'col1', 'col2', 'col3', 'col4', 'col5'],
+      ['a', 100, 'b', 200, 'some other data', 300],
     ]);
 
     const result = parseAggregateGradeDistribution(sheet);
@@ -282,8 +310,8 @@ describe("parseAggregateGradeDistribution", () => {
 
   it("distinguishes 'Dobry' from 'Bardzo dobry'", () => {
     const sheet = createMockSheet([
-      ["behavior", 12, "label", 29, "Bardzo dobry", 20],
-      ["behavior", 18, "label", 1, "Dobry", 30],
+      ['behavior', 12, 'label', 29, 'Bardzo dobry', 20],
+      ['behavior', 18, 'label', 1, 'Dobry', 30],
     ]);
 
     const result = parseAggregateGradeDistribution(sheet);
@@ -292,10 +320,10 @@ describe("parseAggregateGradeDistribution", () => {
     expect(result?.good).toBe(30);
   });
 
-  it("handles case insensitivity in labels", () => {
+  it('handles case insensitivity in labels', () => {
     const sheet = createMockSheet([
-      ["behavior", 12, "label", 29, "CELUJĄCY", 10],
-      ["behavior", 18, "label", 1, "Bardzo Dobry", 20],
+      ['behavior', 12, 'label', 29, 'CELUJĄCY', 10],
+      ['behavior', 18, 'label', 1, 'Bardzo Dobry', 20],
     ]);
 
     const result = parseAggregateGradeDistribution(sheet);
@@ -311,7 +339,7 @@ describe("parseAggregateGradeDistribution", () => {
     });
   });
 
-  it("handles realistic Vulcan export format", () => {
+  it('handles realistic Vulcan export format', () => {
     const sheet = createVulcanSheet({
       gradeDistribution: {
         excellent: 65,
@@ -337,10 +365,10 @@ describe("parseAggregateGradeDistribution", () => {
     });
   });
 
-  it("skips rows with non-numeric values in count column", () => {
+  it('skips rows with non-numeric values in count column', () => {
     const sheet = createMockSheet([
-      ["Header", "Liczba", "Uczniowie", "Liczba", "Oceny", "Liczba ocen"],
-      ["behavior", 12, "label", 29, "Celujący", 10],
+      ['Header', 'Liczba', 'Uczniowie', 'Liczba', 'Oceny', 'Liczba ocen'],
+      ['behavior', 12, 'label', 29, 'Celujący', 10],
     ]);
 
     const result = parseAggregateGradeDistribution(sheet);
@@ -348,10 +376,10 @@ describe("parseAggregateGradeDistribution", () => {
     expect(result?.excellent).toBe(10);
   });
 
-  it("handles zero counts correctly", () => {
+  it('handles zero counts correctly', () => {
     const sheet = createMockSheet([
-      ["behavior", 12, "label", 29, "Celujący", 0],
-      ["behavior", 18, "label", 1, "Niedostateczny", 0],
+      ['behavior', 12, 'label', 29, 'Celujący', 0],
+      ['behavior', 18, 'label', 1, 'Niedostateczny', 0],
     ]);
 
     const result = parseAggregateGradeDistribution(sheet);
@@ -367,10 +395,10 @@ describe("parseAggregateGradeDistribution", () => {
     });
   });
 
-  it("skips rows with less than 6 columns", () => {
+  it('skips rows with less than 6 columns', () => {
     const sheet = createMockSheet([
-      ["only", "five", "columns", "here", "now"],
-      ["behavior", 12, "label", 29, "Celujący", 10],
+      ['only', 'five', 'columns', 'here', 'now'],
+      ['behavior', 12, 'label', 29, 'Celujący', 10],
     ]);
 
     const result = parseAggregateGradeDistribution(sheet);
@@ -379,25 +407,21 @@ describe("parseAggregateGradeDistribution", () => {
   });
 });
 
-describe("parseClassAttendance", () => {
-  it("parses attendance with date", () => {
-    const sheet = createMockSheet([
-      [],
-      ["Frekwencja", "Stan %"],
-      ["10.01.2026", 88.93],
-    ]);
+describe('parseClassAttendance', () => {
+  it('parses attendance with date', () => {
+    const sheet = createMockSheet([[], ['Frekwencja', 'Stan %'], ['10.01.2026', 88.93]]);
 
     const result = parseClassAttendance(sheet);
 
     expect(result).toEqual({
       percentage: 88.93,
-      date: "10.01.2026",
+      date: '10.01.2026',
     });
   });
 
-  it("parses attendance without date", () => {
+  it('parses attendance without date', () => {
     const sheet = createMockSheet([
-      ["Frekwencja", "Stan %"],
+      ['Frekwencja', 'Stan %'],
       [null, 92.5],
     ]);
 
@@ -409,9 +433,9 @@ describe("parseClassAttendance", () => {
     });
   });
 
-  it("returns null when header not found", () => {
+  it('returns null when header not found', () => {
     const sheet = createMockSheet([
-      ["Other Header", "Data"],
+      ['Other Header', 'Data'],
       [100, 200],
     ]);
 
@@ -420,7 +444,7 @@ describe("parseClassAttendance", () => {
     expect(result).toBeNull();
   });
 
-  it("returns null for empty sheet", () => {
+  it('returns null for empty sheet', () => {
     const sheet = createMockSheet([]);
 
     const result = parseClassAttendance(sheet);
@@ -428,10 +452,10 @@ describe("parseClassAttendance", () => {
     expect(result).toBeNull();
   });
 
-  it("handles case insensitivity in header", () => {
+  it('handles case insensitivity in header', () => {
     const sheet = createMockSheet([
-      ["FREKWENCJA", "STAN %"],
-      ["10.01.2026", 90.0],
+      ['FREKWENCJA', 'STAN %'],
+      ['10.01.2026', 90.0],
     ]);
 
     const result = parseClassAttendance(sheet);
@@ -439,23 +463,18 @@ describe("parseClassAttendance", () => {
     expect(result?.percentage).toBe(90.0);
   });
 
-  it("skips empty rows between header and data", () => {
-    const sheet = createMockSheet([
-      ["Frekwencja", "Stan %"],
-      [],
-      [],
-      ["10.01.2026", 85.5],
-    ]);
+  it('skips empty rows between header and data', () => {
+    const sheet = createMockSheet([['Frekwencja', 'Stan %'], [], [], ['10.01.2026', 85.5]]);
 
     const result = parseClassAttendance(sheet);
 
     expect(result?.percentage).toBe(85.5);
   });
 
-  it("validates date format (requires 2-digit day/month)", () => {
+  it('validates date format (requires 2-digit day/month)', () => {
     const sheet = createMockSheet([
-      ["Frekwencja", "Stan %"],
-      ["1.5", 90.0], // Not a valid date (looks like decimal)
+      ['Frekwencja', 'Stan %'],
+      ['1.5', 90.0], // Not a valid date (looks like decimal)
     ]);
 
     const result = parseClassAttendance(sheet);
@@ -464,25 +483,25 @@ describe("parseClassAttendance", () => {
     expect(result?.percentage).toBe(90.0);
   });
 
-  it("accepts valid date formats", () => {
+  it('accepts valid date formats', () => {
     const sheet = createMockSheet([
-      ["Frekwencja", "Stan %"],
-      ["10.01.2026", 90.0],
+      ['Frekwencja', 'Stan %'],
+      ['10.01.2026', 90.0],
     ]);
 
     const result = parseClassAttendance(sheet);
 
-    expect(result?.date).toBe("10.01.2026");
+    expect(result?.date).toBe('10.01.2026');
   });
 
-  it("parses attendance from realistic Vulcan format", () => {
+  it('parses attendance from realistic Vulcan format', () => {
     const sheet = createVulcanSheet({});
 
     const result = parseClassAttendance(sheet);
 
     expect(result).toEqual({
       percentage: 88.93,
-      date: "10.01.2026",
+      date: '10.01.2026',
     });
   });
 });

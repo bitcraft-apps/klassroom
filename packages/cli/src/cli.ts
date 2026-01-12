@@ -1,12 +1,8 @@
-import { existsSync } from "node:fs";
-import { writeFile } from "node:fs/promises";
-import { basename, dirname, extname, join } from "node:path";
-import { Command } from "commander";
-import {
-  VERSION,
-  parseVulcanXlsx,
-  generatePresentation,
-} from "@klassroom/core";
+import { existsSync } from 'node:fs';
+import { writeFile } from 'node:fs/promises';
+import { basename, dirname, extname, join } from 'node:path';
+import { Command } from 'commander';
+import { VERSION, parseVulcanXlsx, generatePresentation } from '@klassroom/core';
 
 export interface GenerateResult {
   success: boolean;
@@ -21,7 +17,7 @@ export async function generate(xlsxPath: string): Promise<GenerateResult> {
   }
 
   // Verify .xlsx extension
-  if (extname(xlsxPath).toLowerCase() !== ".xlsx") {
+  if (extname(xlsxPath).toLowerCase() !== '.xlsx') {
     return {
       success: false,
       error: `Plik musi mieć rozszerzenie .xlsx: ${xlsxPath}`,
@@ -38,7 +34,7 @@ export async function generate(xlsxPath: string): Promise<GenerateResult> {
     // Write output file
     const baseName = basename(xlsxPath, extname(xlsxPath));
     const outputPath = join(dirname(xlsxPath), `${baseName}.html`);
-    await writeFile(outputPath, html, "utf-8");
+    await writeFile(outputPath, html, 'utf-8');
 
     return { success: true, outputPath };
   } catch (error) {
@@ -51,14 +47,14 @@ export function createProgram(): Command {
   const program = new Command();
 
   program
-    .name("klassroom")
-    .description("Generuje prezentacje HTML z eksportów ocen Vulcan UONET+")
+    .name('klassroom')
+    .description('Generuje prezentacje HTML z eksportów ocen Vulcan UONET+')
     .version(VERSION);
 
   program
-    .command("generate")
-    .description("Generuje prezentację HTML z pliku XLSX")
-    .argument("<xlsx-path>", "Ścieżka do pliku XLSX z eksportu Vulcan UONET+")
+    .command('generate')
+    .description('Generuje prezentację HTML z pliku XLSX')
+    .argument('<xlsx-path>', 'Ścieżka do pliku XLSX z eksportu Vulcan UONET+')
     .action(async (xlsxPath: string) => {
       const result = await generate(xlsxPath);
 

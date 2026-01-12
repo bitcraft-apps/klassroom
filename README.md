@@ -19,6 +19,7 @@ Generate HTML semester presentations from Polish school grade exports.
 _Note: This project is currently a private monorepo. You need to build it from source._
 
 **Prerequisites**
+
 - Node.js >= 20
 - pnpm
 
@@ -61,7 +62,8 @@ Generates an HTML presentation from the provided Vulcan XLSX file.
 
 - `<xlsx-path>`: Path to the Vulcan UONET+ XLSX export file.
 
-*Example:*
+_Example:_
+
 ```bash
 node packages/cli/dist/cli.js generate ./exports/semestr1.xlsx
 # -> ./exports/semestr1.html
@@ -70,6 +72,7 @@ node packages/cli/dist/cli.js generate ./exports/semestr1.xlsx
 ## Privacy & GDPR
 
 This tool is designed with student privacy as a priority:
+
 - **Local Processing**: All parsing and generation happens on your machine. Data is never sent to the cloud.
 - **Anonymized Output**: The generated HTML file refers to students only by their journal number ("Nr w dzienniku"). Student names are used internally for parsing but are **never** included in the output.
 

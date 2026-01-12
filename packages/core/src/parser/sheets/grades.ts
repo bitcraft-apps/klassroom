@@ -1,6 +1,12 @@
-import type { WorkSheet } from "xlsx";
-import * as XLSX from "xlsx";
-import { studentNumber, parseBehaviorGrade, type Grade, type StudentNumber, type BehaviorGrade } from "../../types/index.js";
+import type { WorkSheet } from 'xlsx';
+import * as XLSX from 'xlsx';
+import {
+  studentNumber,
+  parseBehaviorGrade,
+  type Grade,
+  type StudentNumber,
+  type BehaviorGrade,
+} from '../../types/index.js';
 
 /**
  * Parsed row from grades sheet containing student info and their grades.
@@ -31,25 +37,37 @@ export function parseGradesSheet(sheet: WorkSheet): GradesRow[] {
   const data = XLSX.utils.sheet_to_json<unknown[]>(sheet, { header: 1 });
 
   if (data.length < 4) {
-    throw new Error("Invalid data structure in sheet: Okres klasyfikacyjny");
+    throw new Error('Invalid data structure in sheet: Okres klasyfikacyjny');
   }
 
   // Row 1 contains subject names starting from column 3
   const subjectRow = data[1];
   if (!subjectRow || !Array.isArray(subjectRow)) {
-    throw new Error("Invalid data structure in sheet: Okres klasyfikacyjny");
+    throw new Error('Invalid data structure in sheet: Okres klasyfikacyjny');
   }
 
   // Extract subject names from row 1, starting at column 3
   // Filter out empty subjects and special summary columns at the end
   const SUMMARY_COLUMNS = new Set([
     // Grade count columns (lowercase in Polish)
-    "celujących", "bardzo dobrych", "dobrych", "dostatecznych",
-    "dopuszczających", "niedostatecznych", "nieklasyfikowanych",
-    "zwolnionych", "uczestniczących", "zaliczonych", "niezaliczonych",
+    'celujących',
+    'bardzo dobrych',
+    'dobrych',
+    'dostatecznych',
+    'dopuszczających',
+    'niedostatecznych',
+    'nieklasyfikowanych',
+    'zwolnionych',
+    'uczestniczących',
+    'zaliczonych',
+    'niezaliczonych',
     // Other summary columns
-    "Liczba ocen", "Liczba opusz. godz.", "Liczba spóźnień",
-    "Frekwencja w %", "Średnia ocen", "Średnia ocen z modyfikatorami",
+    'Liczba ocen',
+    'Liczba opusz. godz.',
+    'Liczba spóźnień',
+    'Frekwencja w %',
+    'Średnia ocen',
+    'Średnia ocen z modyfikatorami',
   ]);
 
   const subjects: string[] = [];

@@ -1,4 +1,4 @@
-export const VERSION = "0.0.0";
+export const VERSION = '0.0.0';
 
 // Types (public API - all GDPR-safe)
 export type {
@@ -17,24 +17,20 @@ export type {
   GradeCounts,
   AverageRangeCounts,
   BehaviorCounts,
-} from "./types/index.js";
+} from './types/index.js';
 
 // Factory functions for branded types
-export { studentNumber, classPeriod } from "./types/index.js";
+export { studentNumber, classPeriod } from './types/index.js';
 
 // Helper functions
-export {
-  parseBehaviorGrade,
-  behaviorToIndex,
-  compareBehavior,
-} from "./types/index.js";
+export { parseBehaviorGrade, behaviorToIndex, compareBehavior } from './types/index.js';
 
 // Constants
-export { BEHAVIOR_GRADES, POLISH_TO_BEHAVIOR } from "./types/index.js";
+export { BEHAVIOR_GRADES, POLISH_TO_BEHAVIOR } from './types/index.js';
 
 // Parser
-export { parseVulcanXlsx, detectFormat } from "./parser/index.js";
-export type { DetectedFormat } from "./parser/index.js";
+export { parseVulcanXlsx, detectFormat } from './parser/index.js';
+export type { DetectedFormat } from './parser/index.js';
 
 // Analytics
 export {
@@ -52,7 +48,7 @@ export {
   HONORS_THRESHOLD,
   // Behavior statistics
   countBehaviorGrades,
-} from "./analytics/index.js";
+} from './analytics/index.js';
 
 // Charts
 export {
@@ -61,7 +57,7 @@ export {
   createGradeDistributionChart,
   createBehaviorChart,
   createAggregateGradesPieChart,
-} from "./charts/index.js";
+} from './charts/index.js';
 
 export type {
   ChartConfig,
@@ -72,7 +68,7 @@ export type {
   DoughnutChartConfig,
   PieChartConfig,
   ChartStudentData,
-} from "./charts/index.js";
+} from './charts/index.js';
 
 // Generator
-export { generatePresentation } from "./generator/index.js";
+export { generatePresentation } from './generator/index.js';

@@ -1,6 +1,6 @@
-import type { WorkSheet } from "xlsx";
-import * as XLSX from "xlsx";
-import { classPeriod, type ClassMetadata } from "../../types/index.js";
+import type { WorkSheet } from 'xlsx';
+import * as XLSX from 'xlsx';
+import { classPeriod, type ClassMetadata } from '../../types/index.js';
 
 /**
  * Parses the "Dodatkowe informacje 1" (class metadata) sheet.
@@ -18,13 +18,13 @@ export function parseMetadataSheet(sheet: WorkSheet): ClassMetadata {
   const data = XLSX.utils.sheet_to_json<unknown[]>(sheet, { header: 1 });
 
   if (data.length < 2) {
-    throw new Error("Invalid data structure in sheet: Dodatkowe informacje 1");
+    throw new Error('Invalid data structure in sheet: Dodatkowe informacje 1');
   }
 
   // Row 0: Title contains period info
   // Format: "Dodatkowe informacje dla 1 semestru w roku szkolnym 2025/2026"
   const titleRow = data[0];
-  const titleText = titleRow && titleRow[0] ? String(titleRow[0]) : "";
+  const titleText = titleRow && titleRow[0] ? String(titleRow[0]) : '';
 
   // Extract period from title (e.g., "1 semestru w roku szkolnym 2025/2026")
   const periodMatch = titleText.match(/(\d)\s*semestru?\s+w\s+roku\s+szkolnym\s+(\d{4}\/\d{4})/i);
@@ -49,7 +49,7 @@ export function parseMetadataSheet(sheet: WorkSheet): ClassMetadata {
       const cellStr = String(cell).trim().toLowerCase();
 
       // Look for "Oddział" (class) - value is in the next cell
-      if (cellStr === "oddział" && i + 1 < infoRow.length) {
+      if (cellStr === 'oddział' && i + 1 < infoRow.length) {
         const value = infoRow[i + 1];
         if (value != null) {
           className = String(value).trim();
@@ -57,7 +57,7 @@ export function parseMetadataSheet(sheet: WorkSheet): ClassMetadata {
       }
 
       // Look for "Wychowawca" (teacher) - value may be a few cells later (after nulls)
-      if (cellStr === "wychowawca") {
+      if (cellStr === 'wychowawca') {
         // Search following cells for the teacher name
         for (let j = i + 1; j < infoRow.length && j <= i + 5; j++) {
           const value = infoRow[j];
@@ -71,11 +71,11 @@ export function parseMetadataSheet(sheet: WorkSheet): ClassMetadata {
   }
 
   if (!className) {
-    throw new Error("Invalid data structure in sheet: Dodatkowe informacje 1");
+    throw new Error('Invalid data structure in sheet: Dodatkowe informacje 1');
   }
 
   if (!periodValue) {
-    throw new Error("Invalid data structure in sheet: Dodatkowe informacje 1");
+    throw new Error('Invalid data structure in sheet: Dodatkowe informacje 1');
   }
 
   return {

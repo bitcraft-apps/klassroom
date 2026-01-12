@@ -1,10 +1,10 @@
-import type { Student } from "../types/index.js";
+import type { Student } from '../types/index.js';
 
 /**
  * Values that indicate a student is NOT enrolled in a subject.
  * "zwolniony" means "exempted" - student is excused from the subject.
  */
-const NOT_ENROLLED_VALUES = new Set(["zwolniony", ""]);
+const NOT_ENROLLED_VALUES = new Set(['zwolniony', '']);
 
 /**
  * Checks if a grade value indicates the student is enrolled in the subject.
@@ -28,9 +28,7 @@ function isEnrolled(value: string | null): boolean {
  * console.log(counts.get("Matematyka")); // 25
  * console.log(counts.get("Edukacja zdrowotna")); // 12
  */
-export function countStudentsBySubject(
-  students: Student[]
-): Map<string, number> {
+export function countStudentsBySubject(students: Student[]): Map<string, number> {
   const counts = new Map<string, number>();
 
   for (const student of students) {

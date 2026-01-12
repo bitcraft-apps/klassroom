@@ -1,4 +1,4 @@
-import type { ClassData } from "../types/index.js";
+import type { ClassData } from '../types/index.js';
 import {
   calculateClassAverage,
   calculateMinMaxAverage,
@@ -8,20 +8,20 @@ import {
   getTopStudents,
   getOptionalSubjects,
   countStudentsBySubject,
-} from "../analytics/index.js";
+} from '../analytics/index.js';
 import {
   createSubjectAveragesChart,
   createStudentAveragesChart,
   createAggregateGradesPieChart,
   type ChartConfig,
-} from "../charts/index.js";
-import { renderChartToDataUrl, PLACEHOLDER_IMAGE } from "./render-charts.js";
+} from '../charts/index.js';
+import { renderChartToDataUrl, PLACEHOLDER_IMAGE } from './render-charts.js';
 import {
   renderPresentation,
   type PresentationData,
   type GradeDistributionRow,
   type TopStudentRow,
-} from "./template.js";
+} from './template.js';
 
 /**
  * Generates a self-contained HTML presentation for a parent-teacher meeting.
@@ -38,13 +38,8 @@ import {
  * fs.writeFileSync("presentation.html", html);
  */
 export async function generatePresentation(data: ClassData): Promise<string> {
-  const {
-    metadata,
-    students,
-    classAttendance,
-    failureStatistics,
-    aggregateGradeDistribution,
-  } = data;
+  const { metadata, students, classAttendance, failureStatistics, aggregateGradeDistribution } =
+    data;
 
   // Calculate analytics
   const classAverage = calculateClassAverage(students);
@@ -65,7 +60,7 @@ export async function generatePresentation(data: ClassData): Promise<string> {
   // Render charts to base64 images in parallel
   const renderChart = async <T extends string>(
     config: ChartConfig<T> | null,
-    label: string
+    label: string,
   ): Promise<string | null> => {
     if (!config) return null;
     try {
@@ -76,18 +71,17 @@ export async function generatePresentation(data: ClassData): Promise<string> {
     }
   };
 
-  const [subjectChartImage, studentChartImage, aggregateGradesChartImage] =
-    await Promise.all([
-      renderChart(subjectChartConfig, "subject averages"),
-      renderChart(studentChartConfig, "student averages"),
-      renderChart(aggregateGradesChartConfig, "aggregate grades"),
-    ]);
+  const [subjectChartImage, studentChartImage, aggregateGradesChartImage] = await Promise.all([
+    renderChart(subjectChartConfig, 'subject averages'),
+    renderChart(studentChartConfig, 'student averages'),
+    renderChart(aggregateGradesChartConfig, 'aggregate grades'),
+  ]);
 
   // Convert grade distribution to template-friendly format
   const gradeDistribution: GradeDistributionRow[] | null =
     gradesBySubject.size > 0
       ? [...gradesBySubject.entries()]
-          .sort((a, b) => a[0].localeCompare(b[0], "pl"))
+          .sort((a, b) => a[0].localeCompare(b[0], 'pl'))
           .map(([subject, grades]) => ({ subject, grades }))
       : null;
 
@@ -111,10 +105,10 @@ export async function generatePresentation(data: ClassData): Promise<string> {
   }));
 
   // Format date in Polish
-  const generatedDate = new Date().toLocaleDateString("pl-PL", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
+  const generatedDate = new Date().toLocaleDateString('pl-PL', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
   });
 
   // Prepare presentation data

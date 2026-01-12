@@ -5,7 +5,7 @@ import type {
   AggregateGradeDistribution,
   GradeCounts,
   StudentNumber,
-} from "../types/index.js";
+} from '../types/index.js';
 
 /**
  * GDPR-safe row for top students slide.
@@ -219,7 +219,7 @@ function renderTitleSlide(data: PresentationData): string {
   const { metadata, generatedDate } = data;
   const teacherLine = metadata.teacher
     ? `<p><strong>Wychowawca:</strong> ${escapeHtml(metadata.teacher)}</p>`
-    : "";
+    : '';
 
   return `
   <section class="slide title-slide">
@@ -262,7 +262,7 @@ function renderOverviewSlide(data: PresentationData): string {
 
 function renderSubjectEnrollmentSlide(data: PresentationData): string {
   if (!data.subjectEnrollment || data.subjectEnrollment.length === 0) {
-    return "";
+    return '';
   }
 
   const rows = data.subjectEnrollment
@@ -271,9 +271,9 @@ function renderSubjectEnrollmentSlide(data: PresentationData): string {
         <tr>
           <td>${escapeHtml(subject)}</td>
           <td>${count}</td>
-        </tr>`
+        </tr>`,
     )
-    .join("");
+    .join('');
 
   return `
   <section class="slide">
@@ -326,9 +326,9 @@ function renderGradeDistributionSlide(data: PresentationData): string {
           <td>${row.grades[4]}</td>
           <td>${row.grades[5]}</td>
           <td>${row.grades[6]}</td>
-        </tr>`
+        </tr>`,
     )
-    .join("");
+    .join('');
 
   return `
   <section class="slide">
@@ -368,7 +368,7 @@ function renderStudentAveragesSlide(data: PresentationData): string {
 
 function renderTopStudentsSlide(data: PresentationData): string {
   if (!data.topStudents || data.topStudents.length === 0) {
-    return "";
+    return '';
   }
 
   const rows = data.topStudents
@@ -376,13 +376,13 @@ function renderTopStudentsSlide(data: PresentationData): string {
       ({ number, average }) => `
         <tr>
           <td>${number}</td>
-          <td>${average.toFixed(2).replace(".", ",")}</td>
-        </tr>`
+          <td>${average.toFixed(2).replace('.', ',')}</td>
+        </tr>`,
     )
-    .join("");
+    .join('');
 
   // Polish grammar: 1 uczeń (singular), 2+ uczniów (genitive plural)
-  const studentLabel = data.topStudents.length === 1 ? "uczeń" : "uczniów";
+  const studentLabel = data.topStudents.length === 1 ? 'uczeń' : 'uczniów';
 
   return `
   <section class="slide">
@@ -404,16 +404,16 @@ function renderTopStudentsSlide(data: PresentationData): string {
 function renderAttendanceSlide(data: PresentationData): string {
   // Skip slide if no attendance and no failure statistics
   if (!data.classAttendance && !data.failureStatistics) {
-    return "";
+    return '';
   }
 
-  let attendanceCard = "";
+  let attendanceCard = '';
   if (data.classAttendance) {
     const { percentage, date } = data.classAttendance;
     // Format percentage with Polish decimal separator (comma)
-    const formattedPercentage = `${percentage.toFixed(1).replace(".", ",")}%`;
+    const formattedPercentage = `${percentage.toFixed(1).replace('.', ',')}%`;
     // Show date if available
-    const dateInfo = date ? ` (stan na ${date})` : "";
+    const dateInfo = date ? ` (stan na ${date})` : '';
     attendanceCard = `
       <div class="stat-card">
         <div class="value">${formattedPercentage}</div>
@@ -421,14 +421,10 @@ function renderAttendanceSlide(data: PresentationData): string {
       </div>`;
   }
 
-  let failureStatsHtml = "";
+  let failureStatsHtml = '';
   if (data.failureStatistics) {
-    const {
-      noFailingGrades,
-      oneToTwoFailingGrades,
-      threeOrMoreFailingGrades,
-      unclassified,
-    } = data.failureStatistics;
+    const { noFailingGrades, oneToTwoFailingGrades, threeOrMoreFailingGrades, unclassified } =
+      data.failureStatistics;
     failureStatsHtml = `
     <h3 class="section-heading">Zagrożenia</h3>
     <table>
@@ -469,7 +465,7 @@ function renderAttendanceSlide(data: PresentationData): string {
 
 function renderAggregateGradesSlide(data: PresentationData): string {
   if (!data.aggregateGradeDistribution && !data.aggregateGradesPieChart) {
-    return "";
+    return '';
   }
 
   const chartUrl = safeDataUrl(data.aggregateGradesPieChart);
@@ -477,7 +473,7 @@ function renderAggregateGradesSlide(data: PresentationData): string {
     ? `<div class="chart-container">
         <img src="${chartUrl}" alt="Wykres rozkładu ocen">
       </div>`
-    : "";
+    : '';
 
   // If we only have chart, show just the chart
   if (!data.aggregateGradeDistribution) {
@@ -487,18 +483,11 @@ function renderAggregateGradesSlide(data: PresentationData): string {
     <h2>Rozkład wszystkich ocen</h2>
     ${chartContent}
   </section>`
-      : "";
+      : '';
   }
 
-  const {
-    excellent,
-    veryGood,
-    good,
-    satisfactory,
-    acceptable,
-    failing,
-    unclassified,
-  } = data.aggregateGradeDistribution;
+  const { excellent, veryGood, good, satisfactory, acceptable, failing, unclassified } =
+    data.aggregateGradeDistribution;
 
   return `
   <section class="slide">
@@ -606,11 +595,11 @@ function renderBehaviorSlide(data: PresentationData): string {
  */
 export function escapeHtml(str: string): string {
   return str
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#39;");
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
 }
 
 /**
@@ -621,7 +610,7 @@ export function escapeHtml(str: string): string {
 export function safeDataUrl(url: string | null): string | null {
   if (!url) return null;
   // Only allow base64-encoded PNG data URLs
-  if (url.startsWith("data:image/png;base64,")) {
+  if (url.startsWith('data:image/png;base64,')) {
     return url;
   }
   return null;
@@ -645,13 +634,13 @@ export function renderPresentation(data: PresentationData): string {
   <style>${STYLES}</style>
 </head>
 <body>${renderTitleSlide(data)}${renderOverviewSlide(
-    data
+    data,
   )}${renderSubjectEnrollmentSlide(data)}${renderSubjectAveragesSlide(
-    data
+    data,
   )}${renderGradeDistributionSlide(data)}${renderStudentAveragesSlide(
-    data
+    data,
   )}${renderTopStudentsSlide(data)}${renderAttendanceSlide(
-    data
+    data,
   )}${renderAggregateGradesSlide(data)}${renderBehaviorSlide(data)}
 </body>
 </html>`;

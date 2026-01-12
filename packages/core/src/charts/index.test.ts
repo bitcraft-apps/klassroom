@@ -1,24 +1,24 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect } from 'vitest';
 import {
   createSubjectAveragesChart,
   createStudentAveragesChart,
   createGradeDistributionChart,
   createBehaviorChart,
   createAggregateGradesPieChart,
-} from "./index.js";
+} from './index.js';
 import {
   studentNumber,
   type Student,
   type GradeCounts,
   type BehaviorCounts,
   type AggregateGradeDistribution,
-} from "../types/index.js";
+} from '../types/index.js';
 
 // Helper to create test students
 function createStudent(
   num: number,
   grades: Array<{ subject: string; value: string | null }>,
-  options?: { average?: number; behavior?: Student["behavior"] }
+  options?: { average?: number; behavior?: Student['behavior'] },
 ): Student {
   return {
     number: studentNumber(num),
@@ -28,41 +28,41 @@ function createStudent(
   };
 }
 
-describe("createSubjectAveragesChart", () => {
-  it("creates horizontal bar chart for subject averages", () => {
+describe('createSubjectAveragesChart', () => {
+  it('creates horizontal bar chart for subject averages', () => {
     const subjectAverages = new Map([
-      ["Math", 4.5],
-      ["Polish", 4.0],
+      ['Math', 4.5],
+      ['Polish', 4.0],
     ]);
 
     const config = createSubjectAveragesChart(subjectAverages);
 
     expect(config).not.toBeNull();
-    expect(config!.type).toBe("bar");
-    expect(config!.options?.indexAxis).toBe("y");
+    expect(config!.type).toBe('bar');
+    expect(config!.options?.indexAxis).toBe('y');
   });
 
-  it("sorts subjects by average descending", () => {
+  it('sorts subjects by average descending', () => {
     const subjectAverages = new Map([
-      ["Math", 3.0],
-      ["Polish", 5.0],
-      ["History", 4.0],
+      ['Math', 3.0],
+      ['Polish', 5.0],
+      ['History', 4.0],
     ]);
 
     const config = createSubjectAveragesChart(subjectAverages);
 
-    expect(config!.data.labels).toEqual(["Polish", "History", "Math"]);
+    expect(config!.data.labels).toEqual(['Polish', 'History', 'Math']);
     expect(config!.data.datasets[0].data).toEqual([5.0, 4.0, 3.0]);
   });
 
-  it("returns null for empty map", () => {
+  it('returns null for empty map', () => {
     const config = createSubjectAveragesChart(new Map());
 
     expect(config).toBeNull();
   });
 
-  it("sets scale min to 1 and max to 6", () => {
-    const subjectAverages = new Map([["Math", 4.5]]);
+  it('sets scale min to 1 and max to 6', () => {
+    const subjectAverages = new Map([['Math', 4.5]]);
 
     const config = createSubjectAveragesChart(subjectAverages);
 
@@ -71,8 +71,8 @@ describe("createSubjectAveragesChart", () => {
   });
 });
 
-describe("createStudentAveragesChart", () => {
-  it("creates vertical bar chart for student averages", () => {
+describe('createStudentAveragesChart', () => {
+  it('creates vertical bar chart for student averages', () => {
     const students = [
       createStudent(1, [], { average: 4.5 }),
       createStudent(2, [], { average: 5.0 }),
@@ -81,11 +81,11 @@ describe("createStudentAveragesChart", () => {
     const config = createStudentAveragesChart(students);
 
     expect(config).not.toBeNull();
-    expect(config!.type).toBe("bar");
+    expect(config!.type).toBe('bar');
     expect(config!.options?.indexAxis).toBeUndefined(); // vertical is default
   });
 
-  it("uses student numbers as labels (GDPR compliance)", () => {
+  it('uses student numbers as labels (GDPR compliance)', () => {
     const students = [
       createStudent(3, [], { average: 4.5 }),
       createStudent(1, [], { average: 5.0 }),
@@ -94,27 +94,27 @@ describe("createStudentAveragesChart", () => {
     const config = createStudentAveragesChart(students);
 
     // Labels should be string representations of student numbers
-    expect(config!.data.labels).toEqual(["1", "3"]);
+    expect(config!.data.labels).toEqual(['1', '3']);
   });
 
-  it("output contains only number and average data (GDPR)", () => {
+  it('output contains only number and average data (GDPR)', () => {
     const students = [createStudent(1, [], { average: 4.5 })];
 
     const config = createStudentAveragesChart(students);
 
     // Verify chart data structure contains only safe fields
     // Labels are string numbers, data is numeric averages
-    expect(config!.data.labels).toEqual(["1"]);
+    expect(config!.data.labels).toEqual(['1']);
     expect(config!.data.datasets[0].data).toEqual([4.5]);
 
     // Additional safety check: serialized output has no PII-related keys
     const configString = JSON.stringify(config);
-    expect(configString).not.toContain("name");
-    expect(configString).not.toContain("behavior");
-    expect(configString).not.toContain("grades");
+    expect(configString).not.toContain('name');
+    expect(configString).not.toContain('behavior');
+    expect(configString).not.toContain('grades');
   });
 
-  it("sorts students by number ascending", () => {
+  it('sorts students by number ascending', () => {
     const students = [
       createStudent(3, [], { average: 3.0 }),
       createStudent(1, [], { average: 5.0 }),
@@ -123,11 +123,11 @@ describe("createStudentAveragesChart", () => {
 
     const config = createStudentAveragesChart(students);
 
-    expect(config!.data.labels).toEqual(["1", "2", "3"]);
+    expect(config!.data.labels).toEqual(['1', '2', '3']);
     expect(config!.data.datasets[0].data).toEqual([5.0, 4.0, 3.0]);
   });
 
-  it("returns null when no students have averages", () => {
+  it('returns null when no students have averages', () => {
     const students = [createStudent(1, []), createStudent(2, [])];
 
     const config = createStudentAveragesChart(students);
@@ -135,13 +135,13 @@ describe("createStudentAveragesChart", () => {
     expect(config).toBeNull();
   });
 
-  it("returns null for empty student array", () => {
+  it('returns null for empty student array', () => {
     const config = createStudentAveragesChart([]);
 
     expect(config).toBeNull();
   });
 
-  it("excludes students without average", () => {
+  it('excludes students without average', () => {
     const students = [
       createStudent(1, [], { average: 4.5 }),
       createStudent(2, []), // no average
@@ -150,29 +150,29 @@ describe("createStudentAveragesChart", () => {
 
     const config = createStudentAveragesChart(students);
 
-    expect(config!.data.labels).toEqual(["1", "3"]);
+    expect(config!.data.labels).toEqual(['1', '3']);
   });
 });
 
-describe("createGradeDistributionChart", () => {
-  it("creates bar chart for grade distribution", () => {
+describe('createGradeDistributionChart', () => {
+  it('creates bar chart for grade distribution', () => {
     const gradeCounts: GradeCounts = { 1: 2, 2: 3, 3: 5, 4: 8, 5: 10, 6: 4 };
 
     const config = createGradeDistributionChart(gradeCounts);
 
     expect(config).not.toBeNull();
-    expect(config!.type).toBe("bar");
+    expect(config!.type).toBe('bar');
   });
 
-  it("uses grades 1-6 as labels", () => {
+  it('uses grades 1-6 as labels', () => {
     const gradeCounts: GradeCounts = { 1: 1, 2: 1, 3: 1, 4: 1, 5: 1, 6: 1 };
 
     const config = createGradeDistributionChart(gradeCounts);
 
-    expect(config!.data.labels).toEqual(["1", "2", "3", "4", "5", "6"]);
+    expect(config!.data.labels).toEqual(['1', '2', '3', '4', '5', '6']);
   });
 
-  it("maps counts to data in order 1-6", () => {
+  it('maps counts to data in order 1-6', () => {
     const gradeCounts: GradeCounts = { 1: 10, 2: 20, 3: 30, 4: 40, 5: 50, 6: 60 };
 
     const config = createGradeDistributionChart(gradeCounts);
@@ -180,7 +180,7 @@ describe("createGradeDistributionChart", () => {
     expect(config!.data.datasets[0].data).toEqual([10, 20, 30, 40, 50, 60]);
   });
 
-  it("returns null when all counts are zero", () => {
+  it('returns null when all counts are zero', () => {
     const gradeCounts: GradeCounts = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0 };
 
     const config = createGradeDistributionChart(gradeCounts);
@@ -188,7 +188,7 @@ describe("createGradeDistributionChart", () => {
     expect(config).toBeNull();
   });
 
-  it("uses different colors for each grade", () => {
+  it('uses different colors for each grade', () => {
     const gradeCounts: GradeCounts = { 1: 1, 2: 1, 3: 1, 4: 1, 5: 1, 6: 1 };
 
     const config = createGradeDistributionChart(gradeCounts);
@@ -199,8 +199,8 @@ describe("createGradeDistributionChart", () => {
   });
 });
 
-describe("createBehaviorChart", () => {
-  it("creates doughnut chart for behavior distribution", () => {
+describe('createBehaviorChart', () => {
+  it('creates doughnut chart for behavior distribution', () => {
     const behaviorCounts: BehaviorCounts = {
       exemplary: 5,
       veryGood: 8,
@@ -213,10 +213,10 @@ describe("createBehaviorChart", () => {
     const config = createBehaviorChart(behaviorCounts);
 
     expect(config).not.toBeNull();
-    expect(config!.type).toBe("doughnut");
+    expect(config!.type).toBe('doughnut');
   });
 
-  it("uses Polish behavior grade labels", () => {
+  it('uses Polish behavior grade labels', () => {
     const behaviorCounts: BehaviorCounts = {
       exemplary: 1,
       veryGood: 1,
@@ -229,16 +229,16 @@ describe("createBehaviorChart", () => {
     const config = createBehaviorChart(behaviorCounts);
 
     expect(config!.data.labels).toEqual([
-      "Wzorowe",
-      "Bardzo dobre",
-      "Dobre",
-      "Poprawne",
-      "Nieodpowiednie",
-      "Naganne",
+      'Wzorowe',
+      'Bardzo dobre',
+      'Dobre',
+      'Poprawne',
+      'Nieodpowiednie',
+      'Naganne',
     ]);
   });
 
-  it("maps counts in order: exemplary to reprehensible", () => {
+  it('maps counts in order: exemplary to reprehensible', () => {
     const behaviorCounts: BehaviorCounts = {
       exemplary: 10,
       veryGood: 20,
@@ -253,7 +253,7 @@ describe("createBehaviorChart", () => {
     expect(config!.data.datasets[0].data).toEqual([10, 20, 30, 40, 50, 60]);
   });
 
-  it("returns null when all counts are zero", () => {
+  it('returns null when all counts are zero', () => {
     const behaviorCounts: BehaviorCounts = {
       exemplary: 0,
       veryGood: 0,
@@ -268,7 +268,7 @@ describe("createBehaviorChart", () => {
     expect(config).toBeNull();
   });
 
-  it("shows legend on the right", () => {
+  it('shows legend on the right', () => {
     const behaviorCounts: BehaviorCounts = {
       exemplary: 1,
       veryGood: 0,
@@ -281,10 +281,10 @@ describe("createBehaviorChart", () => {
     const config = createBehaviorChart(behaviorCounts);
 
     expect(config!.options?.plugins?.legend?.display).toBe(true);
-    expect(config!.options?.plugins?.legend?.position).toBe("right");
+    expect(config!.options?.plugins?.legend?.position).toBe('right');
   });
 
-  it("uses different colors for each behavior grade", () => {
+  it('uses different colors for each behavior grade', () => {
     const behaviorCounts: BehaviorCounts = {
       exemplary: 1,
       veryGood: 1,
@@ -302,8 +302,8 @@ describe("createBehaviorChart", () => {
   });
 });
 
-describe("createAggregateGradesPieChart", () => {
-  it("creates pie chart for aggregate grade distribution", () => {
+describe('createAggregateGradesPieChart', () => {
+  it('creates pie chart for aggregate grade distribution', () => {
     const distribution: AggregateGradeDistribution = {
       excellent: 10,
       veryGood: 20,
@@ -317,10 +317,10 @@ describe("createAggregateGradesPieChart", () => {
     const config = createAggregateGradesPieChart(distribution);
 
     expect(config).not.toBeNull();
-    expect(config!.type).toBe("pie");
+    expect(config!.type).toBe('pie');
   });
 
-  it("uses Polish grade labels", () => {
+  it('uses Polish grade labels', () => {
     const distribution: AggregateGradeDistribution = {
       excellent: 1,
       veryGood: 1,
@@ -334,17 +334,17 @@ describe("createAggregateGradesPieChart", () => {
     const config = createAggregateGradesPieChart(distribution);
 
     expect(config!.data.labels).toEqual([
-      "Celujący (6)",
-      "Bardzo dobry (5)",
-      "Dobry (4)",
-      "Dostateczny (3)",
-      "Dopuszczający (2)",
-      "Niedostateczny (1)",
-      "Nieklasyfikowany",
+      'Celujący (6)',
+      'Bardzo dobry (5)',
+      'Dobry (4)',
+      'Dostateczny (3)',
+      'Dopuszczający (2)',
+      'Niedostateczny (1)',
+      'Nieklasyfikowany',
     ]);
   });
 
-  it("maps counts in order: 6 to 1 then unclassified", () => {
+  it('maps counts in order: 6 to 1 then unclassified', () => {
     const distribution: AggregateGradeDistribution = {
       excellent: 10,
       veryGood: 20,
@@ -360,7 +360,7 @@ describe("createAggregateGradesPieChart", () => {
     expect(config!.data.datasets[0].data).toEqual([10, 20, 30, 40, 50, 60, 70]);
   });
 
-  it("returns null when all counts are zero", () => {
+  it('returns null when all counts are zero', () => {
     const distribution: AggregateGradeDistribution = {
       excellent: 0,
       veryGood: 0,
@@ -376,7 +376,7 @@ describe("createAggregateGradesPieChart", () => {
     expect(config).toBeNull();
   });
 
-  it("shows legend on the right", () => {
+  it('shows legend on the right', () => {
     const distribution: AggregateGradeDistribution = {
       excellent: 1,
       veryGood: 0,
@@ -390,10 +390,10 @@ describe("createAggregateGradesPieChart", () => {
     const config = createAggregateGradesPieChart(distribution);
 
     expect(config!.options?.plugins?.legend?.display).toBe(true);
-    expect(config!.options?.plugins?.legend?.position).toBe("right");
+    expect(config!.options?.plugins?.legend?.position).toBe('right');
   });
 
-  it("uses different colors for each grade", () => {
+  it('uses different colors for each grade', () => {
     const distribution: AggregateGradeDistribution = {
       excellent: 1,
       veryGood: 1,

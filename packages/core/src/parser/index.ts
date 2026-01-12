@@ -1,27 +1,27 @@
-import * as fs from "node:fs";
-import * as XLSX from "xlsx";
-import type { ClassData, RawStudent, Student } from "../types/index.js";
-import { stripStudentPII } from "../types/index.js";
-import { parseGradesSheet } from "./sheets/grades.js";
-import { parseAveragesSheet } from "./sheets/averages.js";
-import { parseMetadataSheet } from "./sheets/metadata.js";
+import * as fs from 'node:fs';
+import * as XLSX from 'xlsx';
+import type { ClassData, RawStudent, Student } from '../types/index.js';
+import { stripStudentPII } from '../types/index.js';
+import { parseGradesSheet } from './sheets/grades.js';
+import { parseAveragesSheet } from './sheets/averages.js';
+import { parseMetadataSheet } from './sheets/metadata.js';
 import {
   parseClassAttendance,
   parseFailureStatistics,
   parseAggregateGradeDistribution,
-} from "./sheets/attendance.js";
+} from './sheets/attendance.js';
 
 /**
  * All 6 sheet names that appear in Vulcan UONET+ XLSX exports.
  * Used for format detection/validation.
  */
 const VULCAN_SHEET_NAMES = [
-  "Okres klasyfikacyjny",
-  "Dodatkowe informacje 1",
-  "Średnia uczniów",
-  "Dodatkowe informacje 2",
-  "Zachowanie",
-  "Informacje o uczniach",
+  'Okres klasyfikacyjny',
+  'Dodatkowe informacje 1',
+  'Średnia uczniów',
+  'Dodatkowe informacje 2',
+  'Zachowanie',
+  'Informacje o uczniach',
 ] as const;
 
 /**
@@ -29,22 +29,22 @@ const VULCAN_SHEET_NAMES = [
  * Note: Behavior is embedded in the grades sheet column, not parsed from "Zachowanie" sheet.
  */
 const REQUIRED_SHEETS = {
-  GRADES: "Okres klasyfikacyjny",
-  AVERAGES: "Średnia uczniów",
-  METADATA: "Dodatkowe informacje 1",
+  GRADES: 'Okres klasyfikacyjny',
+  AVERAGES: 'Średnia uczniów',
+  METADATA: 'Dodatkowe informacje 1',
 } as const;
 
 /**
  * Optional sheets that will be parsed if present.
  */
 const OPTIONAL_SHEETS = {
-  ATTENDANCE: "Dodatkowe informacje 2",
+  ATTENDANCE: 'Dodatkowe informacje 2',
 } as const;
 
 /**
  * Detected file format from sheet name analysis.
  */
-export type DetectedFormat = "vulcan" | "unknown";
+export type DetectedFormat = 'vulcan' | 'unknown';
 
 /**
  * Detects the format of an XLSX file based on sheet names.
@@ -62,7 +62,7 @@ export function detectFormat(sheetNames: string[]): {
   const missingSheets = VULCAN_SHEET_NAMES.filter((name) => !sheetSet.has(name));
 
   // Consider it Vulcan format if at least 4 of 6 expected sheets are present
-  const format: DetectedFormat = matchedSheets.length >= 4 ? "vulcan" : "unknown";
+  const format: DetectedFormat = matchedSheets.length >= 4 ? 'vulcan' : 'unknown';
 
   return { format, matchedSheets, missingSheets };
 }
@@ -93,17 +93,17 @@ export function parseVulcanXlsx(filePath: string): ClassData {
 
   // Read workbook using fs.readFileSync + XLSX.read (XLSX.readFile has issues in ESM)
   const buffer = fs.readFileSync(filePath);
-  const workbook = XLSX.read(buffer, { type: "buffer" });
+  const workbook = XLSX.read(buffer, { type: 'buffer' });
 
   // Detect and validate format
   const { format, matchedSheets, missingSheets } = detectFormat(workbook.SheetNames);
 
-  if (format === "unknown") {
-    const foundSheets = workbook.SheetNames.join(", ");
+  if (format === 'unknown') {
+    const foundSheets = workbook.SheetNames.join(', ');
     throw new Error(
-      `Unrecognized XLSX format. Expected Vulcan UONET+ export with sheets: ${VULCAN_SHEET_NAMES.join(", ")}. ` +
+      `Unrecognized XLSX format. Expected Vulcan UONET+ export with sheets: ${VULCAN_SHEET_NAMES.join(', ')}. ` +
         `Found sheets: ${foundSheets}. ` +
-        `This parser only supports Vulcan UONET+ exports. Other formats not yet supported - please file an issue.`
+        `This parser only supports Vulcan UONET+ exports. Other formats not yet supported - please file an issue.`,
     );
   }
 
@@ -112,7 +112,7 @@ export function parseVulcanXlsx(filePath: string): ClassData {
     if (!workbook.SheetNames.includes(sheetName)) {
       throw new Error(
         `Missing required sheet: ${sheetName}. ` +
-          `Matched ${matchedSheets.length}/6 Vulcan sheets. Missing: ${missingSheets.join(", ")}`
+          `Matched ${matchedSheets.length}/6 Vulcan sheets. Missing: ${missingSheets.join(', ')}`,
       );
     }
   }
