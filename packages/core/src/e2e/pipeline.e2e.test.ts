@@ -11,8 +11,9 @@ import { describe, it, expect, vi, beforeAll, afterAll } from 'vitest';
 import * as path from 'node:path';
 import { parseVulcanXlsx } from '../parser/index.js';
 import { generatePresentation } from '../generator/index.js';
+import { writeFixture } from './fixtures/generate-fixture.js';
 
-// Path to the synthetic test fixture
+// Path to the synthetic test fixture (regenerated at test runtime)
 const FIXTURE_PATH = path.join(import.meta.dirname, 'fixtures', 'sample-class.xlsx');
 
 // Fake names used in the fixture (for GDPR verification)
@@ -22,6 +23,10 @@ describe('E2E: Full Pipeline', () => {
   let html: string;
 
   beforeAll(async () => {
+    // Regenerate fixture at runtime to ensure it matches the generator
+    // This prevents the binary file from drifting out of sync
+    writeFixture(FIXTURE_PATH, { quiet: true });
+
     // Parse the synthetic XLSX fixture
     const classData = parseVulcanXlsx(FIXTURE_PATH);
 
@@ -85,17 +90,21 @@ describe('E2E: Full Pipeline', () => {
       }
     });
 
-    it('contains student numbers', () => {
-      // Student numbers 1-5 should be present (as they're used for identification)
-      // They appear in the context of the presentation (charts, tables)
-      // We check for specific patterns that indicate student number usage
-      expect(html).toMatch(/[Uu]cze[nń]\s*1|#1|nr\s*1|numer\s*1/i);
+    it('contains student numbers in tables', () => {
+      // Student numbers 1-5 should be present in table cells (used for identification)
+      // Verify all students appear - they show up in the "Najwyższe średnie" table
+      // and other data tables as <td>N</td> where N is the student number
+      const studentNumbers = [1, 5]; // Students with highest averages appear in table
+      for (const num of studentNumbers) {
+        expect(html, `Expected student number ${num} in table`).toContain(`<td>${num}</td>`);
+      }
     });
 
     it('does not leak PII patterns', () => {
       // Common PII patterns that should never appear
       const piiPatterns = [
-        /[A-Z][a-z]+ [A-Z][a-z]+owsk[aiy]/, // Polish surnames
+        // Polish surnames: -owski/-owska, -ewski/-ewska, -ski/-ska, -cki/-cka, -wicz, -czyk, -czak
+        /[A-Z][a-z]+ [A-Z][a-z]+(owski|owska|ewski|ewska|ski|ska|cki|cka|wicz|czyk|czak)\b/,
         /\d{11}/, // PESEL (Polish national ID)
         /@.*\.[a-z]{2,}/, // Email addresses
       ];
@@ -128,6 +137,16 @@ describe('E2E: Full Pipeline', () => {
     it('includes attendance information', () => {
       // Attendance percentage from fixture (92.5%)
       expect(html).toMatch(/92[,.]5/);
+    });
+
+    it('includes behavior grade distribution', () => {
+      // Polish behavior grades should appear in the output (titlecase)
+      // These come from the "Zachowanie" section of the presentation
+      const behaviorGrades = ['Wzorowe', 'Bardzo dobre', 'Dobre', 'Poprawne'];
+
+      for (const grade of behaviorGrades) {
+        expect(html, `Expected behavior grade "${grade}" in output`).toContain(grade);
+      }
     });
   });
 

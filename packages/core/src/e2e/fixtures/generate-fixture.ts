@@ -9,6 +9,7 @@
 import * as XLSX from 'xlsx';
 import * as path from 'node:path';
 import * as fs from 'node:fs';
+import { fileURLToPath } from 'node:url';
 
 interface SyntheticStudent {
   number: number;
@@ -227,21 +228,25 @@ export function generateVulcanFixture(): XLSX.WorkBook {
 
 /**
  * Generates and writes the fixture file to disk.
- * Called when this module is executed directly.
+ * @param outputPath - Path to write the fixture file
+ * @param options.quiet - Suppress console output (default: false)
  */
-export function writeFixture(outputPath: string): void {
+export function writeFixture(outputPath: string, options?: { quiet?: boolean }): void {
   const workbook = generateVulcanFixture();
   // Use XLSX.write to get buffer, then fs.writeFileSync to write
   // (XLSX.writeFile has issues in some ESM contexts)
   const buffer = XLSX.write(workbook, { type: 'buffer', bookType: 'xlsx' });
   fs.writeFileSync(outputPath, buffer);
-  console.log(`Generated fixture: ${outputPath}`);
+  if (!options?.quiet) {
+    console.log(`Generated fixture: ${outputPath}`);
+  }
 }
 
-// Execute if run directly
-const isMainModule = process.argv[1]?.endsWith('generate-fixture.ts');
+// Execute if run directly (works with both .ts and compiled .js)
+const __filename = fileURLToPath(import.meta.url);
+const isMainModule = process.argv[1] === __filename;
 if (isMainModule) {
-  const __dirname = path.dirname(new URL(import.meta.url).pathname);
+  const __dirname = path.dirname(__filename);
   const outputPath = path.join(__dirname, 'sample-class.xlsx');
   writeFixture(outputPath);
 }
