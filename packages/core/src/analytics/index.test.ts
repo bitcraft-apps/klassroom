@@ -8,6 +8,8 @@ import {
   getTopStudents,
   countStudentsByAverageRange,
   countBehaviorGrades,
+  calculateClassAttendance,
+  getStudentsWithLowAttendance,
 } from "./index.js";
 import { studentNumber, type Student } from "../types/index.js";
 
@@ -15,13 +17,18 @@ import { studentNumber, type Student } from "../types/index.js";
 function createStudent(
   num: number,
   grades: Array<{ subject: string; value: string | null }>,
-  options?: { average?: number; behavior?: Student["behavior"] }
+  options?: {
+    average?: number;
+    behavior?: Student["behavior"];
+    attendance?: Student["attendance"];
+  }
 ): Student {
   return {
     number: studentNumber(num),
     grades,
     average: options?.average,
     behavior: options?.behavior,
+    attendance: options?.attendance,
   };
 }
 
@@ -362,5 +369,172 @@ describe("countBehaviorGrades", () => {
 
     expect(counts.good).toBe(1);
     expect(counts.exemplary).toBe(0);
+  });
+});
+
+describe("calculateClassAttendance", () => {
+  it("calculates class attendance statistics correctly", () => {
+    const students = [
+      createStudent(1, [], {
+        attendance: { present: 90, absent: 5, excused: 5, late: 2 },
+      }),
+      createStudent(2, [], {
+        attendance: { present: 80, absent: 10, excused: 10, late: 5 },
+      }),
+    ];
+
+    const stats = calculateClassAttendance(students);
+
+    expect(stats.totalPresent).toBe(170);
+    expect(stats.totalAbsent).toBe(15);
+    expect(stats.totalExcused).toBe(15);
+    expect(stats.totalLate).toBe(7);
+    expect(stats.averagePercentage).toBe(85); // (90% + 80%) / 2 = 85%
+  });
+
+  it("returns all zeros for empty student array", () => {
+    const stats = calculateClassAttendance([]);
+
+    expect(stats).toEqual({
+      averagePercentage: 0,
+      totalPresent: 0,
+      totalAbsent: 0,
+      totalExcused: 0,
+      totalLate: 0,
+      studentsBelow90: 0,
+      studentsBelow80: 0,
+    });
+  });
+
+  it("excludes students without attendance from percentage average", () => {
+    const students = [
+      createStudent(1, []),
+      createStudent(2, [], {
+        attendance: { present: 100, absent: 0, excused: 0, late: 0 },
+      }),
+    ];
+
+    const stats = calculateClassAttendance(students);
+
+    expect(stats.averagePercentage).toBe(100);
+    expect(stats.totalPresent).toBe(100);
+  });
+
+  it("counts students below 90% and 80% correctly", () => {
+    const students = [
+      createStudent(1, [], {
+        attendance: { present: 95, absent: 5, excused: 0, late: 0 },
+      }), // 95%
+      createStudent(2, [], {
+        attendance: { present: 85, absent: 15, excused: 0, late: 0 },
+      }), // 85%
+      createStudent(3, [], {
+        attendance: { present: 75, absent: 25, excused: 0, late: 0 },
+      }), // 75%
+    ];
+
+    const stats = calculateClassAttendance(students);
+
+    expect(stats.studentsBelow90).toBe(2); // students 2 and 3
+    expect(stats.studentsBelow80).toBe(1); // student 3 only
+  });
+
+  it("handles students with all 100% attendance", () => {
+    const students = [
+      createStudent(1, [], {
+        attendance: { present: 100, absent: 0, excused: 0, late: 5 },
+      }),
+      createStudent(2, [], {
+        attendance: { present: 100, absent: 0, excused: 0, late: 3 },
+      }),
+    ];
+
+    const stats = calculateClassAttendance(students);
+
+    expect(stats.studentsBelow90).toBe(0);
+    expect(stats.studentsBelow80).toBe(0);
+    expect(stats.averagePercentage).toBe(100);
+  });
+
+  it("handles students with zero attendance data", () => {
+    const students = [
+      createStudent(1, [], {
+        attendance: { present: 0, absent: 0, excused: 0, late: 0 },
+      }),
+    ];
+
+    const stats = calculateClassAttendance(students);
+
+    expect(stats.averagePercentage).toBe(0);
+    expect(stats.totalPresent).toBe(0);
+  });
+});
+
+describe("getStudentsWithLowAttendance", () => {
+  it("returns students below default 90% threshold", () => {
+    const students = [
+      createStudent(1, [], {
+        attendance: { present: 95, absent: 5, excused: 0, late: 0 },
+      }), // 95%
+      createStudent(2, [], {
+        attendance: { present: 85, absent: 15, excused: 0, late: 0 },
+      }), // 85%
+      createStudent(3, [], {
+        attendance: { present: 80, absent: 20, excused: 0, late: 0 },
+      }), // 80%
+    ];
+
+    const lowAttendance = getStudentsWithLowAttendance(students);
+
+    expect(lowAttendance).toHaveLength(2);
+    expect(lowAttendance.map((s) => s.number)).toContain(2);
+    expect(lowAttendance.map((s) => s.number)).toContain(3);
+  });
+
+  it("accepts custom threshold", () => {
+    const students = [
+      createStudent(1, [], {
+        attendance: { present: 95, absent: 5, excused: 0, late: 0 },
+      }), // 95%
+      createStudent(2, [], {
+        attendance: { present: 85, absent: 15, excused: 0, late: 0 },
+      }), // 85%
+    ];
+
+    const lowAttendance = getStudentsWithLowAttendance(students, 96);
+
+    expect(lowAttendance).toHaveLength(2);
+  });
+
+  it("returns empty array for empty student array", () => {
+    const lowAttendance = getStudentsWithLowAttendance([]);
+
+    expect(lowAttendance).toEqual([]);
+  });
+
+  it("excludes students without attendance data", () => {
+    const students = [
+      createStudent(1, []),
+      createStudent(2, [], {
+        attendance: { present: 85, absent: 15, excused: 0, late: 0 },
+      }),
+    ];
+
+    const lowAttendance = getStudentsWithLowAttendance(students);
+
+    expect(lowAttendance).toHaveLength(1);
+    expect(lowAttendance[0].number).toBe(2);
+  });
+
+  it("excludes students with zero attendance data", () => {
+    const students = [
+      createStudent(1, [], {
+        attendance: { present: 0, absent: 0, excused: 0, late: 0 },
+      }),
+    ];
+
+    const lowAttendance = getStudentsWithLowAttendance(students);
+
+    expect(lowAttendance).toEqual([]);
   });
 });

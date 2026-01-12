@@ -18,3 +18,9 @@ export {
 
 // Behavior statistics
 export { countBehaviorGrades } from "./behavior.js";
+
+// Attendance statistics
+export {
+  calculateClassAttendance,
+  getStudentsWithLowAttendance,
+} from "./attendance.js";
