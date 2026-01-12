@@ -279,7 +279,6 @@ describe('generatePresentation', () => {
     });
 
     it('formats average with comma as decimal separator', async () => {
-
       expect(html).toContain('<td>5,25</td>');
     });
   });
@@ -336,19 +335,11 @@ describe('generatePresentation', () => {
     });
   });
 
-<<<<<<< HEAD
-  describe("attendance slide", () => {
-    it("renders attendance slide when classAttendance provided", async () => {
-      const data = createClassData([{ num: 1, average: 4.0 }], undefined, {
-        percentage: 92.5,
-        date: "10.01.2026",
-=======
   describe('attendance slide', () => {
     it('renders attendance slide when classAttendance provided', async () => {
       const data = createClassData([{ num: 1, average: 4.0 }], undefined, {
         percentage: 92.5,
         date: '10.01.2026',
->>>>>>> 1bcaf43 (feat: setup ESLint and Prettier (#17))
       });
 
       const html = await generatePresentation(data);
@@ -367,15 +358,8 @@ describe('generatePresentation', () => {
       expect(html).not.toContain('Frekwencja');
     });
 
-<<<<<<< HEAD
-    it("renders attendance without date when date not provided", async () => {
-      const data = createClassData([{ num: 1, average: 4.0 }], undefined, {
-        percentage: 88.0,
-      });
-=======
     it('renders attendance without date when date not provided', async () => {
       const data = createClassData([{ num: 1, average: 4.0 }], undefined, { percentage: 88.0 });
->>>>>>> 1bcaf43 (feat: setup ESLint and Prettier (#17))
 
       const html = await generatePresentation(data);
 
@@ -383,15 +367,8 @@ describe('generatePresentation', () => {
       expect(html).not.toContain('stan na');
     });
 
-<<<<<<< HEAD
-    it("uses Polish decimal separator (comma) for percentage", async () => {
-      const data = createClassData([{ num: 1, average: 4.0 }], undefined, {
-        percentage: 93.75,
-      });
-=======
     it('uses Polish decimal separator (comma) for percentage', async () => {
       const data = createClassData([{ num: 1, average: 4.0 }], undefined, { percentage: 93.75 });
->>>>>>> 1bcaf43 (feat: setup ESLint and Prettier (#17))
 
       const html = await generatePresentation(data);
 
@@ -400,10 +377,10 @@ describe('generatePresentation', () => {
     });
   });
 
-  it("renders aggregate grades slide", async () => {
+  it('renders aggregate grades slide', async () => {
     const data = createClassData([
-      { num: 1, grades: [{ subject: "Matematyka", value: "5" }] },
-      { num: 2, grades: [{ subject: "Matematyka", value: "4" }] },
+      { num: 1, grades: [{ subject: 'Matematyka', value: '5' }] },
+      { num: 2, grades: [{ subject: 'Matematyka', value: '4' }] },
     ]);
 
     // Mock aggregate grade distribution to trigger slide rendering
@@ -420,22 +397,22 @@ describe('generatePresentation', () => {
 
     const html = await generatePresentation(data);
 
-    expect(html).toContain("Rozkład wszystkich ocen");
-    expect(html).toContain("Bardzo dobry (5)");
+    expect(html).toContain('Rozkład wszystkich ocen');
+    expect(html).toContain('Bardzo dobry (5)');
   });
 
-  it("calculates and renders subject enrollment statistics", async () => {
+  it('calculates and renders subject enrollment statistics', async () => {
     const data = createClassData([
-      { num: 1, grades: [{ subject: "Etyka", value: "zwolniony" }] }, // Not enrolled
-      { num: 2, grades: [{ subject: "Etyka", value: "5" }] }, // Enrolled
-      { num: 3, grades: [{ subject: "Etyka", value: "4" }] }, // Enrolled
+      { num: 1, grades: [{ subject: 'Etyka', value: 'zwolniony' }] }, // Not enrolled
+      { num: 2, grades: [{ subject: 'Etyka', value: '5' }] }, // Enrolled
+      { num: 3, grades: [{ subject: 'Etyka', value: '4' }] }, // Enrolled
     ]);
 
     const html = await generatePresentation(data);
 
-    expect(html).toContain("Przedmioty dodatkowe");
-    expect(html).toContain("Etyka");
+    expect(html).toContain('Przedmioty dodatkowe');
+    expect(html).toContain('Etyka');
     // Should be 2 students enrolled out of 3
-    expect(html).toContain("<td>2</td>");
+    expect(html).toContain('<td>2</td>');
   });
 });

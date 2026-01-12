@@ -262,7 +262,7 @@ function renderOverviewSlide(data: PresentationData): string {
 
 function renderSubjectEnrollmentSlide(data: PresentationData): string {
   if (!data.subjectEnrollment || data.subjectEnrollment.length === 0) {
-    return "";
+    return '';
   }
 
   const rows = data.subjectEnrollment
@@ -271,9 +271,9 @@ function renderSubjectEnrollmentSlide(data: PresentationData): string {
         <tr>
           <td>${escapeHtml(subject)}</td>
           <td>${count}</td>
-        </tr>`
+        </tr>`,
     )
-    .join("");
+    .join('');
 
   return `
   <section class="slide">
@@ -423,12 +423,8 @@ function renderAttendanceSlide(data: PresentationData): string {
 
   let failureStatsHtml = '';
   if (data.failureStatistics) {
-    const {
-      noFailingGrades,
-      oneToTwoFailingGrades,
-      threeOrMoreFailingGrades,
-      unclassified,
-    } = data.failureStatistics;
+    const { noFailingGrades, oneToTwoFailingGrades, threeOrMoreFailingGrades, unclassified } =
+      data.failureStatistics;
     failureStatsHtml = `
     <h3 class="section-heading">Zagrożenia</h3>
     <table>
@@ -638,13 +634,13 @@ export function renderPresentation(data: PresentationData): string {
   <style>${STYLES}</style>
 </head>
 <body>${renderTitleSlide(data)}${renderOverviewSlide(
-    data
+    data,
   )}${renderSubjectEnrollmentSlide(data)}${renderSubjectAveragesSlide(
-    data
+    data,
   )}${renderGradeDistributionSlide(data)}${renderStudentAveragesSlide(
-    data
+    data,
   )}${renderTopStudentsSlide(data)}${renderAttendanceSlide(
-    data
+    data,
   )}${renderAggregateGradesSlide(data)}${renderBehaviorSlide(data)}
 </body>
 </html>`;

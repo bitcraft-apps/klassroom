@@ -155,9 +155,7 @@ describe('renderPresentation - topStudents slide', () => {
       html.indexOf('Najwyższe średnie'),
       html.indexOf('Zachowanie'),
     );
-    expect(topStudentsSection).not.toMatch(
-      /<th[^>]*>.*(?:Imię|Nazwisko|Uczeń).*<\/th>/i
-    );
+    expect(topStudentsSection).not.toMatch(/<th[^>]*>.*(?:Imię|Nazwisko|Uczeń).*<\/th>/i);
   });
 
   it('formats averages with comma as decimal separator (Polish)', () => {
@@ -494,42 +492,42 @@ describe('renderPresentation - aggregate grades slide', () => {
     expect(html).not.toContain('Wykres rozkładu ocen');
   });
 
-  describe("subject enrollment slide", () => {
-    it("renders subject enrollment slide when data is present", () => {
+  describe('subject enrollment slide', () => {
+    it('renders subject enrollment slide when data is present', () => {
       const data = createTestPresentationData({
         subjectEnrollment: [
-          { subject: "Edukacja zdrowotna", count: 15 },
-          { subject: "Etyka", count: 5 },
+          { subject: 'Edukacja zdrowotna', count: 15 },
+          { subject: 'Etyka', count: 5 },
         ],
       });
 
       const html = renderPresentation(data);
 
-      expect(html).toContain("<h2>Przedmioty dodatkowe</h2>");
-      expect(html).toContain("Edukacja zdrowotna");
-      expect(html).toContain("15");
-      expect(html).toContain("Etyka");
-      expect(html).toContain("5");
+      expect(html).toContain('<h2>Przedmioty dodatkowe</h2>');
+      expect(html).toContain('Edukacja zdrowotna');
+      expect(html).toContain('15');
+      expect(html).toContain('Etyka');
+      expect(html).toContain('5');
     });
 
-    it("does not render subject enrollment slide when data is null", () => {
+    it('does not render subject enrollment slide when data is null', () => {
       const data = createTestPresentationData({
         subjectEnrollment: null,
       });
 
       const html = renderPresentation(data);
 
-      expect(html).not.toContain("<h2>Przedmioty dodatkowe</h2>");
+      expect(html).not.toContain('<h2>Przedmioty dodatkowe</h2>');
     });
 
-    it("does not render subject enrollment slide when data is empty", () => {
+    it('does not render subject enrollment slide when data is empty', () => {
       const data = createTestPresentationData({
         subjectEnrollment: [],
       });
 
       const html = renderPresentation(data);
 
-      expect(html).not.toContain("<h2>Przedmioty dodatkowe</h2>");
+      expect(html).not.toContain('<h2>Przedmioty dodatkowe</h2>');
     });
   });
 });
