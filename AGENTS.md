@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What This Is
 
-Klassroom generates HTML presentations for Polish parent-teacher meetings from school grade XLSX exports (Librus Synergia, later Vulcan UONET+).
+Klassroom generates HTML presentations for Polish parent-teacher meetings from school grade XLSX exports (Vulcan UONET+).
 
 ## Critical Constraints
 
@@ -29,9 +29,9 @@ Adheres to following principles:
 
 ## Domain Knowledge
 
-### Librus Synergia XLSX Export Format
+### Vulcan UONET+ XLSX Export Format
 
-Librus Synergia's "additional internal documentation" XLSX export contains 6 Polish-named sheets. Format detection requires at least 4 of these sheets to be present:
+Vulcan UONET+ "additional internal documentation" XLSX export contains 6 Polish-named sheets. Format detection requires at least 4 of these sheets to be present:
 
 | Sheet Name | Purpose | Used by Parser |
 |------------|---------|----------------|
@@ -63,6 +63,6 @@ Librus Synergia's "additional internal documentation" XLSX export contains 6 Pol
 
 Polish behavior grades map: wzorowe→exemplary, bardzo dobre→veryGood, dobre→good, poprawne→acceptable, nieodpowiednie→inappropriate, naganne→reprehensible.
 
-### Future: Vulcan UONET+ Support
+### Future: Librus Synergia Support
 
-Vulcan UONET+ exports are not yet supported. They use different sheet structures and terminology. Format detection will reject non-Librus files with a helpful error message.
+Librus Synergia exports are not yet supported. We have no verified sample of the Librus format - it may or may not use the same sheet structure as Vulcan UONET+. If you have a Librus Synergia export file, please file an issue to help us add support.

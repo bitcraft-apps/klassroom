@@ -7,10 +7,10 @@ import { parseAveragesSheet } from "./sheets/averages.js";
 import { parseMetadataSheet } from "./sheets/metadata.js";
 
 /**
- * All 6 sheet names that appear in Librus Synergia XLSX exports.
+ * All 6 sheet names that appear in Vulcan UONET+ XLSX exports.
  * Used for format detection/validation.
  */
-const LIBRUS_SHEET_NAMES = [
+const VULCAN_SHEET_NAMES = [
   "Okres klasyfikacyjny",
   "Dodatkowe informacje 1",
   "Średnia uczniów",
@@ -20,7 +20,7 @@ const LIBRUS_SHEET_NAMES = [
 ] as const;
 
 /**
- * Sheets required for parsing (subset of LIBRUS_SHEET_NAMES).
+ * Sheets required for parsing (subset of VULCAN_SHEET_NAMES).
  * Note: Behavior is embedded in the grades sheet column, not parsed from "Zachowanie" sheet.
  */
 const REQUIRED_SHEETS = {
@@ -32,7 +32,7 @@ const REQUIRED_SHEETS = {
 /**
  * Detected file format from sheet name analysis.
  */
-export type DetectedFormat = "librus" | "unknown";
+export type DetectedFormat = "vulcan" | "unknown";
 
 /**
  * Detects the format of an XLSX file based on sheet names.
@@ -46,19 +46,19 @@ export function detectFormat(sheetNames: string[]): {
   missingSheets: string[];
 } {
   const sheetSet = new Set(sheetNames);
-  const matchedSheets = LIBRUS_SHEET_NAMES.filter((name) => sheetSet.has(name));
-  const missingSheets = LIBRUS_SHEET_NAMES.filter((name) => !sheetSet.has(name));
+  const matchedSheets = VULCAN_SHEET_NAMES.filter((name) => sheetSet.has(name));
+  const missingSheets = VULCAN_SHEET_NAMES.filter((name) => !sheetSet.has(name));
 
-  // Consider it Librus format if at least 4 of 6 expected sheets are present
-  const format: DetectedFormat = matchedSheets.length >= 4 ? "librus" : "unknown";
+  // Consider it Vulcan format if at least 4 of 6 expected sheets are present
+  const format: DetectedFormat = matchedSheets.length >= 4 ? "vulcan" : "unknown";
 
   return { format, matchedSheets, missingSheets };
 }
 
 /**
- * Parses a Librus Synergia XLSX grade export into ClassData.
+ * Parses a Vulcan UONET+ XLSX grade export into ClassData.
  *
- * Supports XLSX files exported from Librus Synergia's "additional internal documentation"
+ * Supports XLSX files exported from Vulcan UONET+ "additional internal documentation"
  * export option. The format is identified by 6 characteristic Polish sheet names.
  *
  * Note: This function uses synchronous file I/O (fs.readFileSync).
@@ -69,11 +69,11 @@ export function detectFormat(sheetNames: string[]): {
  * @throws Error if file not found, unrecognized format, missing required sheets, or invalid structure
  *
  * @example
- * const data = parseLibrusXlsx("./grades.xlsx");
+ * const data = parseVulcanXlsx("./grades.xlsx");
  * console.log(data.metadata.className); // "3A"
  * console.log(data.students[0].number); // 1
  */
-export function parseLibrusXlsx(filePath: string): ClassData {
+export function parseVulcanXlsx(filePath: string): ClassData {
   // Check file exists
   if (!fs.existsSync(filePath)) {
     throw new Error(`File not found: ${filePath}`);
@@ -89,9 +89,9 @@ export function parseLibrusXlsx(filePath: string): ClassData {
   if (format === "unknown") {
     const foundSheets = workbook.SheetNames.join(", ");
     throw new Error(
-      `Unrecognized XLSX format. Expected Librus Synergia export with sheets: ${LIBRUS_SHEET_NAMES.join(", ")}. ` +
+      `Unrecognized XLSX format. Expected Vulcan UONET+ export with sheets: ${VULCAN_SHEET_NAMES.join(", ")}. ` +
         `Found sheets: ${foundSheets}. ` +
-        `This parser only supports Librus Synergia exports. Vulcan UONET+ and other formats are not yet supported.`
+        `This parser only supports Vulcan UONET+ exports. Other formats not yet supported - please file an issue.`
     );
   }
 
@@ -100,7 +100,7 @@ export function parseLibrusXlsx(filePath: string): ClassData {
     if (!workbook.SheetNames.includes(sheetName)) {
       throw new Error(
         `Missing required sheet: ${sheetName}. ` +
-          `Matched ${matchedSheets.length}/6 Librus sheets. Missing: ${missingSheets.join(", ")}`
+          `Matched ${matchedSheets.length}/6 Vulcan sheets. Missing: ${missingSheets.join(", ")}`
       );
     }
   }

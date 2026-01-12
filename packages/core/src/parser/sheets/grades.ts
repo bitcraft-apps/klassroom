@@ -16,7 +16,7 @@ export interface GradesRow {
 /**
  * Parses the "Okres klasyfikacyjny" (grades matrix) sheet.
  *
- * Librus format:
+ * Vulcan format:
  * - Row 0: Headers ["Nr w dzienniku", "Uczeń", "Zachowanie", "Nazwa przedmiotu", ...]
  * - Row 1: Subject names [null, null, null, "Religia", "Język polski", ...]
  * - Row 2: Empty separator row
