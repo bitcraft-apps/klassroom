@@ -8,6 +8,8 @@ import {
   getTopStudents,
   countStudentsByAverageRange,
   countBehaviorGrades,
+  countStudentsBySubject,
+  getOptionalSubjects,
 } from "./index.js";
 import { studentNumber, type Student } from "../types/index.js";
 
@@ -367,5 +369,171 @@ describe("countBehaviorGrades", () => {
 
     expect(counts.good).toBe(1);
     expect(counts.exemplary).toBe(0);
+  });
+});
+
+describe("countStudentsBySubject", () => {
+  it("counts enrolled students per subject", () => {
+    const students = [
+      createStudent(1, [
+        { subject: "Math", value: "5" },
+        { subject: "Polish", value: "4" },
+        { subject: "Health Ed", value: "5" },
+      ]),
+      createStudent(2, [
+        { subject: "Math", value: "4" },
+        { subject: "Polish", value: "3" },
+        { subject: "Health Ed", value: null },
+      ]),
+      createStudent(3, [
+        { subject: "Math", value: "5" },
+        { subject: "Polish", value: "5" },
+        { subject: "Health Ed", value: "zwolniony" },
+      ]),
+    ];
+
+    const counts = countStudentsBySubject(students);
+
+    expect(counts.get("Math")).toBe(3);
+    expect(counts.get("Polish")).toBe(3);
+    expect(counts.get("Health Ed")).toBe(1);
+  });
+
+  it("returns empty map for empty student array", () => {
+    const counts = countStudentsBySubject([]);
+
+    expect(counts.size).toBe(0);
+  });
+
+  it("does not count null grades as enrolled", () => {
+    const students = [
+      createStudent(1, [{ subject: "Art", value: null }]),
+      createStudent(2, [{ subject: "Art", value: "5" }]),
+    ];
+
+    const counts = countStudentsBySubject(students);
+
+    expect(counts.get("Art")).toBe(1);
+  });
+
+  it("does not count empty string grades as enrolled", () => {
+    const students = [
+      createStudent(1, [{ subject: "Music", value: "" }]),
+      createStudent(2, [{ subject: "Music", value: "4" }]),
+    ];
+
+    const counts = countStudentsBySubject(students);
+
+    expect(counts.get("Music")).toBe(1);
+  });
+
+  it("does not count 'zwolniony' as enrolled", () => {
+    const students = [
+      createStudent(1, [{ subject: "PE", value: "zwolniony" }]),
+      createStudent(2, [{ subject: "PE", value: "5" }]),
+    ];
+
+    const counts = countStudentsBySubject(students);
+
+    expect(counts.get("PE")).toBe(1);
+  });
+
+  it("counts 'nieklasyfikowany' as enrolled", () => {
+    const students = [
+      createStudent(1, [{ subject: "Math", value: "nieklasyfikowany" }]),
+      createStudent(2, [{ subject: "Math", value: "5" }]),
+    ];
+
+    const counts = countStudentsBySubject(students);
+
+    expect(counts.get("Math")).toBe(2);
+  });
+
+  it("counts 'brak oceny' as enrolled", () => {
+    const students = [
+      createStudent(1, [{ subject: "Math", value: "brak oceny" }]),
+      createStudent(2, [{ subject: "Math", value: "4" }]),
+    ];
+
+    const counts = countStudentsBySubject(students);
+
+    expect(counts.get("Math")).toBe(2);
+  });
+});
+
+describe("getOptionalSubjects", () => {
+  it("returns subjects with fewer students than class size", () => {
+    const students = [
+      createStudent(1, [
+        { subject: "Math", value: "5" },
+        { subject: "Health Ed", value: "5" },
+      ]),
+      createStudent(2, [
+        { subject: "Math", value: "4" },
+        { subject: "Health Ed", value: null },
+      ]),
+      createStudent(3, [
+        { subject: "Math", value: "5" },
+        { subject: "Health Ed", value: "zwolniony" },
+      ]),
+    ];
+
+    const optional = getOptionalSubjects(students);
+
+    expect(optional).toEqual(["Health Ed"]);
+  });
+
+  it("returns empty array when all subjects have full enrollment", () => {
+    const students = [
+      createStudent(1, [
+        { subject: "Math", value: "5" },
+        { subject: "Polish", value: "4" },
+      ]),
+      createStudent(2, [
+        { subject: "Math", value: "4" },
+        { subject: "Polish", value: "3" },
+      ]),
+    ];
+
+    const optional = getOptionalSubjects(students);
+
+    expect(optional).toEqual([]);
+  });
+
+  it("returns empty array for empty student array", () => {
+    const optional = getOptionalSubjects([]);
+
+    expect(optional).toEqual([]);
+  });
+
+  it("returns results sorted alphabetically", () => {
+    const students = [
+      createStudent(1, [
+        { subject: "Religia", value: "5" },
+        { subject: "Etyka", value: null },
+        { subject: "Math", value: "5" },
+      ]),
+      createStudent(2, [
+        { subject: "Religia", value: null },
+        { subject: "Etyka", value: "5" },
+        { subject: "Math", value: "4" },
+      ]),
+    ];
+
+    const optional = getOptionalSubjects(students);
+
+    expect(optional).toEqual(["Etyka", "Religia"]);
+  });
+
+  it("handles case-insensitive 'zwolniony' variations", () => {
+    const students = [
+      createStudent(1, [{ subject: "PE", value: "Zwolniony" }]),
+      createStudent(2, [{ subject: "PE", value: "ZWOLNIONY" }]),
+      createStudent(3, [{ subject: "PE", value: "5" }]),
+    ];
+
+    const optional = getOptionalSubjects(students);
+
+    expect(optional).toEqual(["PE"]);
   });
 });
