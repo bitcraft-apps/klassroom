@@ -4,8 +4,9 @@ import type { AttendanceStats } from "../../types/index.js";
 
 /**
  * Polish header names for attendance columns.
- * Used to detect column indices regardless of column order.
- * Note: Patterns are checked in order - more specific patterns first.
+ * Each array contains alternative header patterns (synonyms) for a column type.
+ * Collision protection (e.g., "usprawiedliwione" in "nieusprawiedliwione") is
+ * handled by the exclusion mechanism in findColumnIndex calls, not pattern order.
  */
 const COLUMN_PATTERNS = {
   name: ["dane ucznia", "uczeń", "imię i nazwisko"],

@@ -228,6 +228,68 @@ describe("parseVulcanXlsx", () => {
       expect(student).not.toHaveProperty("name");
     }
   });
+
+  it("parses successfully when optional attendance sheet is missing", () => {
+    vi.mocked(fs.existsSync).mockReturnValue(true);
+    vi.mocked(fs.readFileSync).mockReturnValue(Buffer.from("mock"));
+
+    const gradesSheetData = [
+      ["Nr w dzienniku", "Uczeń", "Zachowanie", "Nazwa przedmiotu"],
+      [null, null, null, "Matematyka"],
+      [null, null, null, null],
+      [1, "Jan Kowalski", "wzorowe", "5"],
+    ];
+
+    const averagesSheetData = [
+      ["Numer w dzienniku", "Dane ucznia", "Średnia"],
+      [1, "Jan Kowalski", 4.5],
+    ];
+
+    const metadataSheetData = [
+      ["Dodatkowe informacje dla 1 semestru w roku szkolnym 2024/2025"],
+      ["Oddział", "3A", "Wychowawca", null, null, "Maria Wiśniewska"],
+    ];
+
+    // Mock workbook WITHOUT "Dodatkowe informacje 2" (attendance) sheet
+    // Still has 5 sheets for format detection (requires 4+)
+    vi.mocked(XLSX.read).mockReturnValue({
+      SheetNames: [
+        "Okres klasyfikacyjny",
+        "Dodatkowe informacje 1",
+        "Średnia uczniów",
+        "Zachowanie",
+        "Informacje o uczniach",
+      ],
+      Sheets: {
+        "Okres klasyfikacyjny": {},
+        "Dodatkowe informacje 1": {},
+        "Średnia uczniów": {},
+        Zachowanie: {},
+        "Informacje o uczniach": {},
+      },
+    } as XLSX.WorkBook);
+
+    // Mock sheet_to_json: metadata, grades, averages (NO attendance call)
+    vi.mocked(XLSX.utils.sheet_to_json)
+      .mockReturnValueOnce(metadataSheetData)
+      .mockReturnValueOnce(gradesSheetData)
+      .mockReturnValueOnce(averagesSheetData);
+
+    const result = parseVulcanXlsx("/path/to/file.xlsx");
+
+    // Verify parsing succeeded
+    expect(result.metadata.className).toBe("3A");
+    expect(result.students).toHaveLength(1);
+
+    // Verify student has undefined attendance (graceful degradation)
+    expect(result.students[0]).toEqual({
+      number: 1,
+      grades: [{ subject: "Matematyka", value: "5" }],
+      average: 4.5,
+      behavior: "exemplary",
+      attendance: undefined,
+    });
+  });
 });
 
 describe("parseGradesSheet", () => {
