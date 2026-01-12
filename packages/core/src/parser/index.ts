@@ -125,10 +125,16 @@ export function parseVulcanXlsx(filePath: string): ClassData {
   const averagesMap = parseAveragesSheet(averagesSheet);
 
   // Parse optional attendance sheet if present
+  // Wrapped in try-catch: sheet may exist but have unrecognized format
   const attendanceSheet = workbook.Sheets[OPTIONAL_SHEETS.ATTENDANCE];
-  const attendanceMap: Map<string, AttendanceStats> = attendanceSheet
-    ? parseAttendanceSheet(attendanceSheet)
-    : new Map();
+  let attendanceMap: Map<string, AttendanceStats> = new Map();
+  if (attendanceSheet) {
+    try {
+      attendanceMap = parseAttendanceSheet(attendanceSheet);
+    } catch {
+      // Sheet exists but format not recognized - continue without attendance data
+    }
+  }
 
   // Build RawStudent records by correlating data across sheets
   // Note: Behavior comes from the grades sheet (embedded in column 2)

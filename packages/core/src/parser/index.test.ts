@@ -292,6 +292,84 @@ describe("parseVulcanXlsx", () => {
       attendance: undefined,
     });
   });
+
+  it("parses successfully when attendance sheet has unrecognized format", () => {
+    vi.mocked(fs.existsSync).mockReturnValue(true);
+    vi.mocked(fs.readFileSync).mockReturnValue(Buffer.from("mock"));
+
+    const gradesSheetData = [
+      ["Nr w dzienniku", "Uczeń", "Zachowanie", "Nazwa przedmiotu"],
+      [null, null, null, "Matematyka"],
+      [null, null, null, null],
+      [1, "Jan Kowalski", "wzorowe", "5"],
+    ];
+
+    const averagesSheetData = [
+      ["Numer w dzienniku", "Dane ucznia", "Średnia"],
+      [1, "Jan Kowalski", 4.5],
+    ];
+
+    const metadataSheetData = [
+      ["Dodatkowe informacje dla 1 semestru w roku szkolnym 2024/2025"],
+      ["Oddział", "3A", "Wychowawca", null, null, "Maria Wiśniewska"],
+    ];
+
+    // Real-world format: sheet exists but has class-level summaries, not per-student data
+    // This format has no student name column, which would normally throw
+    const attendanceSheetData = [
+      ["Dodatkowe informacje dla oddziału 5b w roku szkolnym 2025/2026"],
+      [],
+      ["Dane podstawowe"],
+      ["Wychowawca: Teacher Name"],
+      [],
+      ["Frekwencja na dzień klasyfikacji"],
+      [],
+      ["Frekwencja", "Stan %"],
+    ];
+
+    // Mock workbook WITH attendance sheet present (all 6 sheets)
+    vi.mocked(XLSX.read).mockReturnValue({
+      SheetNames: [
+        "Okres klasyfikacyjny",
+        "Dodatkowe informacje 1",
+        "Średnia uczniów",
+        "Dodatkowe informacje 2",
+        "Zachowanie",
+        "Informacje o uczniach",
+      ],
+      Sheets: {
+        "Okres klasyfikacyjny": {},
+        "Dodatkowe informacje 1": {},
+        "Średnia uczniów": {},
+        "Dodatkowe informacje 2": {},
+        Zachowanie: {},
+        "Informacje o uczniach": {},
+      },
+    } as XLSX.WorkBook);
+
+    // Mock sheet_to_json: metadata, grades, averages, attendance (with unrecognized format)
+    vi.mocked(XLSX.utils.sheet_to_json)
+      .mockReturnValueOnce(metadataSheetData)
+      .mockReturnValueOnce(gradesSheetData)
+      .mockReturnValueOnce(averagesSheetData)
+      .mockReturnValueOnce(attendanceSheetData);
+
+    // Should NOT throw - graceful degradation
+    const result = parseVulcanXlsx("/path/to/file.xlsx");
+
+    // Verify parsing succeeded
+    expect(result.metadata.className).toBe("3A");
+    expect(result.students).toHaveLength(1);
+
+    // Verify student has undefined attendance (graceful degradation)
+    expect(result.students[0]).toEqual({
+      number: 1,
+      grades: [{ subject: "Matematyka", value: "5" }],
+      average: 4.5,
+      behavior: "exemplary",
+      attendance: undefined,
+    });
+  });
 });
 
 describe("parseGradesSheet", () => {
