@@ -279,6 +279,10 @@ describe('generatePresentation', () => {
     });
 
     it('formats average with comma as decimal separator', async () => {
+      const data = createClassData([{ num: 1, average: 5.25 }]);
+
+      const html = await generatePresentation(data);
+
       expect(html).toContain('<td>5,25</td>');
     });
   });
