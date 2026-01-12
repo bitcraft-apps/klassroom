@@ -218,6 +218,78 @@ describe("generatePresentation", () => {
     });
   });
 
+  describe("top students slide", () => {
+    it("renders top students slide when students have 4.75+ average", async () => {
+      const data = createClassData([
+        { num: 1, average: 5.25 },
+        { num: 2, average: 4.80 },
+        { num: 3, average: 4.50 }, // below threshold
+      ]);
+
+      const html = await generatePresentation(data);
+
+      expect(html).toContain("Najwyższe średnie");
+      expect(html).toContain("Średnia 4,75 i wyżej");
+      expect(html).toContain("(2 uczniów)");
+    });
+
+    it("skips slide when no students meet threshold", async () => {
+      const data = createClassData([
+        { num: 1, average: 4.50 },
+        { num: 2, average: 4.00 },
+      ]);
+
+      const html = await generatePresentation(data);
+
+      expect(html).not.toContain("Najwyższe średnie");
+    });
+
+    it("sorts by average descending, then by number ascending", async () => {
+      const data = createClassData([
+        { num: 3, average: 4.80 },
+        { num: 1, average: 5.00 },
+        { num: 5, average: 4.80 }, // tied with num 3
+        { num: 2, average: 4.90 },
+      ]);
+
+      const html = await generatePresentation(data);
+
+      // Find positions in HTML to verify order
+      const pos1 = html.indexOf("<td>1</td>");
+      const pos2 = html.indexOf("<td>2</td>");
+      const pos3 = html.indexOf("<td>3</td>");
+      const pos5 = html.indexOf("<td>5</td>");
+
+      // Order should be: 1 (5.00), 2 (4.90), 3 (4.80), 5 (4.80)
+      expect(pos1).toBeLessThan(pos2);
+      expect(pos2).toBeLessThan(pos3);
+      expect(pos3).toBeLessThan(pos5);
+    });
+
+    it("displays only student numbers, never names (GDPR)", async () => {
+      const data = createClassData([
+        { num: 7, average: 5.00 },
+      ]);
+
+      const html = await generatePresentation(data);
+
+      expect(html).toContain("Numer ucznia");
+      expect(html).toContain("<td>7</td>");
+      // The slide should not have any name-related columns
+      expect(html).not.toMatch(/<th[^>]*>.*(?:Imię|Nazwisko|Uczeń|Name).*<\/th>/i);
+    });
+
+    it("formats average with comma as decimal separator", async () => {
+      const data = createClassData([
+        { num: 1, average: 5.25 },
+      ]);
+
+      const html = await generatePresentation(data);
+
+      expect(html).toContain("<td>5,25</td>");
+    });
+  });
+
   describe("chart rendering fallback", () => {
     it("uses placeholder image when chart rendering fails", async () => {
       // Mock renderChartToDataUrl to throw an error

@@ -1,4 +1,13 @@
-import type { BehaviorCounts, GradeCounts } from "../types/index.js";
+import type { BehaviorCounts, GradeCounts, StudentNumber } from "../types/index.js";
+
+/**
+ * GDPR-safe row for top students slide.
+ * Uses student number only, never name.
+ */
+export interface TopStudentRow {
+  number: StudentNumber;
+  average: number;
+}
 
 /**
  * Presentation data structure for rendering.
@@ -23,6 +32,7 @@ export interface PresentationData {
   };
   gradeDistribution: GradeDistributionRow[] | null;
   behaviorCounts: BehaviorCounts | null;
+  topStudents: TopStudentRow[] | null;
 }
 
 export interface GradeDistributionRow {
@@ -151,6 +161,11 @@ tr:hover {
   color: #6b7280;
   font-style: italic;
   padding: 3rem;
+}
+.slide-subtitle {
+  font-size: 1.25rem;
+  color: #6b7280;
+  margin-bottom: 1rem;
 }
 @media print {
   body {
@@ -303,6 +318,41 @@ function renderStudentAveragesSlide(data: PresentationData): string {
   </section>`;
 }
 
+function renderTopStudentsSlide(data: PresentationData): string {
+  if (!data.topStudents || data.topStudents.length === 0) {
+    return "";
+  }
+
+  const rows = data.topStudents
+    .map(
+      ({ number, average }) => `
+        <tr>
+          <td>${number}</td>
+          <td>${average.toFixed(2).replace(".", ",")}</td>
+        </tr>`
+    )
+    .join("");
+
+  // Polish grammar: 1 uczeń (singular), 2+ uczniów (genitive plural)
+  const studentLabel = data.topStudents.length === 1 ? "uczeń" : "uczniów";
+
+  return `
+  <section class="slide">
+    <h2>Najwyższe średnie</h2>
+    <p class="slide-subtitle">Średnia 4,75 i wyżej (${data.topStudents.length} ${studentLabel})</p>
+    <table>
+      <thead>
+        <tr>
+          <th scope="col">Numer ucznia</th>
+          <th scope="col">Średnia</th>
+        </tr>
+      </thead>
+      <tbody>${rows}
+      </tbody>
+    </table>
+  </section>`;
+}
+
 function renderBehaviorSlide(data: PresentationData): string {
   if (!data.behaviorCounts) {
     return `
@@ -402,7 +452,7 @@ export function renderPresentation(data: PresentationData): string {
   <title>Zebranie z rodzicami - ${escapeHtml(data.metadata.className)}</title>
   <style>${STYLES}</style>
 </head>
-<body>${renderTitleSlide(data)}${renderOverviewSlide(data)}${renderSubjectAveragesSlide(data)}${renderGradeDistributionSlide(data)}${renderStudentAveragesSlide(data)}${renderBehaviorSlide(data)}
+<body>${renderTitleSlide(data)}${renderOverviewSlide(data)}${renderSubjectAveragesSlide(data)}${renderGradeDistributionSlide(data)}${renderStudentAveragesSlide(data)}${renderTopStudentsSlide(data)}${renderBehaviorSlide(data)}
 </body>
 </html>`;
 }
