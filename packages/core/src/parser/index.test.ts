@@ -204,6 +204,7 @@ describe("parseVulcanXlsx", () => {
         absent: 5,
         excused: 3,
         late: 2,
+        percentage: expect.closeTo(91.84, 1), // 90/(90+5+3)*100
       },
     });
 
@@ -220,6 +221,7 @@ describe("parseVulcanXlsx", () => {
         absent: 10,
         excused: 5,
         late: 1,
+        percentage: 85, // 85/(85+10+5)*100 = 85%
       },
     });
 
@@ -460,12 +462,14 @@ describe("parseAttendanceSheet", () => {
       absent: 5,
       excused: 3,
       late: 2,
+      percentage: expect.closeTo(91.84, 1), // 90/(90+5+3)*100
     });
     expect(result.get("Anna Nowak")).toEqual({
       present: 85,
       absent: 10,
       excused: 5,
       late: 1,
+      percentage: 85, // 85/(85+10+5)*100 = 85%
     });
   });
 
@@ -484,6 +488,7 @@ describe("parseAttendanceSheet", () => {
       absent: 2,
       excused: 5,
       late: 3,
+      percentage: expect.closeTo(93.46, 1), // 100/(100+2+5)*100
     });
   });
 
@@ -502,6 +507,7 @@ describe("parseAttendanceSheet", () => {
       absent: 0,
       excused: 0,
       late: 0,
+      percentage: 100, // 90/(90+0+0)*100 = 100%
     });
   });
 
@@ -520,6 +526,7 @@ describe("parseAttendanceSheet", () => {
       absent: 5,
       excused: 0,
       late: 0,
+      percentage: expect.closeTo(94.74, 1), // 90/(90+5+0)*100
     });
   });
 
@@ -538,6 +545,7 @@ describe("parseAttendanceSheet", () => {
       absent: 0,
       excused: 0,
       late: 0,
+      percentage: undefined, // No attendance data (all zeros)
     });
   });
 
@@ -559,6 +567,7 @@ describe("parseAttendanceSheet", () => {
       absent: 0,
       excused: 0,
       late: 0,
+      percentage: 100, // 80/(80+0+0)*100 = 100%
     });
   });
 
@@ -581,5 +590,54 @@ describe("parseAttendanceSheet", () => {
     expect(() => parseAttendanceSheet({} as XLSX.WorkSheet)).toThrow(
       "Invalid data structure in sheet: Dodatkowe informacje 2 - missing student name column"
     );
+  });
+
+  it("handles excused column appearing before unexcused in full headers", () => {
+    // Edge case: "Nieobecności usprawiedliwione" appears BEFORE "Nieobecności nieusprawiedliwione"
+    // The fallback "nieobecności" pattern should NOT incorrectly match the excused column
+    const sheetData = [
+      ["Dane ucznia", "Nieobecności usprawiedliwione", "Nieobecności nieusprawiedliwione", "Obecności"],
+      ["Jan Kowalski", 3, 5, 90],
+    ];
+
+    vi.mocked(XLSX.utils.sheet_to_json).mockReturnValue(sheetData);
+
+    const result = parseAttendanceSheet({} as XLSX.WorkSheet);
+
+    // Verify columns are matched correctly despite order
+    expect(result.get("Jan Kowalski")).toEqual({
+      present: 90,
+      absent: 5, // unexcused (nieusprawiedliwione)
+      excused: 3, // excused (usprawiedliwione)
+      late: 0,
+      percentage: expect.closeTo(91.84, 1), // 90/(90+5+3)*100
+    });
+  });
+
+  it("returns empty Map for header-only sheet (no students)", () => {
+    const sheetData = [
+      ["Dane ucznia", "Obecności", "Nieobecności"],
+    ];
+
+    vi.mocked(XLSX.utils.sheet_to_json).mockReturnValue(sheetData);
+
+    const result = parseAttendanceSheet({} as XLSX.WorkSheet);
+
+    expect(result.size).toBe(0);
+  });
+
+  it("calculates percentage correctly", () => {
+    const sheetData = [
+      ["Dane ucznia", "Obecności", "Nieobecności nieusprawiedliwione", "Nieobecności usprawiedliwione"],
+      ["Jan Kowalski", 90, 5, 5], // 90/(90+5+5) = 90%
+      ["Anna Nowak", 0, 0, 0], // No data = undefined percentage
+    ];
+
+    vi.mocked(XLSX.utils.sheet_to_json).mockReturnValue(sheetData);
+
+    const result = parseAttendanceSheet({} as XLSX.WorkSheet);
+
+    expect(result.get("Jan Kowalski")?.percentage).toBe(90);
+    expect(result.get("Anna Nowak")?.percentage).toBeUndefined();
   });
 });

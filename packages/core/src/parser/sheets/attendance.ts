@@ -1,12 +1,13 @@
 import type { WorkSheet } from "xlsx";
 import * as XLSX from "xlsx";
-import type { AttendanceStats } from "../../types/index.js";
+import { type AttendanceStats, calculateAttendancePercentage } from "../../types/index.js";
 
 /**
  * Polish header names for attendance columns.
  * Each array contains alternative header patterns (synonyms) for a column type.
- * Collision protection (e.g., "usprawiedliwione" in "nieusprawiedliwione") is
- * handled by the exclusion mechanism in findColumnIndex calls, not pattern order.
+ * Patterns are ordered by specificity (most specific first) to prevent false matches.
+ * The findColumnIndex function iterates patterns in order, ensuring "nieusprawiedliwione"
+ * is matched before the fallback "nieobecności" pattern.
  */
 const COLUMN_PATTERNS = {
   name: ["dane ucznia", "uczeń", "imię i nazwisko"],
@@ -22,8 +23,10 @@ const COLUMN_PATTERNS = {
 
 /**
  * Finds the column index for a given header pattern, excluding already-matched columns.
+ * Iterates patterns in order (most specific first), then columns, to ensure
+ * specific patterns like "nieusprawiedliwione" are matched before fallbacks like "nieobecności".
  * @param headers - Array of header strings (lowercased)
- * @param patterns - Array of possible header patterns to match
+ * @param patterns - Array of possible header patterns to match (ordered by specificity)
  * @param excludeIndices - Column indices to exclude from matching
  * @returns Column index or -1 if not found
  */
@@ -32,11 +35,14 @@ function findColumnIndex(
   patterns: readonly string[],
   excludeIndices: Set<number> = new Set()
 ): number {
-  for (let i = 0; i < headers.length; i++) {
-    if (excludeIndices.has(i)) continue;
-    const header = headers[i];
-    if (patterns.some((p) => header?.includes(p))) {
-      return i;
+  // Try each pattern in order of specificity
+  for (const pattern of patterns) {
+    for (let i = 0; i < headers.length; i++) {
+      if (excludeIndices.has(i)) continue;
+      const header = headers[i];
+      if (header?.includes(pattern)) {
+        return i;
+      }
     }
   }
   return -1;
@@ -57,7 +63,8 @@ function findColumnIndex(
 export function parseAttendanceSheet(sheet: WorkSheet): Map<string, AttendanceStats> {
   const data = XLSX.utils.sheet_to_json<unknown[]>(sheet, { header: 1 });
 
-  if (data.length < 2) {
+  // Need at least a header row
+  if (data.length < 1) {
     throw new Error("Invalid data structure in sheet: Dodatkowe informacje 2");
   }
 
@@ -70,23 +77,25 @@ export function parseAttendanceSheet(sheet: WorkSheet): Map<string, AttendanceSt
   const headers = headerRow.map((h) => String(h ?? "").toLowerCase().trim());
 
   // Find columns, tracking matched indices to avoid double-matching.
-  // Order matters: match more specific patterns first ("nieusprawiedliwione"
-  // before "usprawiedliwione" to avoid false matches).
+  // Order matters due to Polish substring collisions:
+  // - "nieobecności" contains "obecności" → match absences BEFORE present
+  // - "nieusprawiedliwione" is distinct from "usprawiedliwione" but we still
+  //   match unexcused before excused to ensure correct column assignment
   const matched = new Set<number>();
 
   const nameCol = findColumnIndex(headers, COLUMN_PATTERNS.name, matched);
   if (nameCol >= 0) matched.add(nameCol);
 
-  const presentCol = findColumnIndex(headers, COLUMN_PATTERNS.present, matched);
-  if (presentCol >= 0) matched.add(presentCol);
-
-  // Find absent (nieusprawiedliwione) BEFORE excused (usprawiedliwione) because
-  // "nieobecności nieusprawiedliwione" contains "usprawiedliwione" as substring
+  // Match absence columns BEFORE present, because "nieobecności" contains "obecności"
   const absentCol = findColumnIndex(headers, COLUMN_PATTERNS.absent, matched);
   if (absentCol >= 0) matched.add(absentCol);
 
   const excusedCol = findColumnIndex(headers, COLUMN_PATTERNS.excused, matched);
   if (excusedCol >= 0) matched.add(excusedCol);
+
+  // Now safe to match present - "nieobecności" columns are already excluded
+  const presentCol = findColumnIndex(headers, COLUMN_PATTERNS.present, matched);
+  if (presentCol >= 0) matched.add(presentCol);
 
   const lateCol = findColumnIndex(headers, COLUMN_PATTERNS.late, matched);
   if (lateCol >= 0) matched.add(lateCol);
@@ -117,7 +126,10 @@ export function parseAttendanceSheet(sheet: WorkSheet): Map<string, AttendanceSt
     const excused = excusedCol >= 0 ? Number(row[excusedCol]) || 0 : 0;
     const late = lateCol >= 0 ? Number(row[lateCol]) || 0 : 0;
 
-    results.set(name, { present, absent, excused, late });
+    // Calculate percentage (null → undefined for optional field)
+    const percentage = calculateAttendancePercentage({ present, absent, excused }) ?? undefined;
+
+    results.set(name, { present, absent, excused, late, percentage });
   }
 
   return results;
