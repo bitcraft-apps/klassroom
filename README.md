@@ -49,7 +49,7 @@ You can also link the executable globally for easier access:
 
 ```bash
 cd packages/cli
-npm link
+pnpm link --global
 klassroom generate path/to/grades.xlsx
 ```
 
