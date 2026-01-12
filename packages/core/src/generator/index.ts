@@ -6,6 +6,8 @@ import {
   countGradesBySubject,
   countBehaviorGrades,
   getTopStudents,
+  getOptionalSubjects,
+  countStudentsBySubject,
 } from "../analytics/index.js";
 import {
   createSubjectAveragesChart,
@@ -50,6 +52,8 @@ export async function generatePresentation(data: ClassData): Promise<string> {
   const subjectAverages = calculateSubjectAverages(students);
   const gradesBySubject = countGradesBySubject(students);
   const behaviorCounts = countBehaviorGrades(students);
+  const subjectCounts = countStudentsBySubject(students);
+  const optionalSubjects = getOptionalSubjects(students);
 
   // Create chart configs
   const subjectChartConfig = createSubjectAveragesChart(subjectAverages);
@@ -100,6 +104,12 @@ export async function generatePresentation(data: ClassData): Promise<string> {
           .sort((a, b) => b.average - a.average || a.number - b.number)
       : null;
 
+  // Map optional subjects to the data structure
+  const subjectEnrollment = optionalSubjects.map((subject) => ({
+    subject,
+    count: subjectCounts.get(subject) ?? 0,
+  }));
+
   // Format date in Polish
   const generatedDate = new Date().toLocaleDateString("pl-PL", {
     year: "numeric",
@@ -133,6 +143,7 @@ export async function generatePresentation(data: ClassData): Promise<string> {
     failureStatistics: failureStatistics ?? null,
     aggregateGradeDistribution: aggregateGradeDistribution ?? null,
     aggregateGradesPieChart: aggregateGradesChartImage,
+    subjectEnrollment: subjectEnrollment.length > 0 ? subjectEnrollment : null,
   };
 
   return renderPresentation(presentationData);

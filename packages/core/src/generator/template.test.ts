@@ -1,5 +1,10 @@
 import { describe, it, expect } from "vitest";
-import { escapeHtml, safeDataUrl, renderPresentation, type PresentationData } from "./template.js";
+import {
+  escapeHtml,
+  safeDataUrl,
+  renderPresentation,
+  type PresentationData,
+} from "./template.js";
 import { studentNumber } from "../types/index.js";
 
 function createTestPresentationData(
@@ -108,7 +113,7 @@ describe("renderPresentation - topStudents slide", () => {
     const data = createTestPresentationData({
       topStudents: [
         { number: studentNumber(5), average: 5.25 },
-        { number: studentNumber(12), average: 4.80 },
+        { number: studentNumber(12), average: 4.8 },
       ],
     });
 
@@ -121,9 +126,9 @@ describe("renderPresentation - topStudents slide", () => {
   it("shows student count in subtitle", () => {
     const data = createTestPresentationData({
       topStudents: [
-        { number: studentNumber(1), average: 5.00 },
-        { number: studentNumber(2), average: 4.90 },
-        { number: studentNumber(3), average: 4.80 },
+        { number: studentNumber(1), average: 5.0 },
+        { number: studentNumber(2), average: 4.9 },
+        { number: studentNumber(3), average: 4.8 },
       ],
     });
 
@@ -134,9 +139,7 @@ describe("renderPresentation - topStudents slide", () => {
 
   it("uses singular form for one student (Polish grammar)", () => {
     const data = createTestPresentationData({
-      topStudents: [
-        { number: studentNumber(1), average: 5.00 },
-      ],
+      topStudents: [{ number: studentNumber(1), average: 5.0 }],
     });
 
     const html = renderPresentation(data);
@@ -147,9 +150,7 @@ describe("renderPresentation - topStudents slide", () => {
 
   it("displays student numbers only (GDPR)", () => {
     const data = createTestPresentationData({
-      topStudents: [
-        { number: studentNumber(7), average: 5.00 },
-      ],
+      topStudents: [{ number: studentNumber(7), average: 5.0 }],
     });
 
     const html = renderPresentation(data);
@@ -161,14 +162,14 @@ describe("renderPresentation - topStudents slide", () => {
       html.indexOf("Najwyższe średnie"),
       html.indexOf("Zachowanie")
     );
-    expect(topStudentsSection).not.toMatch(/<th[^>]*>.*(?:Imię|Nazwisko|Uczeń).*<\/th>/i);
+    expect(topStudentsSection).not.toMatch(
+      /<th[^>]*>.*(?:Imię|Nazwisko|Uczeń).*<\/th>/i
+    );
   });
 
   it("formats averages with comma as decimal separator (Polish)", () => {
     const data = createTestPresentationData({
-      topStudents: [
-        { number: studentNumber(1), average: 5.25 },
-      ],
+      topStudents: [{ number: studentNumber(1), average: 5.25 }],
     });
 
     const html = renderPresentation(data);
@@ -198,9 +199,7 @@ describe("renderPresentation - topStudents slide", () => {
 
   it("renders slide between student averages and behavior", () => {
     const data = createTestPresentationData({
-      topStudents: [
-        { number: studentNumber(1), average: 5.00 },
-      ],
+      topStudents: [{ number: studentNumber(1), average: 5.0 }],
       behaviorCounts: {
         exemplary: 1,
         veryGood: 0,
@@ -500,5 +499,44 @@ describe("renderPresentation - aggregate grades slide", () => {
     expect(html).toContain("<td>10</td>");
     // No chart image
     expect(html).not.toContain("Wykres rozkładu ocen");
+  });
+
+  describe("subject enrollment slide", () => {
+    it("renders subject enrollment slide when data is present", () => {
+      const data = createTestPresentationData({
+        subjectEnrollment: [
+          { subject: "Edukacja zdrowotna", count: 15 },
+          { subject: "Etyka", count: 5 },
+        ],
+      });
+
+      const html = renderPresentation(data);
+
+      expect(html).toContain("<h2>Przedmioty dodatkowe</h2>");
+      expect(html).toContain("Edukacja zdrowotna");
+      expect(html).toContain("15");
+      expect(html).toContain("Etyka");
+      expect(html).toContain("5");
+    });
+
+    it("does not render subject enrollment slide when data is null", () => {
+      const data = createTestPresentationData({
+        subjectEnrollment: null,
+      });
+
+      const html = renderPresentation(data);
+
+      expect(html).not.toContain("<h2>Przedmioty dodatkowe</h2>");
+    });
+
+    it("does not render subject enrollment slide when data is empty", () => {
+      const data = createTestPresentationData({
+        subjectEnrollment: [],
+      });
+
+      const html = renderPresentation(data);
+
+      expect(html).not.toContain("<h2>Przedmioty dodatkowe</h2>");
+    });
   });
 });
