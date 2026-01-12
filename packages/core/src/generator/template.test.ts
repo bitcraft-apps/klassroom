@@ -477,4 +477,28 @@ describe("renderPresentation - aggregate grades slide", () => {
     expect(attendanceIndex).toBeLessThan(aggregateGradesIndex);
     expect(aggregateGradesIndex).toBeLessThan(behaviorIndex);
   });
+
+  it("renders table without chart when chart rendering fails", () => {
+    const data = createTestPresentationData({
+      aggregateGradeDistribution: {
+        excellent: 10,
+        veryGood: 20,
+        good: 30,
+        satisfactory: 15,
+        acceptable: 5,
+        failing: 2,
+        unclassified: 1,
+      },
+      aggregateGradesPieChart: null, // Chart failed to render
+    });
+
+    const html = renderPresentation(data);
+
+    // Slide should still render with table
+    expect(html).toContain("Rozkład wszystkich ocen");
+    expect(html).toContain("Celujący (6)");
+    expect(html).toContain("<td>10</td>");
+    // No chart image
+    expect(html).not.toContain("Wykres rozkładu ocen");
+  });
 });

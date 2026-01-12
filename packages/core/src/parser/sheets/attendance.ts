@@ -195,10 +195,11 @@ export function parseAggregateGradeDistribution(
     } else if (label.includes(GRADE_LABELS.VERY_GOOD)) {
       result.veryGood = value;
       foundAny = true;
-    } else if (label.includes(GRADE_LABELS.GOOD) && !label.includes("bardzo")) {
+    } else if (label.includes(GRADE_LABELS.GOOD) && !label.includes(GRADE_LABELS.VERY_GOOD)) {
       result.good = value;
       foundAny = true;
-    } else if (label.includes(GRADE_LABELS.SATISFACTORY)) {
+    } else if (label.includes(GRADE_LABELS.SATISFACTORY) && !label.includes(GRADE_LABELS.FAILING)) {
+      // Exclude "niedostatecznych" which contains "dostatecznych" as substring
       result.satisfactory = value;
       foundAny = true;
     } else if (label.includes(GRADE_LABELS.ACCEPTABLE)) {

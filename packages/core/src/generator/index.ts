@@ -11,6 +11,7 @@ import {
   createSubjectAveragesChart,
   createStudentAveragesChart,
   createAggregateGradesPieChart,
+  type ChartConfig,
 } from "../charts/index.js";
 import { renderChartToDataUrl, PLACEHOLDER_IMAGE } from "./render-charts.js";
 import {
@@ -59,7 +60,7 @@ export async function generatePresentation(data: ClassData): Promise<string> {
 
   // Render charts to base64 images in parallel
   const renderChart = async <T extends string>(
-    config: import("../charts/types.js").ChartConfig<T> | null,
+    config: ChartConfig<T> | null,
     label: string
   ): Promise<string | null> => {
     if (!config) return null;
