@@ -3,7 +3,7 @@ import type { PieChartConfig } from "./types.js";
 
 /**
  * Colors for grade distribution pie chart.
- * Green for high grades (5-6), yellow for medium (3-4), red for low (1-2) and unclassified.
+ * Green for high grades (5-6), yellow/amber for medium (3-4), orange/red for low (1-2), gray for unclassified.
  */
 const GRADE_COLORS = [
   "#10B981", // 6 (celujący) - emerald
