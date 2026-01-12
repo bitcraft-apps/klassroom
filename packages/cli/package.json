@@ -4,6 +4,9 @@
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "bin": {
+    "klassroom": "dist/cli.js"
+  },
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
@@ -20,6 +23,7 @@
     "build": "tsc --build"
   },
   "dependencies": {
-    "@klassroom/core": "workspace:*"
+    "@klassroom/core": "workspace:*",
+    "commander": "^13.1.0"
   }
 }
