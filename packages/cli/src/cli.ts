@@ -1,5 +1,3 @@
-#!/usr/bin/env node
-
 import { existsSync } from "node:fs";
 import { writeFile } from "node:fs/promises";
 import { basename, dirname, extname, join } from "node:path";
@@ -73,25 +71,4 @@ export function createProgram(): Command {
     });
 
   return program;
-}
-
-// Only run when executed directly (not when imported for testing)
-// Using import.meta.url for reliable ES module main detection
-import { fileURLToPath } from "node:url";
-import { realpathSync } from "node:fs";
-import { resolve } from "node:path";
-
-function isMain(): boolean {
-  if (!process.argv[1]) return false;
-  try {
-    const scriptPath = realpathSync(resolve(process.argv[1]));
-    const modulePath = fileURLToPath(import.meta.url);
-    return scriptPath === modulePath;
-  } catch {
-    return false;
-  }
-}
-
-if (isMain()) {
-  createProgram().parse();
 }
