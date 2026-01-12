@@ -5,7 +5,7 @@ import { classPeriod, type ClassMetadata } from "../../types/index.js";
 /**
  * Parses the "Dodatkowe informacje 1" (class metadata) sheet.
  *
- * Handles Librus export format:
+ * Handles Vulcan export format:
  * - Row 0: Title with period info (e.g., "Dodatkowe informacje dla 1 semestru w roku szkolnym 2025/2026")
  * - Row 1: Contains "Oddział" (class) and "Wychowawca" (teacher) in horizontal form layout
  *

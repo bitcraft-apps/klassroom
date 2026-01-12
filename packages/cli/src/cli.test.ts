@@ -14,11 +14,11 @@ vi.mock("node:fs/promises", () => ({
 
 vi.mock("@klassroom/core", () => ({
   VERSION: "0.0.0",
-  parseLibrusXlsx: vi.fn(),
+  parseVulcanXlsx: vi.fn(),
   generatePresentation: vi.fn(),
 }));
 
-import { parseLibrusXlsx, generatePresentation } from "@klassroom/core";
+import { parseVulcanXlsx, generatePresentation } from "@klassroom/core";
 import { generate } from "./cli.js";
 
 describe("generate function", () => {
@@ -50,7 +50,7 @@ describe("generate function", () => {
 
   it("generates HTML from valid XLSX", async () => {
     vi.mocked(existsSync).mockReturnValue(true);
-    vi.mocked(parseLibrusXlsx).mockReturnValue({
+    vi.mocked(parseVulcanXlsx).mockReturnValue({
       metadata: {
         className: "5b",
         period: "2024/2025 - Semestr 1" as import("@klassroom/core").ClassPeriod,
@@ -65,7 +65,7 @@ describe("generate function", () => {
 
     expect(result.success).toBe(true);
     expect(result.outputPath).toBe("/path/to/klasa-5b.html");
-    expect(parseLibrusXlsx).toHaveBeenCalledWith("/path/to/klasa-5b.xlsx");
+    expect(parseVulcanXlsx).toHaveBeenCalledWith("/path/to/klasa-5b.xlsx");
     expect(generatePresentation).toHaveBeenCalled();
     expect(writeFile).toHaveBeenCalledWith(
       "/path/to/klasa-5b.html",
@@ -76,7 +76,7 @@ describe("generate function", () => {
 
   it("returns error for parser failures", async () => {
     vi.mocked(existsSync).mockReturnValue(true);
-    vi.mocked(parseLibrusXlsx).mockImplementation(() => {
+    vi.mocked(parseVulcanXlsx).mockImplementation(() => {
       throw new Error("Unrecognized XLSX format");
     });
 
@@ -88,7 +88,7 @@ describe("generate function", () => {
 
   it("returns error for generator failures", async () => {
     vi.mocked(existsSync).mockReturnValue(true);
-    vi.mocked(parseLibrusXlsx).mockReturnValue({
+    vi.mocked(parseVulcanXlsx).mockReturnValue({
       metadata: {
         className: "5b",
         period: "2024/2025 - Semestr 1" as import("@klassroom/core").ClassPeriod,
@@ -106,7 +106,7 @@ describe("generate function", () => {
 
   it("returns error for file write failures", async () => {
     vi.mocked(existsSync).mockReturnValue(true);
-    vi.mocked(parseLibrusXlsx).mockReturnValue({
+    vi.mocked(parseVulcanXlsx).mockReturnValue({
       metadata: {
         className: "5b",
         period: "2024/2025 - Semestr 1" as import("@klassroom/core").ClassPeriod,
@@ -125,7 +125,7 @@ describe("generate function", () => {
 
   it("handles .XLSX extension (case insensitive)", async () => {
     vi.mocked(existsSync).mockReturnValue(true);
-    vi.mocked(parseLibrusXlsx).mockReturnValue({
+    vi.mocked(parseVulcanXlsx).mockReturnValue({
       metadata: {
         className: "5b",
         period: "2024/2025 - Semestr 1" as import("@klassroom/core").ClassPeriod,

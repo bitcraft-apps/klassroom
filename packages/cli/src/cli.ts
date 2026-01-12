@@ -6,7 +6,7 @@ import { basename, dirname, extname, join } from "node:path";
 import { Command } from "commander";
 import {
   VERSION,
-  parseLibrusXlsx,
+  parseVulcanXlsx,
   generatePresentation,
 } from "@klassroom/core";
 
@@ -32,7 +32,7 @@ export async function generate(xlsxPath: string): Promise<GenerateResult> {
 
   try {
     // Parse XLSX
-    const classData = parseLibrusXlsx(xlsxPath);
+    const classData = parseVulcanXlsx(xlsxPath);
 
     // Generate HTML
     const html = await generatePresentation(classData);
@@ -54,13 +54,13 @@ export function createProgram(): Command {
 
   program
     .name("klassroom")
-    .description("Generuje prezentacje HTML z eksportów ocen Librus Synergia")
+    .description("Generuje prezentacje HTML z eksportów ocen Vulcan UONET+")
     .version(VERSION);
 
   program
     .command("generate")
     .description("Generuje prezentację HTML z pliku XLSX")
-    .argument("<xlsx-path>", "Ścieżka do pliku XLSX z eksportu Librus")
+    .argument("<xlsx-path>", "Ścieżka do pliku XLSX z eksportu Vulcan UONET+")
     .action(async (xlsxPath: string) => {
       const result = await generate(xlsxPath);
 

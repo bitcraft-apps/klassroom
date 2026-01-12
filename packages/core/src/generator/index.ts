@@ -23,11 +23,11 @@ import {
  * GDPR: Output uses student numbers only, never names.
  * All text is in Polish.
  *
- * @param data - Parsed class data from Librus XLSX export
+ * @param data - Parsed class data from Vulcan XLSX export
  * @returns Promise resolving to complete HTML string
  *
  * @example
- * const data = parseLibrusXlsx("grades.xlsx");
+ * const data = parseVulcanXlsx("grades.xlsx");
  * const html = await generatePresentation(data);
  * fs.writeFileSync("presentation.html", html);
  */

@@ -4,7 +4,7 @@ import * as XLSX from "xlsx";
 /**
  * Parses the "Średnia uczniów" (student averages) sheet.
  *
- * Librus format:
+ * Vulcan format:
  * - Row 0: Headers ["Numer w dzienniku", "Dane ucznia", "Średnia"]
  * - Row 1+: Student data [number, name, average]
  *

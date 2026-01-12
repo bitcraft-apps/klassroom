@@ -25,7 +25,7 @@ export type ClassPeriod = string & { readonly __brand: "ClassPeriod" };
 
 /**
  * Creates a type-safe ClassPeriod from a plain string.
- * @param period - The classification period string from Librus export
+ * @param period - The classification period string from Vulcan export
  * @returns A branded ClassPeriod
  * @throws Error if period is empty
  */
@@ -173,7 +173,7 @@ export function calculateAttendancePercentage(
 /**
  * Internal student representation with full data including name.
  * Used during XLSX parsing to correlate data across sheets (students are
- * referenced by name in Librus exports). Must be stripped to {@link Student}
+ * referenced by name in Vulcan exports). Must be stripped to {@link Student}
  * before returning from any public API.
  *
  * @internal Package-internal type. NOT exported from barrel - import directly
@@ -230,7 +230,7 @@ export interface Student {
 }
 
 /**
- * Class metadata from the Librus export.
+ * Class metadata from the Vulcan export.
  */
 export interface ClassMetadata {
   /** Class name/identifier (e.g., "3A", "2B") */

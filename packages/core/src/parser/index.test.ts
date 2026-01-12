@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import * as fs from "node:fs";
 import * as XLSX from "xlsx";
-import { parseLibrusXlsx, detectFormat } from "./index.js";
+import { parseVulcanXlsx, detectFormat } from "./index.js";
 import { parseGradesSheet } from "./sheets/grades.js";
 import { parseAveragesSheet } from "./sheets/averages.js";
 import { parseMetadataSheet } from "./sheets/metadata.js";
@@ -18,7 +18,7 @@ vi.mock("xlsx", () => ({
 }));
 
 describe("detectFormat", () => {
-  it("detects Librus format when all 6 sheets present", () => {
+  it("detects Vulcan format when all 6 sheets present", () => {
     const sheetNames = [
       "Okres klasyfikacyjny",
       "Dodatkowe informacje 1",
@@ -30,12 +30,12 @@ describe("detectFormat", () => {
 
     const result = detectFormat(sheetNames);
 
-    expect(result.format).toBe("librus");
+    expect(result.format).toBe("vulcan");
     expect(result.matchedSheets).toHaveLength(6);
     expect(result.missingSheets).toHaveLength(0);
   });
 
-  it("detects Librus format when 4+ sheets present", () => {
+  it("detects Vulcan format when 4+ sheets present", () => {
     const sheetNames = [
       "Okres klasyfikacyjny",
       "Dodatkowe informacje 1",
@@ -45,7 +45,7 @@ describe("detectFormat", () => {
 
     const result = detectFormat(sheetNames);
 
-    expect(result.format).toBe("librus");
+    expect(result.format).toBe("vulcan");
     expect(result.matchedSheets).toHaveLength(4);
     expect(result.missingSheets).toHaveLength(2);
   });
@@ -70,7 +70,7 @@ describe("detectFormat", () => {
   });
 });
 
-describe("parseLibrusXlsx", () => {
+describe("parseVulcanXlsx", () => {
   beforeEach(() => {
     vi.resetAllMocks();
   });
@@ -82,7 +82,7 @@ describe("parseLibrusXlsx", () => {
   it("throws error when file not found", () => {
     vi.mocked(fs.existsSync).mockReturnValue(false);
 
-    expect(() => parseLibrusXlsx("/path/to/missing.xlsx")).toThrow(
+    expect(() => parseVulcanXlsx("/path/to/missing.xlsx")).toThrow(
       "File not found: /path/to/missing.xlsx"
     );
   });
@@ -95,12 +95,12 @@ describe("parseLibrusXlsx", () => {
       Sheets: {},
     } as XLSX.WorkBook);
 
-    expect(() => parseLibrusXlsx("/path/to/file.xlsx")).toThrow(
-      /Unrecognized XLSX format.*Vulcan UONET\+ and other formats are not yet supported/
+    expect(() => parseVulcanXlsx("/path/to/file.xlsx")).toThrow(
+      /Unrecognized XLSX format.*Other formats not yet supported/
     );
   });
 
-  it("throws error when required sheet is missing from Librus file", () => {
+  it("throws error when required sheet is missing from Vulcan file", () => {
     vi.mocked(fs.existsSync).mockReturnValue(true);
     vi.mocked(fs.readFileSync).mockReturnValue(Buffer.from("mock"));
     // Provide 4 sheets to pass format detection, but missing "Dodatkowe informacje 1"
@@ -114,7 +114,7 @@ describe("parseLibrusXlsx", () => {
       Sheets: {},
     } as XLSX.WorkBook);
 
-    expect(() => parseLibrusXlsx("/path/to/file.xlsx")).toThrow(
+    expect(() => parseVulcanXlsx("/path/to/file.xlsx")).toThrow(
       /Missing required sheet: Dodatkowe informacje 1/
     );
   });
@@ -123,7 +123,7 @@ describe("parseLibrusXlsx", () => {
     vi.mocked(fs.existsSync).mockReturnValue(true);
     vi.mocked(fs.readFileSync).mockReturnValue(Buffer.from("mock"));
 
-    // Mock sheet data in Librus format
+    // Mock sheet data in Vulcan format
     // Grades sheet: Row 0 = headers, Row 1 = subjects, Row 2 = separator, Row 3+ = data
     const gradesSheetData = [
       ["Nr w dzienniku", "Uczeń", "Zachowanie", "Nazwa przedmiotu"],
@@ -145,7 +145,7 @@ describe("parseLibrusXlsx", () => {
       ["Oddział", "3A", "Wychowawca", null, null, "Maria Wiśniewska"],
     ];
 
-    // Mock workbook with all 6 Librus sheets (format detection requires 4+)
+    // Mock workbook with all 6 Vulcan sheets (format detection requires 4+)
     vi.mocked(XLSX.read).mockReturnValue({
       SheetNames: [
         "Okres klasyfikacyjny",
@@ -172,7 +172,7 @@ describe("parseLibrusXlsx", () => {
       .mockReturnValueOnce(gradesSheetData)
       .mockReturnValueOnce(averagesSheetData);
 
-    const result = parseLibrusXlsx("/path/to/file.xlsx");
+    const result = parseVulcanXlsx("/path/to/file.xlsx");
 
     // Verify metadata
     expect(result.metadata.className).toBe("3A");
@@ -211,7 +211,7 @@ describe("parseLibrusXlsx", () => {
 
 describe("parseGradesSheet", () => {
   it("parses grades matrix with behavior correctly", () => {
-    // Librus format: Row 0 = headers, Row 1 = subjects, Row 2 = separator, Row 3+ = data
+    // Vulcan format: Row 0 = headers, Row 1 = subjects, Row 2 = separator, Row 3+ = data
     const sheetData = [
       ["Nr w dzienniku", "Uczeń", "Zachowanie", "Nazwa przedmiotu"],
       [null, null, null, "Matematyka", "Polski"],
@@ -263,7 +263,7 @@ describe("parseGradesSheet", () => {
 
 describe("parseAveragesSheet", () => {
   it("parses student averages correctly", () => {
-    // Librus format: [number, name, average]
+    // Vulcan format: [number, name, average]
     const sheetData = [
       ["Numer w dzienniku", "Dane ucznia", "Średnia"],
       [1, "Jan Kowalski", 4.5],
@@ -300,8 +300,8 @@ describe("parseAveragesSheet", () => {
 });
 
 describe("parseMetadataSheet", () => {
-  it("parses class metadata correctly from Librus format", () => {
-    // Real Librus format:
+  it("parses class metadata correctly from Vulcan format", () => {
+    // Real Vulcan format:
     // Row 0: Title with period info
     // Row 1: Horizontal form with Oddział and Wychowawca
     const sheetData = [
