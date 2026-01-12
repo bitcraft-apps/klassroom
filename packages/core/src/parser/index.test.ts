@@ -614,6 +614,39 @@ describe("parseClassAttendance", () => {
     });
   });
 
+  it("does not match decimal numbers as dates", () => {
+    // "1.5" looks like a decimal, not a date - should not be treated as date
+    const sheetData = [
+      ["Frekwencja", "Stan %"],
+      ["1.5", 90.0],
+    ];
+
+    vi.mocked(XLSX.utils.sheet_to_json).mockReturnValue(sheetData);
+
+    const result = parseClassAttendance({} as XLSX.WorkSheet);
+
+    expect(result).toEqual({
+      percentage: 90.0,
+      // No date - "1.5" doesn't match DD.MM pattern
+    });
+  });
+
+  it("matches short date format without year", () => {
+    const sheetData = [
+      ["Frekwencja", "Stan %"],
+      ["10.01", 85.0],
+    ];
+
+    vi.mocked(XLSX.utils.sheet_to_json).mockReturnValue(sheetData);
+
+    const result = parseClassAttendance({} as XLSX.WorkSheet);
+
+    expect(result).toEqual({
+      percentage: 85.0,
+      date: "10.01",
+    });
+  });
+
   it("handles case insensitive header matching", () => {
     const sheetData = [
       ["FREKWENCJA", "STAN %"],

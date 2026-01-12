@@ -115,6 +115,7 @@ export async function generatePresentation(data: ClassData): Promise<string> {
     gradeDistribution,
     behaviorCounts: hasBehaviorData ? behaviorCounts : null,
     topStudents,
+    // Convert undefined (ClassData convention) to null (PresentationData convention)
     classAttendance: classAttendance ?? null,
   };
 

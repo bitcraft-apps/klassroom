@@ -34,6 +34,7 @@ export function parseClassAttendance(sheet: WorkSheet): ClassAttendance | null {
   }
 
   // Look for data row after header (skip empty rows)
+  // Limit search to 4 rows after header - data should be immediately after header in Vulcan format
   for (let i = headerRowIndex + 1; i < Math.min(headerRowIndex + 5, data.length); i++) {
     const row = data[i];
     if (!row || !Array.isArray(row) || row.length < 2) continue;
@@ -46,11 +47,12 @@ export function parseClassAttendance(sheet: WorkSheet): ClassAttendance | null {
     const percentage = Number(percentValue);
     if (isNaN(percentage)) continue;
 
-    // Extract date if it looks like a date (contains dots or slashes)
+    // Extract date if it matches Polish date format (DD.MM.YYYY or DD.MM)
+    // Requires 2-digit day and month to avoid matching decimals like "1.5"
     let date: string | undefined;
     if (dateValue != null) {
       const dateStr = String(dateValue).trim();
-      if (dateStr.match(/\d+[./]\d+/)) {
+      if (dateStr.match(/^\d{2}[./]\d{2}([./]\d{2,4})?$/)) {
         date = dateStr;
       }
     }
