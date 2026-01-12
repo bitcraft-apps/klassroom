@@ -24,7 +24,7 @@ _Note: This project is currently a private monorepo. You need to build it from s
 
 ```bash
 # Clone the repository
-git clone <repo-url>
+git clone https://github.com/bitcraft-apps/klassroom.git
 cd klassroom
 
 # Install dependencies
