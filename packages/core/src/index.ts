@@ -74,3 +74,7 @@ export type {
 // Generator
 export { generatePresentation } from './generator/index.js';
 export type { GeneratePresentationOptions } from './generator/index.js';
+
+// AI
+export { generateConclusions } from './ai/index.js';
+export type { AnalyticsResult } from './ai/index.js';

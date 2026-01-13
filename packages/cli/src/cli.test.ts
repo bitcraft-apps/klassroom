@@ -176,7 +176,7 @@ describe('generate function', () => {
 
     expect(generatePresentation).toHaveBeenCalledWith(
       expect.anything(),
-      undefined,
+      { meetingDate: undefined, aiConclusions: undefined },
     );
   });
 });

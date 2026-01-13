@@ -45,6 +45,8 @@ export interface PresentationData {
   aggregateGradeDistribution: AggregateGradeDistribution | null;
   aggregateGradesPieChart: string | null;
   subjectEnrollment: { subject: string; count: number }[] | null;
+  /** AI-generated conclusions text (Polish). Null if not generated or unavailable. */
+  aiConclusions: string | null;
 }
 
 export interface GradeDistributionRow {
@@ -183,6 +185,44 @@ tr:hover {
   margin-top: 2rem;
   margin-bottom: 1rem;
   color: #374151;
+}
+.conclusions-content {
+  margin-top: 1rem;
+}
+.conclusions-content h3 {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #1e40af;
+  margin: 1.5rem 0 0.75rem 0;
+}
+.conclusions-content h3:first-child {
+  margin-top: 0;
+}
+.conclusions-content ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.conclusions-content li {
+  font-size: 1.1rem;
+  line-height: 1.6;
+  margin-bottom: 0.75rem;
+  padding-left: 1.5rem;
+  position: relative;
+}
+.conclusions-content li::before {
+  content: "•";
+  color: #3b82f6;
+  font-weight: bold;
+  font-size: 1.3rem;
+  position: absolute;
+  left: 0;
+  top: -0.1rem;
+}
+.conclusions-content p {
+  font-size: 1.1rem;
+  margin-bottom: 1rem;
+  line-height: 1.6;
 }
 @media print {
   body {
@@ -585,6 +625,89 @@ function renderBehaviorSlide(data: PresentationData): string {
   </section>`;
 }
 
+/**
+ * Converts AI-generated text with bullet points to semantic HTML.
+ * Handles section headers (ending with :), bullet points (• or -), and markdown bold.
+ */
+function formatConclusionsHtml(text: string): string {
+  const lines = text.split('\n');
+  const htmlParts: string[] = [];
+  let inList = false;
+
+  // Helper to process markdown bold and escape HTML
+  const processText = (str: string): string => {
+    // First escape HTML, then convert **text** to <strong>text</strong>
+    const escaped = escapeHtml(str);
+    return escaped.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+  };
+
+  for (const line of lines) {
+    const trimmed = line.trim();
+    if (!trimmed) {
+      if (inList) {
+        htmlParts.push('</ul>');
+        inList = false;
+      }
+      continue;
+    }
+
+    // Skip markdown headers (## text)
+    if (trimmed.startsWith('#')) {
+      continue;
+    }
+
+    // Section headers: "Mocne strony:" or "**Mocne strony:**"
+    const headerMatch = trimmed.match(/^\*?\*?([^*]+[^*:])\*?\*?:$/);
+    if (headerMatch && !trimmed.startsWith('•') && !trimmed.startsWith('-')) {
+      if (inList) {
+        htmlParts.push('</ul>');
+        inList = false;
+      }
+      const headerText = headerMatch[1].replace(/\*\*/g, '').trim() + ':';
+      htmlParts.push(`<h3>${escapeHtml(headerText)}</h3>`);
+    }
+    // Bullet points
+    else if (trimmed.startsWith('•') || trimmed.startsWith('-')) {
+      if (!inList) {
+        htmlParts.push('<ul>');
+        inList = true;
+      }
+      const content = trimmed.replace(/^[•-]\s*/, '');
+      htmlParts.push(`<li>${processText(content)}</li>`);
+    }
+    // Regular text (skip if it looks like a standalone header)
+    else if (!trimmed.match(/^\*\*[^*]+\*\*:?$/)) {
+      if (inList) {
+        htmlParts.push('</ul>');
+        inList = false;
+      }
+      htmlParts.push(`<p>${processText(trimmed)}</p>`);
+    }
+  }
+
+  if (inList) {
+    htmlParts.push('</ul>');
+  }
+
+  return htmlParts.join('\n');
+}
+
+function renderConclusionsSlide(data: PresentationData): string {
+  if (!data.aiConclusions) {
+    return '';
+  }
+
+  const formattedContent = formatConclusionsHtml(data.aiConclusions);
+
+  return `
+  <section class="slide">
+    <h2>Wnioski</h2>
+    <div class="conclusions-content">
+      ${formattedContent}
+    </div>
+  </section>`;
+}
+
 // ============================================================================
 // Utilities
 // ============================================================================
@@ -641,7 +764,7 @@ export function renderPresentation(data: PresentationData): string {
     data,
   )}${renderTopStudentsSlide(data)}${renderAttendanceSlide(
     data,
-  )}${renderAggregateGradesSlide(data)}${renderBehaviorSlide(data)}
+  )}${renderAggregateGradesSlide(data)}${renderBehaviorSlide(data)}${renderConclusionsSlide(data)}
 </body>
 </html>`;
 }
