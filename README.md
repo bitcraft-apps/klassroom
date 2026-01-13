@@ -20,7 +20,7 @@ _Note: This project is currently a private monorepo. You need to build it from s
 
 **Prerequisites**
 
-- Node.js >= 20
+- Node.js >= 22
 - pnpm
 
 ```bash

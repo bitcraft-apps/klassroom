@@ -6,7 +6,7 @@ This project is a monorepo managed by [pnpm](https://pnpm.io/).
 
 ### Prerequisites
 
-- Node.js >= 20
+- Node.js >= 22
 - pnpm
 
 ### Installation
