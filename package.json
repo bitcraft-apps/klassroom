@@ -3,7 +3,7 @@
   "private": true,
   "packageManager": "pnpm@9.15.4",
   "engines": {
-    "node": ">=20.11.0"
+    "node": ">=22"
   },
   "scripts": {
     "build": "tsc --build tsconfig.build.json",
