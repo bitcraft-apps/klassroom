@@ -11,6 +11,7 @@ import {
 
 export interface GenerateOptions {
   date?: string;
+  ai?: boolean;
 }
 
 export interface GenerateResult {
@@ -40,10 +41,11 @@ export async function generate(
     // Parse XLSX
     const classData = parseVulcanXlsx(xlsxPath);
 
-    // Generate HTML with optional meeting date
-    const generatorOptions: GeneratePresentationOptions | undefined = options?.date
-      ? { meetingDate: options.date }
-      : undefined;
+    // Generate HTML with options
+    const generatorOptions: GeneratePresentationOptions = {
+      meetingDate: options?.date,
+      aiConclusions: options?.ai,
+    };
     const html = await generatePresentation(classData, generatorOptions);
 
     // Write output file
@@ -71,6 +73,7 @@ export function createProgram(): Command {
     .description('Generuje prezentację HTML z pliku XLSX')
     .argument('<xlsx-path>', 'Ścieżka do pliku XLSX z eksportu Vulcan UONET+')
     .option('-d, --date <date>', 'data zebrania na slajdzie tytułowym')
+    .option('--ai', 'generuj wnioski z pomocą AI (wymaga GEMINI_API_KEY)')
     .action(async (xlsxPath: string, opts: GenerateOptions) => {
       const result = await generate(xlsxPath, opts);
 

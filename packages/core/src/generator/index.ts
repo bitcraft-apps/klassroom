@@ -22,10 +22,15 @@ import {
   type GradeDistributionRow,
   type TopStudentRow,
 } from './template.js';
+import { generateConclusions, type AnalyticsResult } from '../ai/index.js';
 
 export interface GeneratePresentationOptions {
   /** Custom meeting date string for title slide. If omitted, uses current date. */
   meetingDate?: string;
+  /** Enable AI-generated conclusions. Requires GEMINI_API_KEY environment variable or apiKey option. */
+  aiConclusions?: boolean;
+  /** Gemini API key (optional, uses GEMINI_API_KEY env var if not provided). */
+  geminiApiKey?: string;
 }
 
 /**
@@ -101,9 +106,30 @@ export async function generatePresentation(
   // Check if any behavior data exists
   const hasBehaviorData = Object.values(behaviorCounts).some((c) => c > 0);
 
+  // Get top students count for AI conclusions
+  const topStudentsData = getTopStudents(students);
+
+  // Generate AI conclusions if enabled (uses only aggregate data - GDPR safe)
+  let aiConclusionsText: string | null = null;
+  if (options?.aiConclusions) {
+    const analyticsResult: AnalyticsResult = {
+      className: metadata.className,
+      studentCount: students.length,
+      subjectCount: subjectAverages.size,
+      classAverage,
+      minStudentAverage: minMax.min,
+      maxStudentAverage: minMax.max,
+      honorsCount: topStudentsData.length,
+      attendancePercentage: classAttendance?.percentage,
+      gradeDistribution: aggregateGradeDistribution,
+      behaviorDistribution: hasBehaviorData ? behaviorCounts : undefined,
+      failureStatistics,
+    };
+    aiConclusionsText = await generateConclusions(analyticsResult, options.geminiApiKey);
+  }
+
   // Get top students (4.75+ average) sorted by average desc, then number asc
   // Note: getTopStudents filters to students with defined averages, so average! is safe
-  const topStudentsData = getTopStudents(students);
   const topStudents: TopStudentRow[] | null =
     topStudentsData.length > 0
       ? topStudentsData
@@ -153,6 +179,7 @@ export async function generatePresentation(
     aggregateGradeDistribution: aggregateGradeDistribution ?? null,
     aggregateGradesPieChart: aggregateGradesChartImage,
     subjectEnrollment: subjectEnrollment.length > 0 ? subjectEnrollment : null,
+    aiConclusions: aiConclusionsText,
   };
 
   return renderPresentation(presentationData);
