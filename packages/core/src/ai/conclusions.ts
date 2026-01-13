@@ -33,7 +33,7 @@ export interface AnalyticsResult {
   failureStatistics?: FailureStatistics;
 }
 
-const MODEL = 'gemini-2.5-flash-lite';
+const MODEL = process.env.GEMINI_MODEL ?? 'gemini-2.5-flash-lite';
 const TIMEOUT_MS = 15_000;
 
 /**
@@ -135,7 +135,7 @@ export async function generateConclusions(
 ): Promise<string | null> {
   const key = apiKey ?? process.env.GEMINI_API_KEY;
 
-  if (!key) {
+  if (!key?.trim()) {
     return null;
   }
 
@@ -146,28 +146,26 @@ export async function generateConclusions(
     const ai = new GoogleGenAI({ apiKey: key });
     const prompt = buildPrompt(analytics);
 
-    // Create timeout using Promise.race
-    const timeoutPromise = new Promise<null>((_, reject) => {
-      setTimeout(() => reject(new Error('Request timeout')), TIMEOUT_MS);
-    });
+    // Use AbortController for proper timeout handling
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), TIMEOUT_MS);
 
-    const responsePromise = ai.models.generateContent({
-      model: MODEL,
-      contents: prompt,
-    });
+    try {
+      const response = await ai.models.generateContent({
+        model: MODEL,
+        contents: prompt,
+        config: {
+          abortSignal: controller.signal,
+        },
+      });
 
-    const response = await Promise.race([responsePromise, timeoutPromise]);
-
-    if (!response) {
-      return null;
+      const text = response.text;
+      return text ? text.trim() : null;
+    } finally {
+      clearTimeout(timeoutId);
     }
-
-    const text = response.text;
-    return text ? text.trim() : null;
-  } catch (error) {
-    // Log warning but don't throw - conclusions are optional
-    const message = error instanceof Error ? error.message : String(error);
-    console.warn(`AI conclusions generation failed: ${message}`);
+  } catch {
+    // Graceful degradation - conclusions are optional
     return null;
   }
 }
