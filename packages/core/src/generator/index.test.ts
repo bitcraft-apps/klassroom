@@ -347,9 +347,7 @@ describe('generatePresentation', () => {
       vi.restoreAllMocks();
     });
 
-    it('logs warning when chart rendering fails', async () => {
-      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
-
+    it('calls onChartRenderError callback when chart rendering fails', async () => {
       const renderChartsModule = await import('./render-charts.js');
       vi.spyOn(renderChartsModule, 'renderChartToDataUrl').mockRejectedValue(
         new Error('Memory error'),
@@ -363,9 +361,14 @@ describe('generatePresentation', () => {
         },
       ]);
 
-      await generatePresentation(data);
+      const errorCallback = vi.fn();
+      await generatePresentation(data, { onChartRenderError: errorCallback });
 
-      expect(warnSpy).toHaveBeenCalled();
+      expect(errorCallback).toHaveBeenCalled();
+      expect(errorCallback).toHaveBeenCalledWith(
+        expect.any(String),
+        expect.any(Error),
+      );
 
       vi.restoreAllMocks();
     });

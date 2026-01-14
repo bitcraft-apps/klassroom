@@ -85,11 +85,11 @@ describe('generatePresentationBrowser', () => {
       ).rejects.toThrow('geminiApiKey is required when aiConclusions is enabled');
     });
 
-    it('does not throw when aiConclusions enabled with geminiApiKey', async () => {
+    it('passes validation when aiConclusions enabled with geminiApiKey', async () => {
       const data = createClassData([]);
 
-      // This will still fail at API call level, but won't throw validation error
-      // For proper testing we'd need to mock generateConclusions
+      // Validates that no validation error is thrown when API key is provided.
+      // API call errors are gracefully handled by generateConclusions (returns null).
       await expect(
         generatePresentationBrowser(data, {
           aiConclusions: true,
