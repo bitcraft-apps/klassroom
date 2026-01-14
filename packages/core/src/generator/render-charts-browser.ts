@@ -11,10 +11,17 @@ const CHART_HEIGHT = 400;
  *
  * @param config - Chart.js configuration object
  * @returns Promise resolving to a data:image/png;base64,... string
+ * @throws Error if called outside browser environment (SSR, workers)
  */
 export async function renderChartToDataUrl<T extends string>(
   config: ChartConfig<T>,
 ): Promise<string> {
+  if (typeof document === 'undefined') {
+    throw new Error(
+      'renderChartToDataUrl requires a browser environment with DOM access',
+    );
+  }
+
   const canvas = document.createElement('canvas');
   canvas.width = CHART_WIDTH;
   canvas.height = CHART_HEIGHT;
@@ -28,22 +35,22 @@ export async function renderChartToDataUrl<T extends string>(
   ctx.fillRect(0, 0, CHART_WIDTH, CHART_HEIGHT);
 
   // Create chart with animation disabled for immediate rendering
-  const chart = new Chart(ctx, {
-    ...config,
-    options: {
-      ...config.options,
-      animation: false,
-      responsive: false,
-    },
-  } as ConstructorParameters<typeof Chart>[1]);
+  let chart: InstanceType<typeof Chart> | null = null;
+  try {
+    chart = new Chart(ctx, {
+      ...config,
+      options: {
+        ...config.options,
+        animation: false,
+        responsive: false,
+      },
+    } as ConstructorParameters<typeof Chart>[1]);
 
-  // Chart.js renders synchronously when animation is disabled
-  const dataUrl = canvas.toDataURL('image/png');
-
-  // Cleanup
-  chart.destroy();
-
-  return dataUrl;
+    // Chart.js renders synchronously when animation is disabled
+    return canvas.toDataURL('image/png');
+  } finally {
+    chart?.destroy();
+  }
 }
 
 /**
