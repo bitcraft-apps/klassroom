@@ -57,8 +57,17 @@ export async function renderChartToDataUrl<T extends string>(
 }
 
 /**
- * Placeholder data URL for charts that failed to render.
+ * Placeholder data URL for use when chart rendering fails.
  * A transparent 1x1 pixel PNG.
+ *
+ * This is exported for consumers who want graceful degradation.
+ * The renderChartToDataUrl function throws on errors; use this
+ * placeholder in your catch block if you prefer fallback behavior.
+ *
+ * @example
+ * ```ts
+ * const dataUrl = await renderChartToDataUrl(config).catch(() => PLACEHOLDER_IMAGE);
+ * ```
  */
 export const PLACEHOLDER_IMAGE =
   'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==';

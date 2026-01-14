@@ -3,7 +3,7 @@
  */
 import { describe, it, expect } from 'vitest';
 import { renderChartToDataUrl, PLACEHOLDER_IMAGE } from './render-charts-browser.js';
-import type { BarChartConfig, DoughnutChartConfig } from '../charts/types.js';
+import type { BarChartConfig, DoughnutChartConfig, PieChartConfig } from '../charts/types.js';
 
 describe('renderChartToDataUrl (browser environment)', () => {
   it('returns a base64 PNG data URL for bar chart', async () => {
@@ -62,6 +62,25 @@ describe('renderChartToDataUrl (browser environment)', () => {
           {
             data: [30, 50, 20],
             backgroundColor: ['#ef4444', '#3b82f6', '#22c55e'],
+          },
+        ],
+      },
+    };
+
+    const result = await renderChartToDataUrl(config);
+
+    expect(result).toMatch(/^data:image\/png;base64,/);
+  });
+
+  it('renders pie chart', async () => {
+    const config: PieChartConfig = {
+      type: 'pie',
+      data: {
+        labels: ['Category A', 'Category B'],
+        datasets: [
+          {
+            data: [60, 40],
+            backgroundColor: ['#8b5cf6', '#f59e0b'],
           },
         ],
       },
