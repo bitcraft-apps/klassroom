@@ -5,6 +5,10 @@
  * This module excludes Node.js-specific dependencies (chartjs-node-canvas, xlsx).
  */
 
+// Browser-compatible presentation generator
+export { generatePresentationBrowser } from './generator/browser.js';
+export type { BrowserGeneratePresentationOptions } from './generator/browser.js';
+
 // Browser-compatible chart renderer
 export {
   renderChartToDataUrl,
