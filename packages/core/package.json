@@ -8,6 +8,10 @@
     ".": {
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
+    },
+    "./browser": {
+      "types": "./dist/browser.d.ts",
+      "import": "./dist/browser.js"
     }
   },
   "engines": {
@@ -21,6 +25,7 @@
   },
   "dependencies": {
     "@google/genai": "^1.35.0",
+    "chart.js": "^4.4.8",
     "chartjs-node-canvas": "^5.0.0",
     "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz"
   }
