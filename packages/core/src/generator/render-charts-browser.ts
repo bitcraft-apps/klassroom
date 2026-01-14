@@ -37,6 +37,9 @@ export async function renderChartToDataUrl<T extends string>(
   // Create chart with animation disabled for immediate rendering
   let chart: InstanceType<typeof Chart> | null = null;
   try {
+    // Type cast is safe: ChartConfig<T> is a subset of Chart.js ChartConfiguration.
+    // Our charts module produces standard Chart.js configs (bar, doughnut types)
+    // that the Chart constructor accepts. The generic T constrains chart types we create.
     chart = new Chart(ctx, {
       ...config,
       options: {
