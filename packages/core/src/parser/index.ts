@@ -68,32 +68,39 @@ export function detectFormat(sheetNames: string[]): {
 }
 
 /**
- * Parses a Vulcan UONET+ XLSX grade export into ClassData.
+ * Parses a Vulcan UONET+ XLSX grade export from an ArrayBuffer into ClassData.
  *
- * Supports XLSX files exported from Vulcan UONET+ "additional internal documentation"
- * export option. The format is identified by 6 characteristic Polish sheet names.
+ * Browser-compatible function that accepts raw XLSX data as an ArrayBuffer.
+ * Suitable for browser FileReader, fetch responses, or any context where
+ * file system access is unavailable.
  *
- * Note: This function uses synchronous file I/O (fs.readFileSync).
- * Suitable for CLI usage; an async variant may be needed for web/server contexts.
- *
- * @param filePath - Path to the XLSX file
+ * @param buffer - ArrayBuffer containing XLSX file data
  * @returns Parsed class data with GDPR-safe student records
- * @throws Error if file not found, unrecognized format, missing required sheets, or invalid structure
+ * @throws Error if buffer is empty, unrecognized format, missing required sheets, or invalid structure
  *
  * @example
- * const data = parseVulcanXlsx("./grades.xlsx");
- * console.log(data.metadata.className); // "3A"
- * console.log(data.students[0].number); // 1
+ * // Browser usage with FileReader
+ * const file = input.files[0];
+ * const buffer = await file.arrayBuffer();
+ * const data = parseVulcanXlsxFromBuffer(buffer);
+ *
+ * @example
+ * // Node.js usage
+ * const nodeBuffer = fs.readFileSync("./grades.xlsx");
+ * const arrayBuffer = nodeBuffer.buffer.slice(
+ *   nodeBuffer.byteOffset,
+ *   nodeBuffer.byteOffset + nodeBuffer.byteLength
+ * );
+ * const data = parseVulcanXlsxFromBuffer(arrayBuffer);
  */
-export function parseVulcanXlsx(filePath: string): ClassData {
-  // Check file exists
-  if (!fs.existsSync(filePath)) {
-    throw new Error(`File not found: ${filePath}`);
+export function parseVulcanXlsxFromBuffer(buffer: ArrayBuffer): ClassData {
+  // Validate buffer is not empty
+  if (buffer.byteLength === 0) {
+    throw new Error('Empty buffer: cannot parse empty XLSX data');
   }
 
-  // Read workbook using fs.readFileSync + XLSX.read (XLSX.readFile has issues in ESM)
-  const buffer = fs.readFileSync(filePath);
-  const workbook = XLSX.read(buffer, { type: 'buffer' });
+  // Parse workbook using 'array' type for browser compatibility
+  const workbook = XLSX.read(buffer, { type: 'array' });
 
   // Detect and validate format
   const { format, matchedSheets, missingSheets } = detectFormat(workbook.SheetNames);
@@ -160,4 +167,38 @@ export function parseVulcanXlsx(filePath: string): ClassData {
     failureStatistics: failureStatistics ?? undefined,
     aggregateGradeDistribution: aggregateGradeDistribution ?? undefined,
   };
+}
+
+/**
+ * Parses a Vulcan UONET+ XLSX grade export into ClassData.
+ *
+ * Supports XLSX files exported from Vulcan UONET+ "additional internal documentation"
+ * export option. The format is identified by 6 characteristic Polish sheet names.
+ *
+ * Note: This function uses synchronous file I/O (fs.readFileSync).
+ * Suitable for CLI usage. For browser contexts, use parseVulcanXlsxFromBuffer instead.
+ *
+ * @param filePath - Path to the XLSX file
+ * @returns Parsed class data with GDPR-safe student records
+ * @throws Error if file not found, unrecognized format, missing required sheets, or invalid structure
+ *
+ * @example
+ * const data = parseVulcanXlsx("./grades.xlsx");
+ * console.log(data.metadata.className); // "3A"
+ * console.log(data.students[0].number); // 1
+ */
+export function parseVulcanXlsx(filePath: string): ClassData {
+  // Check file exists
+  if (!fs.existsSync(filePath)) {
+    throw new Error(`File not found: ${filePath}`);
+  }
+
+  // Read file and convert Node.js Buffer to ArrayBuffer
+  const nodeBuffer = fs.readFileSync(filePath);
+  const arrayBuffer = nodeBuffer.buffer.slice(
+    nodeBuffer.byteOffset,
+    nodeBuffer.byteOffset + nodeBuffer.byteLength,
+  );
+
+  return parseVulcanXlsxFromBuffer(arrayBuffer);
 }

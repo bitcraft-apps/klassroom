@@ -30,7 +30,7 @@ export { parseBehaviorGrade, behaviorToIndex, compareBehavior } from './types/in
 export { BEHAVIOR_GRADES, POLISH_TO_BEHAVIOR } from './types/index.js';
 
 // Parser
-export { parseVulcanXlsx, detectFormat } from './parser/index.js';
+export { parseVulcanXlsx, parseVulcanXlsxFromBuffer, detectFormat } from './parser/index.js';
 export type { DetectedFormat } from './parser/index.js';
 
 // Analytics

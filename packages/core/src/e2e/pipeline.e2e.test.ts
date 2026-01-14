@@ -15,8 +15,9 @@
  * - Behavior grades: wzorowe, bardzo dobre, dobre, poprawne
  */
 import { describe, it, expect, beforeAll } from 'vitest';
+import * as fs from 'node:fs';
 import * as path from 'node:path';
-import { parseVulcanXlsx } from '../parser/index.js';
+import { parseVulcanXlsx, parseVulcanXlsxFromBuffer } from '../parser/index.js';
 import { generatePresentation } from '../generator/index.js';
 
 // Path to the committed synthetic test fixture (stable input for true E2E testing)
@@ -160,6 +161,24 @@ describe('E2E: Full Pipeline', () => {
         .trim();
 
       expect(structuralHtml).toMatchSnapshot();
+    });
+  });
+
+  describe('Parser Buffer Parity', () => {
+    it('parseVulcanXlsxFromBuffer produces identical output to parseVulcanXlsx', () => {
+      // Parse using file-based function
+      const fromFile = parseVulcanXlsx(FIXTURE_PATH);
+
+      // Parse using buffer-based function (same conversion as parseVulcanXlsx internally)
+      const nodeBuffer = fs.readFileSync(FIXTURE_PATH);
+      const arrayBuffer = nodeBuffer.buffer.slice(
+        nodeBuffer.byteOffset,
+        nodeBuffer.byteOffset + nodeBuffer.byteLength,
+      );
+      const fromBuffer = parseVulcanXlsxFromBuffer(arrayBuffer);
+
+      // Results should be identical
+      expect(fromBuffer).toEqual(fromFile);
     });
   });
 });

@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import * as fs from 'node:fs';
 import * as XLSX from 'xlsx';
-import { parseVulcanXlsx, detectFormat } from './index.js';
+import { parseVulcanXlsx, parseVulcanXlsxFromBuffer, detectFormat } from './index.js';
 import { parseGradesSheet } from './sheets/grades.js';
 import { parseAveragesSheet } from './sheets/averages.js';
 import { parseMetadataSheet } from './sheets/metadata.js';
@@ -359,6 +359,93 @@ describe('parseVulcanXlsx', () => {
 
     // Verify classAttendance is undefined when format not recognized
     expect(result.classAttendance).toBeUndefined();
+  });
+});
+
+describe('parseVulcanXlsxFromBuffer', () => {
+  beforeEach(() => {
+    vi.resetAllMocks();
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it('throws error for empty buffer', () => {
+    const emptyBuffer = new ArrayBuffer(0);
+
+    expect(() => parseVulcanXlsxFromBuffer(emptyBuffer)).toThrow(
+      'Empty buffer: cannot parse empty XLSX data',
+    );
+  });
+
+  it('parses valid ArrayBuffer and returns identical result to file-based function', () => {
+    // Mock sheet data in Vulcan format
+    const gradesSheetData = [
+      ['Nr w dzienniku', 'Uczeń', 'Zachowanie', 'Nazwa przedmiotu'],
+      [null, null, null, 'Matematyka', 'Polski'],
+      [null, null, null, null, null],
+      [1, 'Jan Kowalski', 'wzorowe', '5', '4'],
+    ];
+
+    const averagesSheetData = [
+      ['Numer w dzienniku', 'Dane ucznia', 'Średnia'],
+      [1, 'Jan Kowalski', 4.5],
+    ];
+
+    const metadataSheetData = [
+      ['Dodatkowe informacje dla 1 semestru w roku szkolnym 2024/2025'],
+      ['Oddział', '3A', 'Wychowawca', null, null, 'Maria Wiśniewska'],
+    ];
+
+    vi.mocked(XLSX.read).mockReturnValue({
+      SheetNames: [
+        'Okres klasyfikacyjny',
+        'Dodatkowe informacje 1',
+        'Średnia uczniów',
+        'Zachowanie',
+        'Informacje o uczniach',
+      ],
+      Sheets: {
+        'Okres klasyfikacyjny': {},
+        'Dodatkowe informacje 1': {},
+        'Średnia uczniów': {},
+        Zachowanie: {},
+        'Informacje o uczniach': {},
+      },
+    } as XLSX.WorkBook);
+
+    vi.mocked(XLSX.utils.sheet_to_json)
+      .mockReturnValueOnce(metadataSheetData)
+      .mockReturnValueOnce(gradesSheetData)
+      .mockReturnValueOnce(averagesSheetData);
+
+    // Create a non-empty buffer (content doesn't matter due to mocking)
+    const buffer = new ArrayBuffer(8);
+
+    const result = parseVulcanXlsxFromBuffer(buffer);
+
+    // Verify XLSX.read was called with 'array' type for browser compatibility
+    expect(XLSX.read).toHaveBeenCalledWith(buffer, { type: 'array' });
+
+    // Verify parsed data
+    expect(result.metadata.className).toBe('3A');
+    expect(result.metadata.teacher).toBe('Maria Wiśniewska');
+    expect(result.students).toHaveLength(1);
+    expect(result.students[0]).toEqual({
+      number: 1,
+      grades: [
+        { subject: 'Matematyka', value: '5' },
+        { subject: 'Polski', value: '4' },
+      ],
+      average: 4.5,
+      behavior: 'exemplary',
+    });
+
+    // Verify no names in output (GDPR compliance)
+    for (const student of result.students) {
+      expect(student).not.toHaveProperty('name');
+    }
   });
 });
 
