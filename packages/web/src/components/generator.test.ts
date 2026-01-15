@@ -556,16 +556,6 @@ describe('createGenerator', () => {
     });
 
     it('removes event listeners on cleanup', async () => {
-      createGenerator(container, data, events);
-
-      await vi.runAllTimersAsync();
-
-      // Get reference to reset button before cleanup
-      const resetBtn = container.querySelector(
-        '.generator__complete .generator__button--primary',
-      ) as HTMLButtonElement;
-
-      // Re-create generator (which clears container and creates new elements)
       const cleanup = createGenerator(container, data, events);
 
       // Complete generation
