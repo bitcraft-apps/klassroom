@@ -42,12 +42,15 @@ export interface GeneratorEvents {
  * @param container - Parent element to mount the component into
  * @param data - Class data for presentation generation
  * @param events - Callback handlers
+ * @returns Cleanup function to call when unmounting the component
  */
 export function createGenerator(
   container: HTMLElement,
   data: GeneratorData,
   events: GeneratorEvents,
-): void {
+): () => void {
+  // Track if component is still active (for cleanup)
+  let isActive = true;
   // Clear container
   container.innerHTML = '';
 
@@ -135,6 +138,9 @@ export function createGenerator(
       // Generate HTML
       const html = await generatePresentationBrowser(data.classData);
 
+      // Skip UI updates if component was cleaned up during generation
+      if (!isActive) return;
+
       // Update progress step
       stepText.textContent = STEP_PREPARING;
 
@@ -150,6 +156,9 @@ export function createGenerator(
       filenameLabel.textContent = `${LABEL_FILENAME} ${filename}`;
       completeSection.hidden = false;
     } catch (error) {
+      // Skip UI updates if component was cleaned up during generation
+      if (!isActive) return;
+
       // Show error UI
       progressSection.hidden = true;
       errorSection.hidden = false;
@@ -171,4 +180,9 @@ export function createGenerator(
 
   // Start generation
   void generate();
+
+  // Return cleanup function
+  return () => {
+    isActive = false;
+  };
 }

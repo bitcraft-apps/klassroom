@@ -407,4 +407,74 @@ describe('createGenerator', () => {
       expect(container.textContent).not.toContain('Kowalski');
     });
   });
+
+  describe('cleanup', () => {
+    it('returns a cleanup function', () => {
+      const cleanup = createGenerator(container, data, events);
+
+      expect(typeof cleanup).toBe('function');
+    });
+
+    it('prevents UI updates after cleanup during successful generation', async () => {
+      // Use a deferred promise to control timing
+      let resolveGeneration: (value: string) => void;
+      vi.mocked(generatePresentationBrowser).mockImplementation(
+        () =>
+          new Promise((resolve) => {
+            resolveGeneration = resolve;
+          }),
+      );
+
+      const cleanup = createGenerator(container, data, events);
+
+      // Call cleanup before generation completes
+      cleanup();
+
+      // Now resolve the generation
+      resolveGeneration!('<html></html>');
+      await vi.runAllTimersAsync();
+
+      // Progress should still be visible (not transitioned to complete)
+      const progress = container.querySelector(
+        '.generator__progress',
+      ) as HTMLElement;
+      const complete = container.querySelector(
+        '.generator__complete',
+      ) as HTMLElement;
+
+      expect(progress.hidden).toBe(false);
+      expect(complete.hidden).toBe(true);
+      // Download should not have been called
+      expect(downloadFile).not.toHaveBeenCalled();
+    });
+
+    it('prevents UI updates after cleanup during failed generation', async () => {
+      // Use a deferred promise to control timing
+      let rejectGeneration: (error: Error) => void;
+      vi.mocked(generatePresentationBrowser).mockImplementation(
+        () =>
+          new Promise((_, reject) => {
+            rejectGeneration = reject;
+          }),
+      );
+
+      const cleanup = createGenerator(container, data, events);
+
+      // Call cleanup before generation completes
+      cleanup();
+
+      // Now reject the generation
+      rejectGeneration!(new Error('Failed'));
+      await vi.runAllTimersAsync();
+
+      // Progress should still be visible (not transitioned to error)
+      const progress = container.querySelector(
+        '.generator__progress',
+      ) as HTMLElement;
+      const error = container.querySelector('.generator__error') as HTMLElement;
+
+      expect(progress.hidden).toBe(false);
+      expect(error.hidden).toBe(true);
+    });
+  });
 });

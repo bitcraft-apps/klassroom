@@ -3,6 +3,9 @@
  * Creates blob, triggers download, revokes URL to prevent memory leaks.
  */
 
+/** Delay before revoking object URL to ensure download starts */
+const URL_REVOKE_DELAY_MS = 1000;
+
 /**
  * Sanitizes a string for use as a filename.
  * Replaces unsafe characters with underscores.
@@ -70,5 +73,5 @@ export function downloadFile(
   anchor.click();
 
   // Revoke URL after delay to ensure download starts
-  setTimeout(() => URL.revokeObjectURL(url), 1000);
+  setTimeout(() => URL.revokeObjectURL(url), URL_REVOKE_DELAY_MS);
 }
