@@ -1,0 +1,348 @@
+/**
+ * @vitest-environment jsdom
+ */
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import {
+  createGenerator,
+  type GeneratorData,
+  type GeneratorEvents,
+} from './generator.js';
+import type { ClassData, ClassPeriod, StudentNumber } from '@klassroom/core';
+
+// Mock @klassroom/core/browser
+vi.mock('@klassroom/core/browser', () => ({
+  generatePresentationBrowser: vi.fn(),
+}));
+
+// Mock download utility
+vi.mock('../utils/download.js', () => ({
+  downloadFile: vi.fn(),
+  generatePresentationFilename: vi.fn(() => '3A_semestr1.html'),
+}));
+
+import { generatePresentationBrowser } from '@klassroom/core/browser';
+import { downloadFile, generatePresentationFilename } from '../utils/download.js';
+
+describe('createGenerator', () => {
+  let container: HTMLElement;
+  let events: GeneratorEvents;
+  let data: GeneratorData;
+
+  beforeEach(() => {
+    vi.useFakeTimers();
+    container = document.createElement('div');
+    events = {
+      onReset: vi.fn(),
+    };
+    data = {
+      classData: {
+        metadata: {
+          className: '3A',
+          period: '2024/2025 - Semestr 1' as ClassPeriod,
+          teacher: 'Anna Kowalska',
+        },
+        students: [
+          {
+            number: 1 as StudentNumber,
+            grades: [],
+            average: 4.5,
+          },
+        ],
+      },
+    };
+
+    // Default mock: successful generation
+    vi.mocked(generatePresentationBrowser).mockResolvedValue('<html></html>');
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+    vi.clearAllMocks();
+  });
+
+  describe('DOM structure', () => {
+    it('creates generator root in container', () => {
+      createGenerator(container, data, events);
+
+      const generator = container.querySelector('.generator');
+      expect(generator).toBeTruthy();
+    });
+
+    it('clears container before rendering', () => {
+      container.innerHTML = '<div>existing content</div>';
+
+      createGenerator(container, data, events);
+
+      expect(container.querySelector('.generator')).toBeTruthy();
+      expect(container.textContent).not.toContain('existing content');
+    });
+
+    it('creates progress section', () => {
+      createGenerator(container, data, events);
+
+      const progress = container.querySelector('.generator__progress');
+      expect(progress).toBeTruthy();
+    });
+
+    it('creates spinner element', () => {
+      createGenerator(container, data, events);
+
+      const spinner = container.querySelector('.generator__spinner');
+      expect(spinner).toBeTruthy();
+    });
+
+    it('creates complete section (hidden initially)', () => {
+      createGenerator(container, data, events);
+
+      const complete = container.querySelector(
+        '.generator__complete',
+      ) as HTMLElement;
+      expect(complete).toBeTruthy();
+      expect(complete.hidden).toBe(true);
+    });
+
+    it('creates error section (hidden initially)', () => {
+      createGenerator(container, data, events);
+
+      const error = container.querySelector('.generator__error') as HTMLElement;
+      expect(error).toBeTruthy();
+      expect(error.hidden).toBe(true);
+    });
+  });
+
+  describe('Polish labels', () => {
+    it('displays initial progress step in Polish', () => {
+      createGenerator(container, data, events);
+
+      expect(container.textContent).toContain('Przetwarzanie danych...');
+    });
+
+    it('displays download ready text in Polish', async () => {
+      createGenerator(container, data, events);
+
+      // Wait for generation to complete
+      await vi.runAllTimersAsync();
+
+      expect(container.textContent).toContain('Prezentacja została pobrana');
+    });
+
+    it('displays reset button text in Polish', async () => {
+      createGenerator(container, data, events);
+
+      await vi.runAllTimersAsync();
+
+      const btn = container.querySelector(
+        '.generator__complete .generator__button--primary',
+      );
+      expect(btn?.textContent).toBe('Generuj kolejną');
+    });
+
+    it('displays retry button text in Polish', async () => {
+      vi.mocked(generatePresentationBrowser).mockRejectedValue(
+        new Error('Failed'),
+      );
+
+      createGenerator(container, data, events);
+
+      await vi.runAllTimersAsync();
+
+      const btn = container.querySelector(
+        '.generator__error .generator__button--primary',
+      );
+      expect(btn?.textContent).toBe('Spróbuj ponownie');
+    });
+
+    it('displays error message in Polish', async () => {
+      vi.mocked(generatePresentationBrowser).mockRejectedValue(
+        new Error('Failed'),
+      );
+
+      createGenerator(container, data, events);
+
+      await vi.runAllTimersAsync();
+
+      expect(container.textContent).toContain(
+        'Wystąpił błąd podczas generowania prezentacji',
+      );
+    });
+  });
+
+  describe('generation flow', () => {
+    it('calls generatePresentationBrowser with classData', async () => {
+      createGenerator(container, data, events);
+
+      await vi.runAllTimersAsync();
+
+      expect(generatePresentationBrowser).toHaveBeenCalledWith(data.classData);
+    });
+
+    it('generates filename from class metadata', async () => {
+      createGenerator(container, data, events);
+
+      await vi.runAllTimersAsync();
+
+      expect(generatePresentationFilename).toHaveBeenCalledWith(
+        '3A',
+        '2024/2025 - Semestr 1',
+      );
+    });
+
+    it('downloads file on successful generation', async () => {
+      createGenerator(container, data, events);
+
+      await vi.runAllTimersAsync();
+
+      expect(downloadFile).toHaveBeenCalledWith('<html></html>', '3A_semestr1.html');
+    });
+
+    it('shows complete section after generation', async () => {
+      createGenerator(container, data, events);
+
+      await vi.runAllTimersAsync();
+
+      const progress = container.querySelector(
+        '.generator__progress',
+      ) as HTMLElement;
+      const complete = container.querySelector(
+        '.generator__complete',
+      ) as HTMLElement;
+
+      expect(progress.hidden).toBe(true);
+      expect(complete.hidden).toBe(false);
+    });
+
+    it('displays filename in complete section', async () => {
+      createGenerator(container, data, events);
+
+      await vi.runAllTimersAsync();
+
+      expect(container.textContent).toContain('3A_semestr1.html');
+    });
+  });
+
+  describe('error handling', () => {
+    it('shows error section on generation failure', async () => {
+      vi.mocked(generatePresentationBrowser).mockRejectedValue(
+        new Error('Generation failed'),
+      );
+
+      createGenerator(container, data, events);
+
+      await vi.runAllTimersAsync();
+
+      const progress = container.querySelector(
+        '.generator__progress',
+      ) as HTMLElement;
+      const error = container.querySelector('.generator__error') as HTMLElement;
+
+      expect(progress.hidden).toBe(true);
+      expect(error.hidden).toBe(false);
+    });
+
+    it('includes error message detail', async () => {
+      vi.mocked(generatePresentationBrowser).mockRejectedValue(
+        new Error('Chart rendering failed'),
+      );
+
+      createGenerator(container, data, events);
+
+      await vi.runAllTimersAsync();
+
+      expect(container.textContent).toContain('Chart rendering failed');
+    });
+
+    it('does not call download on error', async () => {
+      vi.mocked(generatePresentationBrowser).mockRejectedValue(
+        new Error('Failed'),
+      );
+
+      createGenerator(container, data, events);
+
+      await vi.runAllTimersAsync();
+
+      expect(downloadFile).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('button interactions', () => {
+    it('calls onReset when reset button clicked', async () => {
+      createGenerator(container, data, events);
+
+      await vi.runAllTimersAsync();
+
+      const btn = container.querySelector(
+        '.generator__complete .generator__button--primary',
+      ) as HTMLButtonElement;
+      btn.click();
+
+      expect(events.onReset).toHaveBeenCalledTimes(1);
+    });
+
+    it('retries generation when retry button clicked', async () => {
+      vi.mocked(generatePresentationBrowser)
+        .mockRejectedValueOnce(new Error('Failed'))
+        .mockResolvedValueOnce('<html></html>');
+
+      createGenerator(container, data, events);
+
+      await vi.runAllTimersAsync();
+
+      // Click retry
+      const btn = container.querySelector(
+        '.generator__error .generator__button--primary',
+      ) as HTMLButtonElement;
+      btn.click();
+
+      await vi.runAllTimersAsync();
+
+      // Should have called generation twice
+      expect(generatePresentationBrowser).toHaveBeenCalledTimes(2);
+    });
+
+    it('shows progress section on retry', async () => {
+      vi.mocked(generatePresentationBrowser)
+        .mockRejectedValueOnce(new Error('Failed'))
+        .mockResolvedValueOnce('<html></html>');
+
+      createGenerator(container, data, events);
+
+      await vi.runAllTimersAsync();
+
+      // Click retry
+      const btn = container.querySelector(
+        '.generator__error .generator__button--primary',
+      ) as HTMLButtonElement;
+      btn.click();
+
+      // Progress should be visible again
+      const progress = container.querySelector(
+        '.generator__progress',
+      ) as HTMLElement;
+      const error = container.querySelector('.generator__error') as HTMLElement;
+
+      expect(progress.hidden).toBe(false);
+      expect(error.hidden).toBe(true);
+    });
+  });
+
+  describe('GDPR compliance', () => {
+    it('does not display student names in UI', async () => {
+      // Add a student with name-like data to verify it's not shown
+      data.classData.students = [
+        {
+          number: 1 as StudentNumber,
+          grades: [],
+          average: 4.5,
+        },
+      ];
+
+      createGenerator(container, data, events);
+
+      await vi.runAllTimersAsync();
+
+      // Verify no student names appear (even though ClassData has student numbers)
+      expect(container.textContent).not.toContain('Jan');
+      expect(container.textContent).not.toContain('Kowalski');
+    });
+  });
+});
