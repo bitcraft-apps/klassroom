@@ -59,15 +59,16 @@ export function generatePresentationFilename(
 /**
  * Downloads content as a file.
  * Creates blob, triggers download via anchor click, revokes URL after delay.
+ * Anchor is appended to DOM for Safari compatibility, then removed.
  *
  * @param content - File content as string
  * @param filename - Download filename
- * @param mimeType - Content MIME type (defaults to text/html)
+ * @param mimeType - Content MIME type (defaults to text/html with UTF-8 charset)
  */
 export function downloadFile(
   content: string,
   filename: string,
-  mimeType: string = 'text/html',
+  mimeType: string = 'text/html; charset=utf-8',
 ): void {
   const blob = new Blob([content], { type: mimeType });
   const url = URL.createObjectURL(blob);
@@ -75,7 +76,10 @@ export function downloadFile(
   const anchor = document.createElement('a');
   anchor.href = url;
   anchor.download = filename;
+  anchor.style.display = 'none';
+  document.body.appendChild(anchor);
   anchor.click();
+  document.body.removeChild(anchor);
 
   // Revoke URL after delay to ensure download starts
   setTimeout(() => URL.revokeObjectURL(url), URL_REVOKE_DELAY_MS);

@@ -366,6 +366,39 @@ describe('createGenerator', () => {
 
       expect(downloadFile).not.toHaveBeenCalled();
     });
+
+    it('shows generic message for empty error message', async () => {
+      vi.mocked(generatePresentationBrowser).mockRejectedValue(new Error(''));
+
+      createGenerator(container, data, events);
+
+      await vi.runAllTimersAsync();
+
+      const errorText = container.querySelector(
+        '.generator__error-text',
+      ) as HTMLElement;
+      // Empty message falls back to generic Polish error text
+      expect(errorText.textContent).toBe(
+        'Wystąpił błąd podczas generowania prezentacji',
+      );
+      // No title attribute when message is empty (no tooltip needed)
+      expect(errorText.title).toBe('');
+    });
+
+    it('shows generic message for non-Error thrown value', async () => {
+      vi.mocked(generatePresentationBrowser).mockRejectedValue('string error');
+
+      createGenerator(container, data, events);
+
+      await vi.runAllTimersAsync();
+
+      const errorText = container.querySelector(
+        '.generator__error-text',
+      ) as HTMLElement;
+      expect(errorText.textContent).toBe(
+        'Wystąpił błąd podczas generowania prezentacji',
+      );
+    });
   });
 
   describe('button interactions', () => {

@@ -163,12 +163,12 @@ describe('downloadFile', () => {
     vi.unstubAllGlobals();
   });
 
-  it('creates blob with content and mime type', () => {
+  it('creates blob with content and mime type including charset', () => {
     downloadFile('<html></html>', 'test.html');
 
     expect(capturedBlobs).toHaveLength(1);
     expect(capturedBlobs[0].content).toEqual(['<html></html>']);
-    expect(capturedBlobs[0].options).toEqual({ type: 'text/html' });
+    expect(capturedBlobs[0].options).toEqual({ type: 'text/html; charset=utf-8' });
   });
 
   it('creates object URL from blob', () => {
@@ -216,10 +216,39 @@ describe('downloadFile', () => {
     expect(capturedBlobs[0].options).toEqual({ type: 'text/plain' });
   });
 
-  it('defaults to text/html mime type', () => {
+  it('defaults to text/html mime type with UTF-8 charset', () => {
     downloadFile('<html></html>', 'test.html');
 
     expect(capturedBlobs).toHaveLength(1);
-    expect(capturedBlobs[0].options).toEqual({ type: 'text/html' });
+    expect(capturedBlobs[0].options).toEqual({ type: 'text/html; charset=utf-8' });
+  });
+
+  it('appends anchor to document body before click', () => {
+    let anchorInBodyDuringClick = false;
+    clickSpy.mockImplementation(function (this: HTMLAnchorElement) {
+      anchorInBodyDuringClick = document.body.contains(this);
+    });
+
+    downloadFile('<html></html>', 'test.html');
+
+    expect(anchorInBodyDuringClick).toBe(true);
+  });
+
+  it('removes anchor from document body after click', () => {
+    downloadFile('<html></html>', 'test.html');
+
+    const anchors = document.body.querySelectorAll('a[download]');
+    expect(anchors).toHaveLength(0);
+  });
+
+  it('sets display:none on anchor for invisible download', () => {
+    let capturedStyle = '';
+    clickSpy.mockImplementation(function (this: HTMLAnchorElement) {
+      capturedStyle = this.style.display;
+    });
+
+    downloadFile('<html></html>', 'test.html');
+
+    expect(capturedStyle).toBe('none');
   });
 });
