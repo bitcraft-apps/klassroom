@@ -160,6 +160,7 @@ export function createGenerator(
       progressSection.hidden = true;
       filenameLabel.textContent = `${LABEL_FILENAME} ${filename}`;
       completeSection.hidden = false;
+      resetButton.focus();
     } catch (error) {
       // Skip UI updates if component was cleaned up during generation
       if (!isActive) return;
@@ -170,8 +171,11 @@ export function createGenerator(
 
       // Add error detail if available
       if (error instanceof Error && error.message) {
-        errorText.textContent = `${ERROR_GENERATION_FAILED}: ${error.message}`;
+        const fullMessage = `${ERROR_GENERATION_FAILED}: ${error.message}`;
+        errorText.textContent = fullMessage;
+        errorText.title = fullMessage;
       }
+      retryButton.focus();
     }
   };
 

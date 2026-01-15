@@ -152,6 +152,47 @@ describe('createGenerator', () => {
       const error = container.querySelector('.generator__error');
       expect(error?.getAttribute('role')).toBe('alert');
     });
+
+    it('focuses reset button after successful generation', async () => {
+      createGenerator(container, data, events);
+
+      await vi.runAllTimersAsync();
+
+      const resetBtn = container.querySelector(
+        '.generator__complete .generator__button--primary',
+      ) as HTMLButtonElement;
+      expect(document.activeElement).toBe(resetBtn);
+    });
+
+    it('focuses retry button after generation error', async () => {
+      vi.mocked(generatePresentationBrowser).mockRejectedValue(
+        new Error('Failed'),
+      );
+
+      createGenerator(container, data, events);
+
+      await vi.runAllTimersAsync();
+
+      const retryBtn = container.querySelector(
+        '.generator__error .generator__button--primary',
+      ) as HTMLButtonElement;
+      expect(document.activeElement).toBe(retryBtn);
+    });
+
+    it('sets title attribute on error text for tooltip', async () => {
+      vi.mocked(generatePresentationBrowser).mockRejectedValue(
+        new Error('Long error message for accessibility'),
+      );
+
+      createGenerator(container, data, events);
+
+      await vi.runAllTimersAsync();
+
+      const errorText = container.querySelector(
+        '.generator__error-text',
+      ) as HTMLElement;
+      expect(errorText.title).toContain('Long error message for accessibility');
+    });
   });
 
   describe('Polish labels', () => {
