@@ -145,8 +145,8 @@
   }
 }
 
-/* Responsive metadata */
-@media (max-width: 320px) {
+/* Responsive metadata - single column for very narrow screens */
+@media (max-width: 319px) {
   .preview__meta {
     grid-template-columns: 1fr;
     gap: var(--space-1);
