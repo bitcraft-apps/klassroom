@@ -1,4 +1,5 @@
 .preview {
+  width: 100%;
   max-width: 32rem;
 }
 
@@ -6,36 +7,37 @@
 .preview__meta {
   display: grid;
   grid-template-columns: auto 1fr;
-  gap: 0.25rem 1rem;
-  margin: 0 0 1.5rem 0;
+  gap: var(--space-1) var(--space-4);
+  margin: 0 0 var(--space-6) 0;
 }
 
 .preview__label {
   font-weight: 600;
-  color: #374151;
+  color: var(--color-text);
 }
 
 .preview__value {
   margin: 0;
-  color: #4b5563;
+  color: var(--color-text-light);
+  overflow-wrap: break-word;
 }
 
 /* Sections */
 .preview__section {
-  margin-bottom: 1.5rem;
+  margin-bottom: var(--space-6);
 }
 
 .preview__section-title {
-  margin: 0 0 0.5rem 0;
+  margin: 0 0 var(--space-2) 0;
   font-size: 1rem;
   font-weight: 600;
-  color: #374151;
+  color: var(--color-text);
 }
 
 .preview__subjects {
   margin: 0;
   padding-left: 1.25rem;
-  color: #4b5563;
+  color: var(--color-text-light);
 }
 
 .preview__subjects li {
@@ -44,7 +46,7 @@
 
 /* Warnings section */
 .preview__section--warnings {
-  padding: 0.75rem 1rem;
+  padding: var(--space-3) var(--space-4);
   background-color: #fef3c7;
   border-radius: 6px;
 }
@@ -66,12 +68,22 @@
 /* Actions */
 .preview__actions {
   display: flex;
-  gap: 0.75rem;
-  margin-top: 1.5rem;
+  flex-direction: column;
+  gap: var(--space-3);
+  margin-top: var(--space-6);
 }
 
+/* Stack buttons on mobile, row on larger screens */
+@media (min-width: 640px) {
+  .preview__actions {
+    flex-direction: row;
+  }
+}
+
+/* Button base */
 .preview__button {
-  padding: 0.5rem 1rem;
+  min-height: var(--touch-target);
+  padding: var(--space-2) var(--space-4);
   font-size: 0.875rem;
   font-weight: 500;
   border-radius: 6px;
@@ -81,20 +93,27 @@
     border-color 0.15s;
 }
 
-.preview__button:focus {
-  outline: 2px solid #3b82f6;
+/* Focus state - visible only for keyboard navigation */
+.preview__button:focus-visible {
+  outline: 2px solid var(--color-primary);
   outline-offset: 2px;
 }
 
+/* Primary button */
 .preview__button--primary {
-  background-color: #3b82f6;
+  background-color: var(--color-primary);
   color: white;
-  border: 1px solid #3b82f6;
+  border: 1px solid var(--color-primary);
 }
 
 .preview__button--primary:hover:not(:disabled) {
-  background-color: #2563eb;
-  border-color: #2563eb;
+  background-color: var(--color-primary-dark);
+  border-color: var(--color-primary-dark);
+}
+
+.preview__button--primary:active:not(:disabled) {
+  background-color: #1e40af;
+  border-color: #1e40af;
 }
 
 .preview__button--primary:disabled {
@@ -103,13 +122,38 @@
   cursor: not-allowed;
 }
 
+/* Secondary button */
 .preview__button--secondary {
-  background-color: white;
-  color: #374151;
-  border: 1px solid #d1d5db;
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
 }
 
 .preview__button--secondary:hover {
-  background-color: #f9fafb;
+  background-color: var(--color-bg-alt);
   border-color: #9ca3af;
+}
+
+.preview__button--secondary:active {
+  background-color: #f3f4f6;
+}
+
+/* Touch devices - ensure minimum touch target */
+@media (pointer: coarse) {
+  .preview__button {
+    min-height: var(--touch-target);
+    min-width: var(--touch-target);
+  }
+}
+
+/* Responsive metadata */
+@media (max-width: 320px) {
+  .preview__meta {
+    grid-template-columns: 1fr;
+    gap: var(--space-1);
+  }
+
+  .preview__value {
+    margin-bottom: var(--space-2);
+  }
 }

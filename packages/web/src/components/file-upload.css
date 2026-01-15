@@ -1,7 +1,7 @@
 .file-upload {
-  border: 2px dashed #9ca3af;
+  border: 2px dashed var(--color-border);
   border-radius: 8px;
-  padding: 2rem;
+  padding: var(--space-8);
   text-align: center;
   cursor: pointer;
   transition:
@@ -9,42 +9,58 @@
     background-color 0.15s;
 }
 
-.file-upload:focus {
-  outline: 2px solid #3b82f6;
+/* Focus state - visible only for keyboard navigation */
+.file-upload:focus-visible {
+  outline: 2px solid var(--color-primary);
   outline-offset: 2px;
 }
 
 .file-upload:hover {
-  border-color: #6b7280;
-  background-color: #f9fafb;
+  border-color: var(--color-text-light);
+  background-color: var(--color-bg-alt);
 }
 
 /* Drag over state */
 .file-upload--dragover {
   border-style: solid;
-  border-color: #3b82f6;
+  border-color: var(--color-primary);
   background-color: #eff6ff;
 }
 
 /* Error state */
 .file-upload--error {
-  border-color: #ef4444;
+  border-color: var(--color-error);
 }
 
 .file-upload__primary {
-  margin: 0 0 0.25rem 0;
+  margin: 0 0 var(--space-1) 0;
   font-size: 1rem;
-  color: #374151;
+  color: var(--color-text);
 }
 
 .file-upload__secondary {
   margin: 0;
   font-size: 0.875rem;
-  color: #6b7280;
+  color: var(--color-text-light);
 }
 
 .file-upload__error {
-  margin: 0.75rem 0 0 0;
+  margin: var(--space-3) 0 0 0;
   font-size: 0.875rem;
-  color: #ef4444;
+  color: var(--color-error);
+}
+
+/* Touch devices - ensure minimum touch target */
+@media (pointer: coarse) {
+  .file-upload {
+    min-height: var(--touch-target);
+    padding: var(--space-6);
+  }
+}
+
+/* Responsive adjustments */
+@media (min-width: 640px) {
+  .file-upload {
+    padding: var(--space-8) var(--space-6);
+  }
 }
