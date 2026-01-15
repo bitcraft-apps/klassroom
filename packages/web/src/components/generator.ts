@@ -13,6 +13,7 @@ import './generator.css';
 
 // Polish UI text
 const STEP_PROCESSING = 'Przetwarzanie danych...';
+const STEP_PREPARING = 'Przygotowywanie pliku...';
 const TEXT_DOWNLOAD_READY = 'Prezentacja została pobrana';
 const LABEL_FILENAME = 'Plik:';
 const BUTTON_GENERATE_ANOTHER = 'Generuj kolejną';
@@ -133,6 +134,9 @@ export function createGenerator(
     try {
       // Generate HTML
       const html = await generatePresentationBrowser(data.classData);
+
+      // Update progress step
+      stepText.textContent = STEP_PREPARING;
 
       // Generate filename and download
       const filename = generatePresentationFilename(

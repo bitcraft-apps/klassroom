@@ -209,6 +209,21 @@ describe('createGenerator', () => {
         'Wystąpił błąd podczas generowania prezentacji',
       );
     });
+
+    it('updates progress step to preparing before download', async () => {
+      let capturedStepText = '';
+      vi.mocked(downloadFile).mockImplementation(() => {
+        // Capture step text at the moment download is triggered
+        const stepEl = container.querySelector('.generator__step');
+        capturedStepText = stepEl?.textContent || '';
+      });
+
+      createGenerator(container, data, events);
+
+      await vi.runAllTimersAsync();
+
+      expect(capturedStepText).toBe('Przygotowywanie pliku...');
+    });
   });
 
   describe('generation flow', () => {
@@ -371,7 +386,10 @@ describe('createGenerator', () => {
 
   describe('GDPR compliance', () => {
     it('does not display student names in UI', async () => {
-      // Add a student with name-like data to verify it's not shown
+      // ClassData type excludes student names by design (GDPR boundary).
+      // The generator component receives only student numbers, making
+      // name display architecturally impossible. This test documents
+      // that privacy guarantee and verifies no name-like strings leak.
       data.classData.students = [
         {
           number: 1 as StudentNumber,
@@ -384,7 +402,7 @@ describe('createGenerator', () => {
 
       await vi.runAllTimersAsync();
 
-      // Verify no student names appear (even though ClassData has student numbers)
+      // Verify UI contains no student name patterns
       expect(container.textContent).not.toContain('Jan');
       expect(container.textContent).not.toContain('Kowalski');
     });
