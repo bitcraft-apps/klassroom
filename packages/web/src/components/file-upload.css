@@ -31,13 +31,6 @@
   border-color: #ef4444;
 }
 
-/* Loading state */
-.file-upload--loading {
-  border-color: #9ca3af;
-  opacity: 0.7;
-  pointer-events: none;
-}
-
 .file-upload__primary {
   margin: 0 0 0.25rem 0;
   font-size: 1rem;
@@ -54,21 +47,4 @@
   margin: 0.75rem 0 0 0;
   font-size: 0.875rem;
   color: #ef4444;
-}
-
-.file-upload__spinner {
-  display: inline-block;
-  border: 2px solid #e5e7eb;
-  border-top-color: #3b82f6;
-  border-radius: 50%;
-  width: 24px;
-  height: 24px;
-  animation: file-upload-spin 0.8s linear infinite;
-  margin-top: 0.5rem;
-}
-
-@keyframes file-upload-spin {
-  to {
-    transform: rotate(360deg);
-  }
 }

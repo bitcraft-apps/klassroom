@@ -37,6 +37,18 @@ describe('createFileUpload', () => {
   let container: HTMLElement;
   let events: FileUploadEvents;
 
+  // Helper to create test files
+  function createFile(name: string, size: number, type = ''): File {
+    const content = new Uint8Array(size);
+    return new File([content], name, { type });
+  }
+
+  function createDataTransfer(file: File): DataTransfer {
+    const dt = new DataTransfer();
+    dt.items.add(file);
+    return dt;
+  }
+
   beforeEach(() => {
     container = document.createElement('div');
     events = {
@@ -165,18 +177,7 @@ describe('createFileUpload', () => {
   });
 
   describe('file validation', () => {
-    function createFile(name: string, size: number, type = ''): File {
-      const content = new Uint8Array(size);
-      return new File([content], name, { type });
-    }
-
-    function createDataTransfer(file: File): DataTransfer {
-      const dt = new DataTransfer();
-      dt.items.add(file);
-      return dt;
-    }
-
-    it('accepts valid XLSX file', async () => {
+    it('accepts valid XLSX file', () => {
       createFileUpload(container, events);
 
       const file = createFile('test.xlsx', 1024, 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
@@ -189,13 +190,10 @@ describe('createFileUpload', () => {
         }),
       );
 
-      // Wait for async validation
-      await vi.waitFor(() => {
-        expect(events.onFileSelected).toHaveBeenCalledWith(file);
-      });
+      expect(events.onFileSelected).toHaveBeenCalledWith(file);
     });
 
-    it('rejects non-XLSX file', async () => {
+    it('rejects non-XLSX file', () => {
       createFileUpload(container, events);
 
       const file = createFile('test.pdf', 1024, 'application/pdf');
@@ -208,12 +206,10 @@ describe('createFileUpload', () => {
         }),
       );
 
-      await vi.waitFor(() => {
-        expect(events.onError).toHaveBeenCalledWith('Wybierz plik w formacie XLSX');
-      });
+      expect(events.onError).toHaveBeenCalledWith('Wybierz plik w formacie XLSX');
     });
 
-    it('rejects file over 10MB', async () => {
+    it('rejects file over 10MB', () => {
       createFileUpload(container, events);
 
       const file = createFile('big.xlsx', 11 * 1024 * 1024);
@@ -226,12 +222,10 @@ describe('createFileUpload', () => {
         }),
       );
 
-      await vi.waitFor(() => {
-        expect(events.onError).toHaveBeenCalledWith('Plik jest za duzy (maksymalnie 10 MB)');
-      });
+      expect(events.onError).toHaveBeenCalledWith('Plik jest za duzy (maksymalnie 10 MB)');
     });
 
-    it('rejects empty file', async () => {
+    it('rejects empty file', () => {
       createFileUpload(container, events);
 
       const file = createFile('empty.xlsx', 0);
@@ -244,15 +238,13 @@ describe('createFileUpload', () => {
         }),
       );
 
-      await vi.waitFor(() => {
-        expect(events.onError).toHaveBeenCalledWith('Wybrany plik jest pusty');
-      });
+      expect(events.onError).toHaveBeenCalledWith('Wybrany plik jest pusty');
     });
 
-    it('detects folder by heuristics', async () => {
+    it('detects folder by heuristics', () => {
       createFileUpload(container, events);
 
-      // Folders typically have no extension, empty type, and small size
+      // Folders have no extension, empty type, and size exactly 0 or 4096
       const folder = createFile('Documents', 4096, '');
       const dropZone = container.querySelector('.file-upload') as HTMLElement;
 
@@ -263,12 +255,10 @@ describe('createFileUpload', () => {
         }),
       );
 
-      await vi.waitFor(() => {
-        expect(events.onError).toHaveBeenCalledWith('Wybierz plik, nie folder');
-      });
+      expect(events.onError).toHaveBeenCalledWith('Wybierz plik, nie folder');
     });
 
-    it('accepts first file when multiple dropped', async () => {
+    it('accepts first file when multiple dropped', () => {
       createFileUpload(container, events);
 
       const file1 = createFile('first.xlsx', 1024);
@@ -286,59 +276,96 @@ describe('createFileUpload', () => {
         }),
       );
 
-      await vi.waitFor(() => {
-        expect(events.onFileSelected).toHaveBeenCalledWith(file1);
-        expect(events.onFileSelected).toHaveBeenCalledTimes(1);
-      });
+      expect(events.onFileSelected).toHaveBeenCalledWith(file1);
+      expect(events.onFileSelected).toHaveBeenCalledTimes(1);
     });
   });
 
   describe('error state', () => {
-    function createFile(name: string, size: number): File {
-      const content = new Uint8Array(size);
-      return new File([content], name);
-    }
-
-    it('shows error message', async () => {
+    it('shows error message', () => {
       createFileUpload(container, events);
 
       const file = createFile('test.pdf', 1024);
-      const dt = new DataTransfer();
-      dt.items.add(file);
-
       const dropZone = container.querySelector('.file-upload') as HTMLElement;
+
       dropZone.dispatchEvent(
         new DragEvent('drop', {
           bubbles: true,
-          dataTransfer: dt,
+          dataTransfer: createDataTransfer(file),
         }),
       );
 
-      await vi.waitFor(() => {
-        const errorEl = container.querySelector('.file-upload__error') as HTMLElement;
-        expect(errorEl.hidden).toBe(false);
-        expect(errorEl.textContent).toBe('Wybierz plik w formacie XLSX');
-      });
+      const errorEl = container.querySelector('.file-upload__error') as HTMLElement;
+      expect(errorEl.hidden).toBe(false);
+      expect(errorEl.textContent).toBe('Wybierz plik w formacie XLSX');
     });
 
-    it('adds error class to drop zone', async () => {
+    it('adds error class to drop zone', () => {
       createFileUpload(container, events);
 
       const file = createFile('test.pdf', 1024);
-      const dt = new DataTransfer();
-      dt.items.add(file);
-
       const dropZone = container.querySelector('.file-upload') as HTMLElement;
+
       dropZone.dispatchEvent(
         new DragEvent('drop', {
           bubbles: true,
-          dataTransfer: dt,
+          dataTransfer: createDataTransfer(file),
         }),
       );
 
-      await vi.waitFor(() => {
-        expect(dropZone.classList.contains('file-upload--error')).toBe(true);
-      });
+      expect(dropZone.classList.contains('file-upload--error')).toBe(true);
+    });
+
+    it('clears error state on valid file', () => {
+      createFileUpload(container, events);
+
+      const dropZone = container.querySelector('.file-upload') as HTMLElement;
+      const errorEl = container.querySelector('.file-upload__error') as HTMLElement;
+
+      // First, trigger an error
+      const invalidFile = createFile('test.pdf', 1024);
+      dropZone.dispatchEvent(
+        new DragEvent('drop', {
+          bubbles: true,
+          dataTransfer: createDataTransfer(invalidFile),
+        }),
+      );
+
+      expect(dropZone.classList.contains('file-upload--error')).toBe(true);
+      expect(errorEl.hidden).toBe(false);
+
+      // Then, drop a valid file
+      const validFile = createFile('test.xlsx', 1024);
+      dropZone.dispatchEvent(
+        new DragEvent('drop', {
+          bubbles: true,
+          dataTransfer: createDataTransfer(validFile),
+        }),
+      );
+
+      expect(dropZone.classList.contains('file-upload--error')).toBe(false);
+      expect(errorEl.hidden).toBe(true);
+      expect(events.onFileSelected).toHaveBeenCalledWith(validFile);
+    });
+  });
+
+  describe('accessibility', () => {
+    it('links error to drop zone with aria-describedby', () => {
+      createFileUpload(container, events);
+
+      const dropZone = container.querySelector('.file-upload') as HTMLElement;
+      const errorEl = container.querySelector('.file-upload__error') as HTMLElement;
+
+      const describedBy = dropZone.getAttribute('aria-describedby');
+      expect(describedBy).toBeTruthy();
+      expect(errorEl.id).toBe(describedBy);
+    });
+
+    it('sets aria-live on error element for announcements', () => {
+      createFileUpload(container, events);
+
+      const errorEl = container.querySelector('.file-upload__error') as HTMLElement;
+      expect(errorEl.getAttribute('aria-live')).toBe('polite');
     });
   });
 });

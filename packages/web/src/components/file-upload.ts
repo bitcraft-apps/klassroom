@@ -18,7 +18,6 @@ const ERROR_IS_FOLDER = 'Wybierz plik, nie folder';
 // Polish UI text
 const TEXT_PRIMARY = 'Przeciagnij plik XLSX tutaj';
 const TEXT_SECONDARY = 'lub kliknij, aby wybrac';
-const TEXT_LOADING = 'Wczytywanie...';
 
 /**
  * Callback events for the file upload component.
@@ -37,8 +36,9 @@ function validateFile(file: File): string | null {
   // Check extension
   if (!name.endsWith(ALLOWED_EXTENSION)) {
     // Distinguish folder from wrong file type
-    // Folders typically have type="" and size 0 or 4096
-    if (file.type === '' && file.size <= 4096 && !name.includes('.')) {
+    // Folders have type="" and size exactly 0 or 4096 (common sentinel values)
+    const isFolderSize = file.size === 0 || file.size === 4096;
+    if (file.type === '' && isFolderSize && !name.includes('.')) {
       return ERROR_IS_FOLDER;
     }
     return ERROR_WRONG_TYPE;
@@ -69,11 +69,14 @@ export function createFileUpload(
   events: FileUploadEvents,
 ): void {
   // Create DOM structure
+  const errorId = `file-upload-error-${Date.now()}`;
+
   const dropZone = document.createElement('div');
   dropZone.className = 'file-upload';
   dropZone.tabIndex = 0;
   dropZone.setAttribute('role', 'button');
   dropZone.setAttribute('aria-label', TEXT_PRIMARY);
+  dropZone.setAttribute('aria-describedby', errorId);
 
   const input = document.createElement('input');
   input.type = 'file';
@@ -89,32 +92,22 @@ export function createFileUpload(
   textSecondary.textContent = TEXT_SECONDARY;
 
   const errorEl = document.createElement('p');
+  errorEl.id = errorId;
   errorEl.className = 'file-upload__error';
+  errorEl.setAttribute('aria-live', 'polite');
   errorEl.hidden = true;
-
-  const spinner = document.createElement('div');
-  spinner.className = 'file-upload__spinner';
-  spinner.hidden = true;
 
   dropZone.appendChild(input);
   dropZone.appendChild(textPrimary);
   dropZone.appendChild(textSecondary);
   dropZone.appendChild(errorEl);
-  dropZone.appendChild(spinner);
 
   // State
   let dragCounter = 0;
 
   function setDefaultState(): void {
-    dropZone.classList.remove(
-      'file-upload--dragover',
-      'file-upload--loading',
-      'file-upload--error',
-    );
-    textPrimary.textContent = TEXT_PRIMARY;
-    textSecondary.hidden = false;
+    dropZone.classList.remove('file-upload--dragover', 'file-upload--error');
     errorEl.hidden = true;
-    spinner.hidden = true;
   }
 
   function setDragOverState(): void {
@@ -123,39 +116,22 @@ export function createFileUpload(
     errorEl.hidden = true;
   }
 
-  function setLoadingState(): void {
-    dropZone.classList.add('file-upload--loading');
-    dropZone.classList.remove('file-upload--dragover', 'file-upload--error');
-    textPrimary.textContent = TEXT_LOADING;
-    textSecondary.hidden = true;
-    spinner.hidden = false;
-    errorEl.hidden = true;
-  }
-
   function setErrorState(message: string): void {
     dropZone.classList.add('file-upload--error');
-    dropZone.classList.remove('file-upload--dragover', 'file-upload--loading');
-    textPrimary.textContent = TEXT_PRIMARY;
-    textSecondary.hidden = false;
-    spinner.hidden = true;
+    dropZone.classList.remove('file-upload--dragover');
     errorEl.textContent = message;
     errorEl.hidden = false;
   }
 
   function handleFile(file: File): void {
-    setLoadingState();
-
-    // Use setTimeout to show loading state briefly
-    setTimeout(() => {
-      const error = validateFile(file);
-      if (error) {
-        setErrorState(error);
-        events.onError(error);
-      } else {
-        setDefaultState();
-        events.onFileSelected(file);
-      }
-    }, 0);
+    const error = validateFile(file);
+    if (error) {
+      setErrorState(error);
+      events.onError(error);
+    } else {
+      setDefaultState();
+      events.onFileSelected(file);
+    }
   }
 
   // Event handlers
