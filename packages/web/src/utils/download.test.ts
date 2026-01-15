@@ -35,16 +35,24 @@ describe('sanitizeFilename', () => {
     expect(sanitizeFilename('file*name')).toBe('file_name');
   });
 
-  it('replaces question mark', () => {
-    expect(sanitizeFilename('what?')).toBe('what_');
+  it('replaces question mark and trims trailing underscore', () => {
+    expect(sanitizeFilename('what?')).toBe('what');
   });
 
-  it('replaces double quotes', () => {
-    expect(sanitizeFilename('"quoted"')).toBe('_quoted_');
+  it('replaces double quotes and trims resulting underscores', () => {
+    expect(sanitizeFilename('"quoted"')).toBe('quoted');
   });
 
-  it('replaces angle brackets', () => {
-    expect(sanitizeFilename('<html>')).toBe('_html_');
+  it('replaces angle brackets and trims resulting underscores', () => {
+    expect(sanitizeFilename('<html>')).toBe('html');
+  });
+
+  it('returns fallback for empty string', () => {
+    expect(sanitizeFilename('')).toBe('untitled');
+  });
+
+  it('returns fallback for all unsafe characters', () => {
+    expect(sanitizeFilename('???')).toBe('untitled');
   });
 
   it('replaces pipe character', () => {

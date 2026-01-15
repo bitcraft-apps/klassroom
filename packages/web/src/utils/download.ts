@@ -8,13 +8,18 @@ const URL_REVOKE_DELAY_MS = 1000;
 
 /**
  * Sanitizes a string for use as a filename.
- * Replaces unsafe characters with underscores.
+ * Replaces unsafe characters with underscores, trims leading/trailing
+ * underscores for cleaner output, and provides fallback for empty results.
  *
  * @param input - The string to sanitize
  * @returns Sanitized filename-safe string
  */
 export function sanitizeFilename(input: string): string {
-  return input.replace(/[<>:"/\\|?*\s]+/g, '_');
+  const sanitized = input.replace(/[<>:"/\\|?*\s]+/g, '_');
+  // Trim leading/trailing underscores for cleaner filenames
+  const trimmed = sanitized.replace(/^_+|_+$/g, '');
+  // Fallback if input was empty or all unsafe characters
+  return trimmed || 'untitled';
 }
 
 /**

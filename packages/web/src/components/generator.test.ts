@@ -31,6 +31,8 @@ describe('createGenerator', () => {
   beforeEach(() => {
     vi.useFakeTimers();
     container = document.createElement('div');
+    // Attach to document.body so focus tracking works in JSDOM
+    document.body.appendChild(container);
     events = {
       onReset: vi.fn(),
     };
@@ -58,6 +60,8 @@ describe('createGenerator', () => {
   afterEach(() => {
     vi.useRealTimers();
     vi.clearAllMocks();
+    // Clean up container from document.body
+    container.remove();
   });
 
   describe('DOM structure', () => {
