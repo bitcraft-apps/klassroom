@@ -110,6 +110,50 @@ describe('createGenerator', () => {
     });
   });
 
+  describe('accessibility', () => {
+    it('sets role="status" on progress section', () => {
+      createGenerator(container, data, events);
+
+      const progress = container.querySelector('.generator__progress');
+      expect(progress?.getAttribute('role')).toBe('status');
+    });
+
+    it('sets aria-live="polite" on step text', () => {
+      createGenerator(container, data, events);
+
+      const stepText = container.querySelector('.generator__step');
+      expect(stepText?.getAttribute('aria-live')).toBe('polite');
+    });
+
+    it('sets aria-hidden on spinner', () => {
+      createGenerator(container, data, events);
+
+      const spinner = container.querySelector('.generator__spinner');
+      expect(spinner?.getAttribute('aria-hidden')).toBe('true');
+    });
+
+    it('sets aria-hidden on success icon', () => {
+      createGenerator(container, data, events);
+
+      const icon = container.querySelector('.generator__success-icon');
+      expect(icon?.getAttribute('aria-hidden')).toBe('true');
+    });
+
+    it('sets aria-hidden on error icon', () => {
+      createGenerator(container, data, events);
+
+      const icon = container.querySelector('.generator__error-icon');
+      expect(icon?.getAttribute('aria-hidden')).toBe('true');
+    });
+
+    it('sets role="alert" on error section', () => {
+      createGenerator(container, data, events);
+
+      const error = container.querySelector('.generator__error');
+      expect(error?.getAttribute('role')).toBe('alert');
+    });
+  });
+
   describe('Polish labels', () => {
     it('displays initial progress step in Polish', () => {
       createGenerator(container, data, events);

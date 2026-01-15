@@ -13,24 +13,11 @@ import './generator.css';
 
 // Polish UI text
 const STEP_PROCESSING = 'Przetwarzanie danych...';
-const STEP_CHARTS = 'Generowanie wykresów...';
-const STEP_PRESENTATION = 'Tworzenie prezentacji...';
-const STEP_COMPLETE = 'Gotowe!';
 const TEXT_DOWNLOAD_READY = 'Prezentacja została pobrana';
-const TEXT_FILENAME = 'Plik:';
+const LABEL_FILENAME = 'Plik:';
 const BUTTON_GENERATE_ANOTHER = 'Generuj kolejną';
 const BUTTON_RETRY = 'Spróbuj ponownie';
 const ERROR_GENERATION_FAILED = 'Wystąpił błąd podczas generowania prezentacji';
-
-/**
- * Progress steps for generation process.
- */
-const PROGRESS_STEPS = [
-  STEP_PROCESSING,
-  STEP_CHARTS,
-  STEP_PRESENTATION,
-  STEP_COMPLETE,
-] as const;
 
 /**
  * Data required to generate presentation.
@@ -70,12 +57,15 @@ export function createGenerator(
   // Progress section (shown during generation)
   const progressSection = document.createElement('div');
   progressSection.className = 'generator__progress';
+  progressSection.setAttribute('role', 'status');
 
   const spinner = document.createElement('div');
   spinner.className = 'generator__spinner';
+  spinner.setAttribute('aria-hidden', 'true');
 
   const stepText = document.createElement('p');
   stepText.className = 'generator__step';
+  stepText.setAttribute('aria-live', 'polite');
   stepText.textContent = STEP_PROCESSING;
 
   progressSection.appendChild(spinner);
@@ -88,6 +78,7 @@ export function createGenerator(
 
   const successIcon = document.createElement('div');
   successIcon.className = 'generator__success-icon';
+  successIcon.setAttribute('aria-hidden', 'true');
   successIcon.textContent = '\u2713';
 
   const completeText = document.createElement('p');
@@ -111,10 +102,12 @@ export function createGenerator(
   // Error section (hidden initially)
   const errorSection = document.createElement('div');
   errorSection.className = 'generator__error';
+  errorSection.setAttribute('role', 'alert');
   errorSection.hidden = true;
 
   const errorIcon = document.createElement('div');
   errorIcon.className = 'generator__error-icon';
+  errorIcon.setAttribute('aria-hidden', 'true');
   errorIcon.textContent = '!';
 
   const errorText = document.createElement('p');
@@ -138,20 +131,8 @@ export function createGenerator(
   // Generate presentation
   const generate = async (): Promise<void> => {
     try {
-      // Step 1: Processing
-      stepText.textContent = PROGRESS_STEPS[0];
-
       // Generate HTML
       const html = await generatePresentationBrowser(data.classData);
-
-      // Step 2-3: Show progress steps briefly
-      stepText.textContent = PROGRESS_STEPS[1];
-      await delay(200);
-      stepText.textContent = PROGRESS_STEPS[2];
-      await delay(200);
-
-      // Step 4: Complete
-      stepText.textContent = PROGRESS_STEPS[3];
 
       // Generate filename and download
       const filename = generatePresentationFilename(
@@ -162,7 +143,7 @@ export function createGenerator(
 
       // Show complete UI
       progressSection.hidden = true;
-      filenameLabel.textContent = `${TEXT_FILENAME} ${filename}`;
+      filenameLabel.textContent = `${LABEL_FILENAME} ${filename}`;
       completeSection.hidden = false;
     } catch (error) {
       // Show error UI
@@ -186,11 +167,4 @@ export function createGenerator(
 
   // Start generation
   void generate();
-}
-
-/**
- * Utility function for brief delays in progress display.
- */
-function delay(ms: number): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, ms));
 }

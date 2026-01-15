@@ -27,7 +27,8 @@ describe('sanitizeFilename', () => {
   });
 
   it('replaces colon', () => {
-    expect(sanitizeFilename('Klasa: 3A')).toBe('Klasa__3A');
+    // Note: ": " (colon+space) is matched as one group, producing single underscore
+    expect(sanitizeFilename('Klasa:3A')).toBe('Klasa_3A');
   });
 
   it('replaces asterisk', () => {
@@ -119,10 +120,24 @@ describe('generatePresentationFilename', () => {
 describe('downloadFile', () => {
   let mockObjectUrl: string;
   let clickSpy: ReturnType<typeof vi.spyOn>;
+  let capturedBlobs: Array<{ content: BlobPart[]; options: BlobPropertyBag }>;
 
   beforeEach(() => {
     vi.useFakeTimers();
     mockObjectUrl = 'blob:mock-url';
+    capturedBlobs = [];
+
+    // Mock Blob to capture constructor args
+    const OriginalBlob = globalThis.Blob;
+    vi.stubGlobal(
+      'Blob',
+      class MockBlob extends OriginalBlob {
+        constructor(content: BlobPart[], options: BlobPropertyBag) {
+          super(content, options);
+          capturedBlobs.push({ content, options });
+        }
+      },
+    );
 
     // Mock URL methods
     vi.stubGlobal('URL', {
@@ -141,13 +156,11 @@ describe('downloadFile', () => {
   });
 
   it('creates blob with content and mime type', () => {
-    const blobSpy = vi.spyOn(globalThis, 'Blob');
-
     downloadFile('<html></html>', 'test.html');
 
-    expect(blobSpy).toHaveBeenCalledWith(['<html></html>'], {
-      type: 'text/html',
-    });
+    expect(capturedBlobs).toHaveLength(1);
+    expect(capturedBlobs[0].content).toEqual(['<html></html>']);
+    expect(capturedBlobs[0].options).toEqual({ type: 'text/html' });
   });
 
   it('creates object URL from blob', () => {
@@ -162,14 +175,17 @@ describe('downloadFile', () => {
     expect(clickSpy).toHaveBeenCalled();
   });
 
-  it('sets download attribute on anchor', () => {
-    const appendChildSpy = vi.spyOn(document.body, 'appendChild');
+  it('sets correct href and download attributes on anchor', () => {
+    let capturedAnchor: HTMLAnchorElement | null = null;
+    clickSpy.mockImplementation(function (this: HTMLAnchorElement) {
+      capturedAnchor = this;
+    });
 
     downloadFile('<html></html>', 'test.html');
 
-    // The anchor is created but not appended to body in our implementation
-    // We verify through the click being called
-    expect(clickSpy).toHaveBeenCalled();
+    expect(capturedAnchor).not.toBeNull();
+    expect(capturedAnchor!.href).toBe(mockObjectUrl);
+    expect(capturedAnchor!.download).toBe('test.html');
   });
 
   it('revokes object URL after delay', () => {
@@ -185,20 +201,17 @@ describe('downloadFile', () => {
   });
 
   it('uses custom mime type when provided', () => {
-    const blobSpy = vi.spyOn(globalThis, 'Blob');
-
     downloadFile('data', 'file.txt', 'text/plain');
 
-    expect(blobSpy).toHaveBeenCalledWith(['data'], { type: 'text/plain' });
+    expect(capturedBlobs).toHaveLength(1);
+    expect(capturedBlobs[0].content).toEqual(['data']);
+    expect(capturedBlobs[0].options).toEqual({ type: 'text/plain' });
   });
 
   it('defaults to text/html mime type', () => {
-    const blobSpy = vi.spyOn(globalThis, 'Blob');
-
     downloadFile('<html></html>', 'test.html');
 
-    expect(blobSpy).toHaveBeenCalledWith(['<html></html>'], {
-      type: 'text/html',
-    });
+    expect(capturedBlobs).toHaveLength(1);
+    expect(capturedBlobs[0].options).toEqual({ type: 'text/html' });
   });
 });
