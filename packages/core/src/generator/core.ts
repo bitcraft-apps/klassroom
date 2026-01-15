@@ -21,7 +21,7 @@ import {
   type GradeDistributionRow,
   type TopStudentRow,
 } from './template.js';
-import { generateConclusions, type AnalyticsResult } from '../ai/index.js';
+import type { AnalyticsResult } from '../ai/index.js';
 
 /**
  * Context for chart rendering - allows dependency injection of
@@ -126,6 +126,7 @@ export async function generatePresentationCore(
   const topStudentsData = getTopStudents(students);
 
   // Generate AI conclusions if enabled (uses only aggregate data - GDPR safe)
+  // Uses dynamic import to avoid bundling Node-only AI code in browser builds
   let aiConclusionsText: string | null = null;
   if (options?.aiConclusions) {
     const analyticsResult: AnalyticsResult = {
@@ -141,6 +142,7 @@ export async function generatePresentationCore(
       behaviorDistribution: hasBehaviorData ? behaviorCounts : undefined,
       failureStatistics,
     };
+    const { generateConclusions } = await import('../ai/index.js');
     aiConclusionsText = await generateConclusions(
       analyticsResult,
       options.geminiApiKey,
