@@ -6,14 +6,21 @@
   /* Colors - from spec palette */
   --color-primary: #2563eb;
   --color-primary-dark: #1d4ed8;
+  --color-primary-darker: #1e40af;
+  --color-primary-light: #eff6ff;
   --color-success: #16a34a;
   --color-warning: #ca8a04;
+  --color-warning-light: #fef3c7;
+  --color-warning-dark: #92400e;
   --color-error: #dc2626;
   --color-text: #1f2937;
   --color-text-light: #6b7280;
   --color-bg: #ffffff;
   --color-bg-alt: #f9fafb;
+  --color-bg-active: #f3f4f6;
   --color-border: #e5e7eb;
+  --color-border-hover: #9ca3af;
+  --color-disabled: #9ca3af;
 
   /* Spacing scale */
   --space-1: 0.25rem;

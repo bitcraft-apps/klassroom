@@ -47,18 +47,18 @@
 /* Warnings section */
 .preview__section--warnings {
   padding: var(--space-3) var(--space-4);
-  background-color: #fef3c7;
+  background-color: var(--color-warning-light);
   border-radius: 6px;
 }
 
 .preview__section--warnings .preview__section-title {
-  color: #92400e;
+  color: var(--color-warning-dark);
 }
 
 .preview__warnings {
   margin: 0;
   padding-left: 1.25rem;
-  color: #92400e;
+  color: var(--color-warning-dark);
 }
 
 .preview__warnings li {
@@ -112,13 +112,13 @@
 }
 
 .preview__button--primary:active:not(:disabled) {
-  background-color: #1e40af;
-  border-color: #1e40af;
+  background-color: var(--color-primary-darker);
+  border-color: var(--color-primary-darker);
 }
 
 .preview__button--primary:disabled {
-  background-color: #9ca3af;
-  border-color: #9ca3af;
+  background-color: var(--color-disabled);
+  border-color: var(--color-disabled);
   cursor: not-allowed;
 }
 
@@ -131,17 +131,16 @@
 
 .preview__button--secondary:hover {
   background-color: var(--color-bg-alt);
-  border-color: #9ca3af;
+  border-color: var(--color-border-hover);
 }
 
 .preview__button--secondary:active {
-  background-color: #f3f4f6;
+  background-color: var(--color-bg-active);
 }
 
-/* Touch devices - ensure minimum touch target */
+/* Touch devices - ensure minimum touch target width */
 @media (pointer: coarse) {
   .preview__button {
-    min-height: var(--touch-target);
     min-width: var(--touch-target);
   }
 }

@@ -147,20 +147,19 @@
 }
 
 .generator__button--primary:active:not(:disabled) {
-  background-color: #1e40af;
-  border-color: #1e40af;
+  background-color: var(--color-primary-darker);
+  border-color: var(--color-primary-darker);
 }
 
 .generator__button--primary:disabled {
-  background-color: #9ca3af;
-  border-color: #9ca3af;
+  background-color: var(--color-disabled);
+  border-color: var(--color-disabled);
   cursor: not-allowed;
 }
 
-/* Touch devices - ensure minimum touch target */
+/* Touch devices - ensure minimum touch target width */
 @media (pointer: coarse) {
   .generator__button {
-    min-height: var(--touch-target);
     min-width: var(--touch-target);
   }
 }

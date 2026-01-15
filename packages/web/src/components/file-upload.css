@@ -24,7 +24,7 @@
 .file-upload--dragover {
   border-style: solid;
   border-color: var(--color-primary);
-  background-color: #eff6ff;
+  background-color: var(--color-primary-light);
 }
 
 /* Error state */
