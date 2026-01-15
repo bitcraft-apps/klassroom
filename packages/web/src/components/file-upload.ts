@@ -11,13 +11,13 @@ const ALLOWED_EXTENSION = '.xlsx';
 
 // Polish error messages
 const ERROR_WRONG_TYPE = 'Wybierz plik w formacie XLSX';
-const ERROR_TOO_LARGE = 'Plik jest za duzy (maksymalnie 10 MB)';
+const ERROR_TOO_LARGE = 'Plik jest za duży (maksymalnie 10 MB)';
 const ERROR_EMPTY_FILE = 'Wybrany plik jest pusty';
 const ERROR_IS_FOLDER = 'Wybierz plik, nie folder';
 
 // Polish UI text
-const TEXT_PRIMARY = 'Przeciagnij plik XLSX tutaj';
-const TEXT_SECONDARY = 'lub kliknij, aby wybrac';
+const TEXT_PRIMARY = 'Przeciągnij plik XLSX tutaj';
+const TEXT_SECONDARY = 'lub kliknij, aby wybrać';
 
 /**
  * Callback events for the file upload component.

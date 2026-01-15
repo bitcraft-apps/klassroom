@@ -88,8 +88,8 @@ describe('createFileUpload', () => {
       const primary = container.querySelector('.file-upload__primary');
       const secondary = container.querySelector('.file-upload__secondary');
 
-      expect(primary?.textContent).toBe('Przeciagnij plik XLSX tutaj');
-      expect(secondary?.textContent).toBe('lub kliknij, aby wybrac');
+      expect(primary?.textContent).toBe('Przeciągnij plik XLSX tutaj');
+      expect(secondary?.textContent).toBe('lub kliknij, aby wybrać');
     });
   });
 
@@ -222,7 +222,7 @@ describe('createFileUpload', () => {
         }),
       );
 
-      expect(events.onError).toHaveBeenCalledWith('Plik jest za duzy (maksymalnie 10 MB)');
+      expect(events.onError).toHaveBeenCalledWith('Plik jest za duży (maksymalnie 10 MB)');
     });
 
     it('rejects empty file', () => {
