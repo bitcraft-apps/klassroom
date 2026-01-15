@@ -1,10 +1,14 @@
 /**
- * Parser module re-exports.
+ * Parser module re-exports (internal use only).
  *
- * Note: This barrel file imports from both browser-safe (buffer.ts) and
- * Node-specific (file.ts) modules. For browser contexts, import directly
- * from '@klassroom/core/browser' or './parser/buffer.js' to avoid
- * pulling in Node.js dependencies.
+ * WARNING: This barrel file imports Node.js-specific code (node:fs).
+ * DO NOT import from this file in browser contexts.
+ *
+ * For production code, use:
+ * - '@klassroom/core' or './parser/buffer.js' for browser-safe parsing
+ * - '@klassroom/core/node' or './parser/file.js' for Node.js file-based parsing
+ *
+ * This barrel exists for internal unit testing convenience only.
  */
 
 // Browser-safe exports

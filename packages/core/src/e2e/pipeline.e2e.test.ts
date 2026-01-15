@@ -17,7 +17,8 @@
 import { describe, it, expect, beforeAll } from 'vitest';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
-import { parseVulcanXlsx, parseVulcanXlsxFromBuffer } from '../parser/index.js';
+import { parseVulcanXlsx } from '../parser/file.js';
+import { parseVulcanXlsxFromBuffer } from '../parser/buffer.js';
 import { generatePresentation } from '../generator/index.js';
 
 // Path to the committed synthetic test fixture (stable input for true E2E testing)
