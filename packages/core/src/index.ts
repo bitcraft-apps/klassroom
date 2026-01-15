@@ -30,8 +30,8 @@ export { parseBehaviorGrade, behaviorToIndex, compareBehavior } from './types/in
 export { BEHAVIOR_GRADES, POLISH_TO_BEHAVIOR } from './types/index.js';
 
 // Parser (browser-compatible only - use @klassroom/core/node for file-based parsing)
-export { parseVulcanXlsxFromBuffer, detectFormat } from './parser/index.js';
-export type { DetectedFormat } from './parser/index.js';
+export { parseVulcanXlsxFromBuffer, detectFormat } from './parser/buffer.js';
+export type { DetectedFormat } from './parser/buffer.js';
 
 // Analytics
 export {

@@ -6,7 +6,7 @@
  */
 
 // Node.js file-based parser
-export { parseVulcanXlsx } from './parser/index.js';
+export { parseVulcanXlsx } from './parser/file.js';
 
 // Node.js presentation generator (uses chartjs-node-canvas)
 export { generatePresentation } from './generator/index.js';

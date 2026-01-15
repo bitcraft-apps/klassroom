@@ -6,7 +6,7 @@
  */
 
 // Browser-compatible parser (ArrayBuffer input)
-export { parseVulcanXlsxFromBuffer } from './parser/index.js';
+export { parseVulcanXlsxFromBuffer } from './parser/buffer.js';
 
 // Browser-compatible presentation generator
 export { generatePresentationBrowser } from './generator/browser.js';
