@@ -2,8 +2,11 @@
  * Browser entry point for @klassroom/core.
  * Import from '@klassroom/core/browser' to use browser-compatible chart rendering.
  *
- * This module excludes Node.js-specific dependencies (chartjs-node-canvas, xlsx).
+ * This module excludes Node.js-specific dependencies (chartjs-node-canvas, fs).
  */
+
+// Browser-compatible parser (ArrayBuffer input)
+export { parseVulcanXlsxFromBuffer } from './parser/buffer.js';
 
 // Browser-compatible presentation generator
 export { generatePresentationBrowser } from './generator/browser.js';

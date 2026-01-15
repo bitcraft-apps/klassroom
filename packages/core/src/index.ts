@@ -29,9 +29,9 @@ export { parseBehaviorGrade, behaviorToIndex, compareBehavior } from './types/in
 // Constants
 export { BEHAVIOR_GRADES, POLISH_TO_BEHAVIOR } from './types/index.js';
 
-// Parser
-export { parseVulcanXlsx, parseVulcanXlsxFromBuffer, detectFormat } from './parser/index.js';
-export type { DetectedFormat } from './parser/index.js';
+// Parser (browser-compatible only - use @klassroom/core/node for file-based parsing)
+export { parseVulcanXlsxFromBuffer, detectFormat } from './parser/buffer.js';
+export type { DetectedFormat } from './parser/buffer.js';
 
 // Analytics
 export {
@@ -70,10 +70,6 @@ export type {
   PieChartConfig,
   ChartStudentData,
 } from './charts/index.js';
-
-// Generator
-export { generatePresentation } from './generator/index.js';
-export type { GeneratePresentationOptions } from './generator/index.js';
 
 // AI
 export { generateConclusions } from './ai/index.js';

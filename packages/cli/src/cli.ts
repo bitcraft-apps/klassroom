@@ -2,12 +2,12 @@ import { existsSync } from 'node:fs';
 import { writeFile } from 'node:fs/promises';
 import { basename, dirname, extname, join } from 'node:path';
 import { Command } from 'commander';
+import { VERSION } from '@klassroom/core';
 import {
-  VERSION,
   parseVulcanXlsx,
   generatePresentation,
   type GeneratePresentationOptions,
-} from '@klassroom/core';
+} from '@klassroom/core/node';
 
 export interface GenerateOptions {
   date?: string;

@@ -14,11 +14,14 @@ vi.mock('node:fs/promises', () => ({
 
 vi.mock('@klassroom/core', () => ({
   VERSION: '0.0.0',
+}));
+
+vi.mock('@klassroom/core/node', () => ({
   parseVulcanXlsx: vi.fn(),
   generatePresentation: vi.fn(),
 }));
 
-import { parseVulcanXlsx, generatePresentation } from '@klassroom/core';
+import { parseVulcanXlsx, generatePresentation } from '@klassroom/core/node';
 import { generate } from './cli.js';
 
 describe('generate function', () => {
