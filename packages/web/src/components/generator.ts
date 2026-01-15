@@ -96,7 +96,12 @@ export function createGenerator(
   resetButton.className = 'generator__button generator__button--primary';
   resetButton.type = 'button';
   resetButton.textContent = BUTTON_GENERATE_ANOTHER;
-  resetButton.addEventListener('click', () => events.onReset());
+
+  // Named handler for cleanup
+  const handleReset = (): void => {
+    events.onReset();
+  };
+  resetButton.addEventListener('click', handleReset);
 
   completeSection.appendChild(successIcon);
   completeSection.appendChild(completeText);
@@ -170,13 +175,14 @@ export function createGenerator(
     }
   };
 
-  // Retry handler
-  retryButton.addEventListener('click', () => {
+  // Named handler for cleanup
+  const handleRetry = (): void => {
     errorSection.hidden = true;
     progressSection.hidden = false;
     stepText.textContent = STEP_PROCESSING;
     void generate();
-  });
+  };
+  retryButton.addEventListener('click', handleRetry);
 
   // Start generation
   void generate();
@@ -184,5 +190,7 @@ export function createGenerator(
   // Return cleanup function
   return () => {
     isActive = false;
+    resetButton.removeEventListener('click', handleReset);
+    retryButton.removeEventListener('click', handleRetry);
   };
 }

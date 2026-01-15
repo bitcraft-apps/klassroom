@@ -476,5 +476,34 @@ describe('createGenerator', () => {
       expect(progress.hidden).toBe(false);
       expect(error.hidden).toBe(true);
     });
+
+    it('removes event listeners on cleanup', async () => {
+      createGenerator(container, data, events);
+
+      await vi.runAllTimersAsync();
+
+      // Get reference to reset button before cleanup
+      const resetBtn = container.querySelector(
+        '.generator__complete .generator__button--primary',
+      ) as HTMLButtonElement;
+
+      // Re-create generator (which clears container and creates new elements)
+      const cleanup = createGenerator(container, data, events);
+
+      // Complete generation
+      await vi.runAllTimersAsync();
+
+      // Call cleanup
+      cleanup();
+
+      // Click the reset button after cleanup
+      const newResetBtn = container.querySelector(
+        '.generator__complete .generator__button--primary',
+      ) as HTMLButtonElement;
+      newResetBtn.click();
+
+      // onReset should not be called because listener was removed
+      expect(events.onReset).not.toHaveBeenCalled();
+    });
   });
 });

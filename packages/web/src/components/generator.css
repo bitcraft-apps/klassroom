@@ -1,5 +1,6 @@
-/* Color palette */
+/* Generator component */
 .generator {
+  /* Color palette */
   --color-primary: #3b82f6;
   --color-primary-hover: #2563eb;
   --color-success: #10b981;
@@ -10,9 +11,8 @@
   --color-text-subtle: #6b7280;
   --color-border: #e5e7eb;
   --color-disabled: #9ca3af;
-}
 
-.generator {
+  /* Layout */
   max-width: 32rem;
   text-align: center;
 }
