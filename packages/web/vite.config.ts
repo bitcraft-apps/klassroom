@@ -2,11 +2,10 @@ import { defineConfig } from 'vite';
 import { VitePWA } from 'vite-plugin-pwa';
 
 export default defineConfig({
-  base: '/klassroom/',
+  base: '/',
   plugins: [
     VitePWA({
       registerType: 'prompt',
-      scope: '/klassroom/',
       manifest: {
         name: 'Klassroom',
         short_name: 'Klassroom',
@@ -14,7 +13,7 @@ export default defineConfig({
         theme_color: '#2563eb',
         background_color: '#ffffff',
         display: 'standalone',
-        start_url: '/klassroom/',
+        start_url: '/',
         lang: 'pl',
         icons: [
           {

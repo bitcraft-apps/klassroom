@@ -183,12 +183,40 @@ h2 {
   color: var(--color-text-light);
 }
 
+.page-footer__links {
+  margin-top: var(--space-2);
+  font-size: 0.75rem;
+}
+
+.page-footer__links a {
+  color: var(--color-text-light);
+  text-decoration: none;
+  transition: color 0.15s;
+}
+
+.page-footer__links a:hover {
+  color: var(--color-primary);
+  text-decoration: underline;
+}
+
+.page-footer__links a:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+.page-footer__separator {
+  margin: 0 var(--space-2);
+  color: var(--color-border);
+}
+
 @media (min-width: 640px) {
   .page-footer {
     padding: var(--space-6);
   }
 
-  .page-footer__text {
+  .page-footer__text,
+  .page-footer__links {
     font-size: 0.875rem;
   }
 }
