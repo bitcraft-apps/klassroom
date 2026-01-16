@@ -128,6 +128,27 @@ This tool is designed with student privacy as a priority:
 - **Anonymized Output**: The generated HTML file refers to students only by their journal number ("Nr w dzienniku"). Student names are used internally for parsing but are **never** included in the output.
 - **AI Mode (`--ai`)**: When enabled, only aggregate class statistics (averages, distributions, counts) are sent to Google Gemini. Individual student data (names, numbers, grades) is never transmitted.
 
+### Technical Architecture
+
+The codebase enforces PII separation at the type level:
+
+- **`RawStudent`** (internal): Contains student `name` for correlating records across XLSX sheets during parsing. Never exported from the public API.
+- **`Student`** (public API): Contains only `number` (journal number). All analytics, charts, and generated output use this type.
+- **`stripStudentPII()`**: Explicit function that transforms `RawStudent` → `Student` using an allowlist pattern. Prevents accidental PII leakage if new fields are added.
+- **`StudentNumber`**: Branded TypeScript type that enforces the GDPR boundary at compile time.
+
+See `packages/core/src/types/index.ts` for implementation details.
+
+### For School Administrators
+
+**Data flow**: XLSX file in → HTML presentation out. All processing happens locally (in your browser or on your machine). No student data is transmitted to external servers in the default configuration.
+
+**Output privacy**: Generated presentations identify students by journal number only ("Nr w dzienniku"). Student names are never included in the output.
+
+**Self-hosting note**: Organizations deploying modified versions that add analytics, error reporting, or external integrations must assess their own compliance requirements. The privacy measures described above apply to the default, unmodified application.
+
+For detailed legal information, see the [Polish privacy policy](packages/web/public/polityka-prywatnosci.html).
+
 ## License
 
 MIT © Bitcraft Apps
