@@ -24,6 +24,6 @@
   },
   "dependencies": {
     "@klassroom/core": "workspace:*",
-    "commander": "^13.1.0"
+    "commander": "^14.0.2"
   }
 }
