@@ -43,3 +43,6 @@ export type {
   AverageRangeCounts,
   BehaviorCounts,
 } from './types/index.js';
+
+// Version constant
+export { VERSION } from './index.js';
