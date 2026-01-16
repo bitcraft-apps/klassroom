@@ -231,6 +231,7 @@ function showUpdateBanner(updateSW: (reloadPage?: boolean) => Promise<void>): vo
   const banner = document.createElement('div');
   banner.className = 'pwa-update-banner';
   banner.setAttribute('role', 'alert');
+  banner.setAttribute('aria-live', 'assertive');
 
   const text = document.createElement('span');
   text.className = 'pwa-update-banner__text';
@@ -241,7 +242,9 @@ function showUpdateBanner(updateSW: (reloadPage?: boolean) => Promise<void>): vo
   updateButton.type = 'button';
   updateButton.textContent = BUTTON_UPDATE;
   updateButton.addEventListener('click', () => {
-    void updateSW(true);
+    updateSW(true).catch((err: unknown) => {
+      console.error('Service worker update failed:', err);
+    });
   });
 
   const dismissButton = document.createElement('button');
