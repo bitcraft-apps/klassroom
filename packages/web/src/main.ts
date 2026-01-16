@@ -12,7 +12,7 @@
  * Adding analytics, error reporting, or any data transmission
  * requires updating the privacy policy to maintain GDPR compliance.
  */
-import { parseVulcanXlsxFromBuffer } from '@klassroom/core/browser';
+import { parseVulcanXlsxFromBuffer, VERSION } from '@klassroom/core/browser';
 import type { ClassData } from '@klassroom/core';
 import { createFileUpload } from './components/file-upload.js';
 import { createPreview, type PreviewData } from './components/preview.js';
@@ -225,6 +225,12 @@ function showGenerator(classData: ClassData): void {
 // Initialize app
 if (app) {
   showUpload();
+}
+
+// Inject version into footer
+const footerText = document.querySelector('.page-footer__text');
+if (footerText) {
+  footerText.textContent = `${footerText.textContent} · v${VERSION}`;
 }
 
 /**
