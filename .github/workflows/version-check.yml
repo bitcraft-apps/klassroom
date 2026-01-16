@@ -1,0 +1,109 @@
+name: Version Check
+
+on:
+  pull_request:
+    types: [opened, edited, labeled, unlabeled, synchronize]
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    if: github.actor != 'dependabot[bot]' && github.actor != 'renovate[bot]'
+
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Check release labels
+        id: labels
+        run: |
+          LABELS='${{ toJSON(github.event.pull_request.labels.*.name) }}'
+
+          PATCH=$(echo "$LABELS" | jq -r 'map(select(. == "release:patch")) | length')
+          MINOR=$(echo "$LABELS" | jq -r 'map(select(. == "release:minor")) | length')
+          MAJOR=$(echo "$LABELS" | jq -r 'map(select(. == "release:major")) | length')
+          NO_RELEASE=$(echo "$LABELS" | jq -r 'map(select(. == "no-release")) | length')
+
+          TOTAL=$((PATCH + MINOR + MAJOR + NO_RELEASE))
+
+          if [ "$TOTAL" -eq 0 ]; then
+            echo "::error::Missing release label. Add one of: release:patch, release:minor, release:major, or no-release"
+            exit 1
+          fi
+
+          if [ "$TOTAL" -gt 1 ]; then
+            echo "::error::Multiple release labels found. Use exactly one label."
+            exit 1
+          fi
+
+          if [ "$NO_RELEASE" -eq 1 ]; then
+            echo "skip_version_check=true" >> "$GITHUB_OUTPUT"
+            echo "Release label: no-release (skipping version check)"
+          else
+            echo "skip_version_check=false" >> "$GITHUB_OUTPUT"
+            if [ "$PATCH" -eq 1 ]; then echo "Release label: release:patch"; fi
+            if [ "$MINOR" -eq 1 ]; then echo "Release label: release:minor"; fi
+            if [ "$MAJOR" -eq 1 ]; then echo "Release label: release:major"; fi
+          fi
+
+      - name: Check version bump
+        if: steps.labels.outputs.skip_version_check != 'true'
+        run: |
+          BASE_SHA="${{ github.event.pull_request.base.sha }}"
+
+          # Get current version from root package.json
+          CURRENT_VERSION=$(jq -r '.version // empty' package.json)
+          if [ -z "$CURRENT_VERSION" ]; then
+            echo "::error::No version field in root package.json. Add a version field to enable version tracking."
+            exit 1
+          fi
+
+          # Get base version
+          BASE_VERSION=$(git show "$BASE_SHA:package.json" | jq -r '.version // empty')
+          if [ -z "$BASE_VERSION" ]; then
+            echo "Base branch has no version field. Assuming this is the first versioned release."
+            echo "Current version: $CURRENT_VERSION"
+            exit 0
+          fi
+
+          echo "Base version: $BASE_VERSION"
+          echo "Current version: $CURRENT_VERSION"
+
+          # Compare versions using sort -V
+          if [ "$CURRENT_VERSION" = "$BASE_VERSION" ]; then
+            echo "::error::Version not bumped. Update version in package.json (current: $CURRENT_VERSION)"
+            exit 1
+          fi
+
+          HIGHER=$(printf '%s\n%s' "$BASE_VERSION" "$CURRENT_VERSION" | sort -V | tail -n1)
+          if [ "$HIGHER" != "$CURRENT_VERSION" ]; then
+            echo "::error::Version decreased. Current ($CURRENT_VERSION) is lower than base ($BASE_VERSION)"
+            exit 1
+          fi
+
+          echo "Version bump verified: $BASE_VERSION -> $CURRENT_VERSION"
+
+      - name: Check version sync
+        if: steps.labels.outputs.skip_version_check != 'true'
+        run: |
+          ROOT_VERSION=$(jq -r '.version // empty' package.json)
+          if [ -z "$ROOT_VERSION" ]; then
+            exit 0  # Already handled in previous step
+          fi
+
+          SYNC_ERROR=0
+          for PKG in packages/*/package.json; do
+            PKG_VERSION=$(jq -r '.version' "$PKG")
+            PKG_NAME=$(jq -r '.name' "$PKG")
+            if [ "$PKG_VERSION" != "$ROOT_VERSION" ]; then
+              echo "::error::Version mismatch: $PKG_NAME is $PKG_VERSION, expected $ROOT_VERSION"
+              SYNC_ERROR=1
+            fi
+          done
+
+          if [ "$SYNC_ERROR" -eq 1 ]; then
+            echo "::error::Package versions out of sync with root. All packages must have version $ROOT_VERSION"
+            exit 1
+          fi
+
+          echo "All package versions synchronized: $ROOT_VERSION"

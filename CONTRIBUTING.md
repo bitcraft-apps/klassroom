@@ -74,3 +74,22 @@ pnpm test
 1.  Make changes in the relevant package.
 2.  Run `pnpm build` to compile TypeScript.
 3.  Run `pnpm test` to verify changes.
+
+## Versioning
+
+This project uses synchronized versioning across all packages. Every PR must have exactly one release label:
+
+| Label           | When to use                                 |
+| --------------- | ------------------------------------------- |
+| `release:patch` | Bug fixes, documentation updates            |
+| `release:minor` | New features, non-breaking changes          |
+| `release:major` | Breaking changes                            |
+| `no-release`    | CI changes, refactoring with no user impact |
+
+For PRs with `release:patch`, `release:minor`, or `release:major`:
+
+1. Update the version in root `package.json`
+2. Update all `packages/*/package.json` to the same version
+3. Versions must follow [semver](https://semver.org/)
+
+The CI workflow validates label presence and version synchronization. Bot PRs (Dependabot, Renovate) are exempt from this check.
