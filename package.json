@@ -6,7 +6,7 @@
     "node": ">=22"
   },
   "scripts": {
-    "build": "tsc --build tsconfig.build.json",
+    "build": "tsc --build tsconfig.build.json && pnpm -F @klassroom/web build",
     "clean": "tsc --build --clean tsconfig.build.json",
     "test": "vitest run",
     "test:watch": "vitest",
