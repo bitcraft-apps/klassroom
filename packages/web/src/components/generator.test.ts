@@ -7,7 +7,7 @@ import {
   type GeneratorData,
   type GeneratorEvents,
 } from './generator.js';
-import type { ClassData, ClassPeriod, StudentNumber } from '@klassroom/core';
+import type { ClassPeriod, StudentNumber } from '@klassroom/core';
 
 // Mock @klassroom/core/browser
 vi.mock('@klassroom/core/browser', () => ({

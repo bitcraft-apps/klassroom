@@ -20,5 +20,5 @@ jobs:
           cache: 'pnpm'
       - run: pnpm install
       - run: pnpm build
-      # - run: pnpm lint  # Enable after linting is set up
+      - run: pnpm lint
       - run: pnpm test

@@ -186,6 +186,7 @@ describe('downloadFile', () => {
   it('sets correct href and download attributes on anchor', () => {
     let capturedAnchor: HTMLAnchorElement | null = null;
     clickSpy.mockImplementation(function (this: HTMLAnchorElement) {
+      // eslint-disable-next-line @typescript-eslint/no-this-alias -- Intentional capture for test assertion
       capturedAnchor = this;
     });
 
