@@ -156,10 +156,9 @@ describe('generate function', () => {
 
     await generate('/path/to/klasa-5b.xlsx', { date: '15 stycznia 2026' });
 
-    expect(generatePresentation).toHaveBeenCalledWith(
-      expect.anything(),
-      { meetingDate: '15 stycznia 2026' },
-    );
+    expect(generatePresentation).toHaveBeenCalledWith(expect.anything(), {
+      meetingDate: '15 stycznia 2026',
+    });
   });
 
   it('calls generator without options when date not provided', async () => {
@@ -177,9 +176,9 @@ describe('generate function', () => {
 
     await generate('/path/to/klasa-5b.xlsx');
 
-    expect(generatePresentation).toHaveBeenCalledWith(
-      expect.anything(),
-      { meetingDate: undefined, aiConclusions: undefined },
-    );
+    expect(generatePresentation).toHaveBeenCalledWith(expect.anything(), {
+      meetingDate: undefined,
+      aiConclusions: undefined,
+    });
   });
 });

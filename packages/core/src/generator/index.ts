@@ -1,9 +1,6 @@
 import type { ClassData } from '../types/index.js';
 import { renderChartToDataUrl, PLACEHOLDER_IMAGE } from './render-charts.js';
-import {
-  generatePresentationCore,
-  type GeneratePresentationCoreOptions,
-} from './core.js';
+import { generatePresentationCore, type GeneratePresentationCoreOptions } from './core.js';
 
 export type GeneratePresentationOptions = GeneratePresentationCoreOptions;
 

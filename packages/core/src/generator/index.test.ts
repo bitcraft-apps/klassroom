@@ -365,10 +365,7 @@ describe('generatePresentation', () => {
       await generatePresentation(data, { onChartRenderError: errorCallback });
 
       expect(errorCallback).toHaveBeenCalled();
-      expect(errorCallback).toHaveBeenCalledWith(
-        expect.any(String),
-        expect.any(Error),
-      );
+      expect(errorCallback).toHaveBeenCalledWith(expect.any(String), expect.any(Error));
 
       vi.restoreAllMocks();
     });

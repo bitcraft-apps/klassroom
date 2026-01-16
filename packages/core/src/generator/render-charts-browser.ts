@@ -17,9 +17,7 @@ export async function renderChartToDataUrl<T extends string>(
   config: ChartConfig<T>,
 ): Promise<string> {
   if (typeof document === 'undefined') {
-    throw new Error(
-      'renderChartToDataUrl requires a browser environment with DOM access',
-    );
+    throw new Error('renderChartToDataUrl requires a browser environment with DOM access');
   }
 
   const canvas = document.createElement('canvas');

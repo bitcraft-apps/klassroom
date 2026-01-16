@@ -180,7 +180,11 @@ describe('createFileUpload', () => {
     it('accepts valid XLSX file', () => {
       createFileUpload(container, events);
 
-      const file = createFile('test.xlsx', 1024, 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+      const file = createFile(
+        'test.xlsx',
+        1024,
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      );
       const dropZone = container.querySelector('.file-upload') as HTMLElement;
 
       dropZone.dispatchEvent(

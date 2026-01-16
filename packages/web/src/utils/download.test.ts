@@ -94,9 +94,7 @@ describe('extractPeriodId', () => {
   });
 
   it('handles period with extra text', () => {
-    expect(extractPeriodId('2024/2025 rok szkolny - Semestr 1 oceny')).toBe(
-      'semestr1',
-    );
+    expect(extractPeriodId('2024/2025 rok szkolny - Semestr 1 oceny')).toBe('semestr1');
   });
 });
 
@@ -107,10 +105,7 @@ describe('generatePresentationFilename', () => {
   });
 
   it('sanitizes class name', () => {
-    const result = generatePresentationFilename(
-      'Klasa 3A',
-      '2024/2025 - Semestr 1',
-    );
+    const result = generatePresentationFilename('Klasa 3A', '2024/2025 - Semestr 1');
     expect(result).toBe('Klasa_3A_semestr1.html');
   });
 

@@ -11,13 +11,7 @@ function createClassData(
     num: number;
     grades?: Array<{ subject: string; value: string | null }>;
     average?: number;
-    behavior?:
-      | 'exemplary'
-      | 'veryGood'
-      | 'good'
-      | 'acceptable'
-      | 'inappropriate'
-      | 'reprehensible';
+    behavior?: 'exemplary' | 'veryGood' | 'good' | 'acceptable' | 'inappropriate' | 'reprehensible';
   }>,
   metadata?: Partial<ClassData['metadata']>,
 ): ClassData {
@@ -80,9 +74,9 @@ describe('generatePresentationBrowser', () => {
     it('throws error when aiConclusions enabled without geminiApiKey', async () => {
       const data = createClassData([]);
 
-      await expect(
-        generatePresentationBrowser(data, { aiConclusions: true }),
-      ).rejects.toThrow('geminiApiKey is required when aiConclusions is enabled');
+      await expect(generatePresentationBrowser(data, { aiConclusions: true })).rejects.toThrow(
+        'geminiApiKey is required when aiConclusions is enabled',
+      );
     });
 
     it('passes validation when aiConclusions enabled with geminiApiKey', async () => {
