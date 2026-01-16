@@ -32,6 +32,7 @@ These are non-binding targets for a small team:
 
 - **Acknowledgment**: Within 7 days
 - **Assessment**: Within 14 days
+- **Public disclosure**: Coordinated with reporter, typically after fix is released (90-day maximum)
 
 ## Scope
 
@@ -42,6 +43,14 @@ The following are in scope for security reports:
 - `@klassroom/web`
 - https://klassroom.graczyk.dev
 
+### Out of Scope
+
+- Denial of service attacks
+- Social engineering attacks
+- Issues in unsupported versions
+
+For third-party dependency vulnerabilities, please report upstream. If the issue directly impacts Klassroom users, notify us as well.
+
 ## GDPR Considerations
 
 This tool processes student grade data from Polish schools. By design:
@@ -51,3 +60,11 @@ This tool processes student grade data from Polish schools. By design:
 - All processing happens locally (browser or CLI)
 
 **GDPR-related vulnerabilities are treated as high priority.** If you discover a way student names could leak into output, please report it immediately.
+
+## Safe Harbor
+
+We will not pursue legal action against security researchers who act in good faith and follow this policy.
+
+## Acknowledgments
+
+We credit security researchers in release notes with their permission. This project does not offer a bug bounty program.
