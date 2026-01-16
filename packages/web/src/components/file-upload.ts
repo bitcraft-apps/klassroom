@@ -64,10 +64,7 @@ function validateFile(file: File): string | null {
  * @param container - Parent element to mount the component into
  * @param events - Callback handlers for file selection and errors
  */
-export function createFileUpload(
-  container: HTMLElement,
-  events: FileUploadEvents,
-): void {
+export function createFileUpload(container: HTMLElement, events: FileUploadEvents): void {
   // Create DOM structure
   const errorId = `file-upload-error-${Date.now()}`;
 

@@ -13,10 +13,7 @@ export { generatePresentationBrowser } from './generator/browser.js';
 export type { BrowserGeneratePresentationOptions } from './generator/browser.js';
 
 // Browser-compatible chart renderer
-export {
-  renderChartToDataUrl,
-  PLACEHOLDER_IMAGE,
-} from './generator/render-charts-browser.js';
+export { renderChartToDataUrl, PLACEHOLDER_IMAGE } from './generator/render-charts-browser.js';
 
 // Chart configuration types (no Node.js dependencies)
 export type {

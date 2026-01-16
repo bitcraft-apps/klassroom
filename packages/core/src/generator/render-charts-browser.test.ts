@@ -21,8 +21,6 @@ describe('render-charts-browser module', () => {
       },
     };
 
-    await expect(renderChartToDataUrl(config)).rejects.toThrow(
-      'requires a browser environment',
-    );
+    await expect(renderChartToDataUrl(config)).rejects.toThrow('requires a browser environment');
   });
 });

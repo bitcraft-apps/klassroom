@@ -13,7 +13,4 @@ export { generatePresentation } from './generator/index.js';
 export type { GeneratePresentationOptions } from './generator/index.js';
 
 // Node.js chart renderer
-export {
-  renderChartToDataUrl,
-  PLACEHOLDER_IMAGE,
-} from './generator/render-charts.js';
+export { renderChartToDataUrl, PLACEHOLDER_IMAGE } from './generator/render-charts.js';

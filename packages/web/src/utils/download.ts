@@ -47,10 +47,7 @@ export function extractPeriodId(period: string): string {
  * @param period - Period string from ClassMetadata
  * @returns Generated filename
  */
-export function generatePresentationFilename(
-  className: string,
-  period: string,
-): string {
+export function generatePresentationFilename(className: string, period: string): string {
   const sanitizedClass = sanitizeFilename(className);
   const periodId = extractPeriodId(period);
   return `${sanitizedClass}_${periodId}.html`;

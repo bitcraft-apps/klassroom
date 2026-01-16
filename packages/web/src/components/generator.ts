@@ -5,10 +5,7 @@
 
 import { generatePresentationBrowser } from '@klassroom/core/browser';
 import type { ClassData } from '@klassroom/core';
-import {
-  downloadFile,
-  generatePresentationFilename,
-} from '../utils/download.js';
+import { downloadFile, generatePresentationFilename } from '../utils/download.js';
 import './generator.css';
 
 // Polish UI text

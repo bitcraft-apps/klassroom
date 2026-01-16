@@ -2,11 +2,7 @@
  * @vitest-environment jsdom
  */
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import {
-  createPreview,
-  type PreviewData,
-  type PreviewEvents,
-} from './preview.js';
+import { createPreview, type PreviewData, type PreviewEvents } from './preview.js';
 
 describe('createPreview', () => {
   let container: HTMLElement;
@@ -192,9 +188,7 @@ describe('createPreview', () => {
 
       createPreview(container, data, events);
 
-      const warningsSection = container.querySelector(
-        '.preview__section--warnings',
-      );
+      const warningsSection = container.querySelector('.preview__section--warnings');
       expect(warningsSection).toBeNull();
     });
 
@@ -203,9 +197,7 @@ describe('createPreview', () => {
 
       createPreview(container, data, events);
 
-      const warningsSection = container.querySelector(
-        '.preview__section--warnings',
-      );
+      const warningsSection = container.querySelector('.preview__section--warnings');
       expect(warningsSection).toBeTruthy();
     });
 
@@ -231,9 +223,7 @@ describe('createPreview', () => {
     it('calls onGenerate when generate button clicked', () => {
       createPreview(container, data, events);
 
-      const btn = container.querySelector(
-        '.preview__button--primary',
-      ) as HTMLButtonElement;
+      const btn = container.querySelector('.preview__button--primary') as HTMLButtonElement;
       btn.click();
 
       expect(events.onGenerate).toHaveBeenCalledTimes(1);
@@ -242,9 +232,7 @@ describe('createPreview', () => {
     it('calls onCancel when cancel button clicked', () => {
       createPreview(container, data, events);
 
-      const btn = container.querySelector(
-        '.preview__button--secondary',
-      ) as HTMLButtonElement;
+      const btn = container.querySelector('.preview__button--secondary') as HTMLButtonElement;
       btn.click();
 
       expect(events.onCancel).toHaveBeenCalledTimes(1);
@@ -257,9 +245,7 @@ describe('createPreview', () => {
 
       createPreview(container, data, events);
 
-      const btn = container.querySelector(
-        '.preview__button--primary',
-      ) as HTMLButtonElement;
+      const btn = container.querySelector('.preview__button--primary') as HTMLButtonElement;
       expect(btn.disabled).toBe(true);
     });
 
@@ -268,9 +254,7 @@ describe('createPreview', () => {
 
       createPreview(container, data, events);
 
-      const btn = container.querySelector(
-        '.preview__button--primary',
-      ) as HTMLButtonElement;
+      const btn = container.querySelector('.preview__button--primary') as HTMLButtonElement;
       expect(btn.disabled).toBe(false);
     });
 
@@ -279,9 +263,7 @@ describe('createPreview', () => {
 
       createPreview(container, data, events);
 
-      const btn = container.querySelector(
-        '.preview__button--primary',
-      ) as HTMLButtonElement;
+      const btn = container.querySelector('.preview__button--primary') as HTMLButtonElement;
       btn.click();
 
       expect(events.onGenerate).not.toHaveBeenCalled();

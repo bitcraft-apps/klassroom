@@ -66,13 +66,8 @@ export async function generatePresentationCore(
   chartContext: ChartRenderingContext,
   options?: GeneratePresentationCoreOptions,
 ): Promise<string> {
-  const {
-    metadata,
-    students,
-    classAttendance,
-    failureStatistics,
-    aggregateGradeDistribution,
-  } = data;
+  const { metadata, students, classAttendance, failureStatistics, aggregateGradeDistribution } =
+    data;
 
   // Calculate analytics
   const classAverage = calculateClassAverage(students);
@@ -104,12 +99,11 @@ export async function generatePresentationCore(
     }
   };
 
-  const [subjectChartImage, studentChartImage, aggregateGradesChartImage] =
-    await Promise.all([
-      renderChart(subjectChartConfig, 'subject averages'),
-      renderChart(studentChartConfig, 'student averages'),
-      renderChart(aggregateGradesChartConfig, 'aggregate grades'),
-    ]);
+  const [subjectChartImage, studentChartImage, aggregateGradesChartImage] = await Promise.all([
+    renderChart(subjectChartConfig, 'subject averages'),
+    renderChart(studentChartConfig, 'student averages'),
+    renderChart(aggregateGradesChartConfig, 'aggregate grades'),
+  ]);
 
   // Convert grade distribution to template-friendly format
   const gradeDistribution: GradeDistributionRow[] | null =
@@ -143,10 +137,7 @@ export async function generatePresentationCore(
       failureStatistics,
     };
     const { generateConclusions } = await import('../ai/index.js');
-    aiConclusionsText = await generateConclusions(
-      analyticsResult,
-      options.geminiApiKey,
-    );
+    aiConclusionsText = await generateConclusions(analyticsResult, options.geminiApiKey);
   }
 
   // Get top students (4.75+ average) sorted by average desc, then number asc

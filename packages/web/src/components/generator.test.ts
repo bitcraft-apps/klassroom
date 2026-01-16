@@ -2,11 +2,7 @@
  * @vitest-environment jsdom
  */
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import {
-  createGenerator,
-  type GeneratorData,
-  type GeneratorEvents,
-} from './generator.js';
+import { createGenerator, type GeneratorData, type GeneratorEvents } from './generator.js';
 import type { ClassPeriod, StudentNumber } from '@klassroom/core';
 
 // Mock @klassroom/core/browser
@@ -98,9 +94,7 @@ describe('createGenerator', () => {
     it('creates complete section (hidden initially)', () => {
       createGenerator(container, data, events);
 
-      const complete = container.querySelector(
-        '.generator__complete',
-      ) as HTMLElement;
+      const complete = container.querySelector('.generator__complete') as HTMLElement;
       expect(complete).toBeTruthy();
       expect(complete.hidden).toBe(true);
     });
@@ -169,9 +163,7 @@ describe('createGenerator', () => {
     });
 
     it('focuses retry button after generation error', async () => {
-      vi.mocked(generatePresentationBrowser).mockRejectedValue(
-        new Error('Failed'),
-      );
+      vi.mocked(generatePresentationBrowser).mockRejectedValue(new Error('Failed'));
 
       createGenerator(container, data, events);
 
@@ -192,9 +184,7 @@ describe('createGenerator', () => {
 
       await vi.runAllTimersAsync();
 
-      const errorText = container.querySelector(
-        '.generator__error-text',
-      ) as HTMLElement;
+      const errorText = container.querySelector('.generator__error-text') as HTMLElement;
       expect(errorText.title).toContain('Long error message for accessibility');
     });
   });
@@ -220,39 +210,29 @@ describe('createGenerator', () => {
 
       await vi.runAllTimersAsync();
 
-      const btn = container.querySelector(
-        '.generator__complete .generator__button--primary',
-      );
+      const btn = container.querySelector('.generator__complete .generator__button--primary');
       expect(btn?.textContent).toBe('Generuj kolejną');
     });
 
     it('displays retry button text in Polish', async () => {
-      vi.mocked(generatePresentationBrowser).mockRejectedValue(
-        new Error('Failed'),
-      );
+      vi.mocked(generatePresentationBrowser).mockRejectedValue(new Error('Failed'));
 
       createGenerator(container, data, events);
 
       await vi.runAllTimersAsync();
 
-      const btn = container.querySelector(
-        '.generator__error .generator__button--primary',
-      );
+      const btn = container.querySelector('.generator__error .generator__button--primary');
       expect(btn?.textContent).toBe('Spróbuj ponownie');
     });
 
     it('displays error message in Polish', async () => {
-      vi.mocked(generatePresentationBrowser).mockRejectedValue(
-        new Error('Failed'),
-      );
+      vi.mocked(generatePresentationBrowser).mockRejectedValue(new Error('Failed'));
 
       createGenerator(container, data, events);
 
       await vi.runAllTimersAsync();
 
-      expect(container.textContent).toContain(
-        'Wystąpił błąd podczas generowania prezentacji',
-      );
+      expect(container.textContent).toContain('Wystąpił błąd podczas generowania prezentacji');
     });
 
     it('updates progress step to preparing before download', async () => {
@@ -285,10 +265,7 @@ describe('createGenerator', () => {
 
       await vi.runAllTimersAsync();
 
-      expect(generatePresentationFilename).toHaveBeenCalledWith(
-        '3A',
-        '2024/2025 - Semestr 1',
-      );
+      expect(generatePresentationFilename).toHaveBeenCalledWith('3A', '2024/2025 - Semestr 1');
     });
 
     it('downloads file on successful generation', async () => {
@@ -304,12 +281,8 @@ describe('createGenerator', () => {
 
       await vi.runAllTimersAsync();
 
-      const progress = container.querySelector(
-        '.generator__progress',
-      ) as HTMLElement;
-      const complete = container.querySelector(
-        '.generator__complete',
-      ) as HTMLElement;
+      const progress = container.querySelector('.generator__progress') as HTMLElement;
+      const complete = container.querySelector('.generator__complete') as HTMLElement;
 
       expect(progress.hidden).toBe(true);
       expect(complete.hidden).toBe(false);
@@ -326,17 +299,13 @@ describe('createGenerator', () => {
 
   describe('error handling', () => {
     it('shows error section on generation failure', async () => {
-      vi.mocked(generatePresentationBrowser).mockRejectedValue(
-        new Error('Generation failed'),
-      );
+      vi.mocked(generatePresentationBrowser).mockRejectedValue(new Error('Generation failed'));
 
       createGenerator(container, data, events);
 
       await vi.runAllTimersAsync();
 
-      const progress = container.querySelector(
-        '.generator__progress',
-      ) as HTMLElement;
+      const progress = container.querySelector('.generator__progress') as HTMLElement;
       const error = container.querySelector('.generator__error') as HTMLElement;
 
       expect(progress.hidden).toBe(true);
@@ -344,9 +313,7 @@ describe('createGenerator', () => {
     });
 
     it('includes error message detail', async () => {
-      vi.mocked(generatePresentationBrowser).mockRejectedValue(
-        new Error('Chart rendering failed'),
-      );
+      vi.mocked(generatePresentationBrowser).mockRejectedValue(new Error('Chart rendering failed'));
 
       createGenerator(container, data, events);
 
@@ -356,9 +323,7 @@ describe('createGenerator', () => {
     });
 
     it('does not call download on error', async () => {
-      vi.mocked(generatePresentationBrowser).mockRejectedValue(
-        new Error('Failed'),
-      );
+      vi.mocked(generatePresentationBrowser).mockRejectedValue(new Error('Failed'));
 
       createGenerator(container, data, events);
 
@@ -374,13 +339,9 @@ describe('createGenerator', () => {
 
       await vi.runAllTimersAsync();
 
-      const errorText = container.querySelector(
-        '.generator__error-text',
-      ) as HTMLElement;
+      const errorText = container.querySelector('.generator__error-text') as HTMLElement;
       // Empty message falls back to generic Polish error text
-      expect(errorText.textContent).toBe(
-        'Wystąpił błąd podczas generowania prezentacji',
-      );
+      expect(errorText.textContent).toBe('Wystąpił błąd podczas generowania prezentacji');
       // No title attribute when message is empty (no tooltip needed)
       expect(errorText.title).toBe('');
     });
@@ -392,12 +353,8 @@ describe('createGenerator', () => {
 
       await vi.runAllTimersAsync();
 
-      const errorText = container.querySelector(
-        '.generator__error-text',
-      ) as HTMLElement;
-      expect(errorText.textContent).toBe(
-        'Wystąpił błąd podczas generowania prezentacji',
-      );
+      const errorText = container.querySelector('.generator__error-text') as HTMLElement;
+      expect(errorText.textContent).toBe('Wystąpił błąd podczas generowania prezentacji');
     });
   });
 
@@ -452,9 +409,7 @@ describe('createGenerator', () => {
       btn.click();
 
       // Progress should be visible again
-      const progress = container.querySelector(
-        '.generator__progress',
-      ) as HTMLElement;
+      const progress = container.querySelector('.generator__progress') as HTMLElement;
       const error = container.querySelector('.generator__error') as HTMLElement;
 
       expect(progress.hidden).toBe(false);
@@ -513,12 +468,8 @@ describe('createGenerator', () => {
       await vi.runAllTimersAsync();
 
       // Progress should still be visible (not transitioned to complete)
-      const progress = container.querySelector(
-        '.generator__progress',
-      ) as HTMLElement;
-      const complete = container.querySelector(
-        '.generator__complete',
-      ) as HTMLElement;
+      const progress = container.querySelector('.generator__progress') as HTMLElement;
+      const complete = container.querySelector('.generator__complete') as HTMLElement;
 
       expect(progress.hidden).toBe(false);
       expect(complete.hidden).toBe(true);
@@ -546,9 +497,7 @@ describe('createGenerator', () => {
       await vi.runAllTimersAsync();
 
       // Progress should still be visible (not transitioned to error)
-      const progress = container.querySelector(
-        '.generator__progress',
-      ) as HTMLElement;
+      const progress = container.querySelector('.generator__progress') as HTMLElement;
       const error = container.querySelector('.generator__error') as HTMLElement;
 
       expect(progress.hidden).toBe(false);
