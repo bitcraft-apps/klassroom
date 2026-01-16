@@ -57,6 +57,7 @@ pnpm test
 
 - **`packages/core`**: The core logic (parsing, analytics, charts, HTML generation).
 - **`packages/cli`**: The command-line interface wrapper.
+- **`packages/web`**: The web application (browser-based UI with PWA support).
 
 ## Workflow
 
