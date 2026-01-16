@@ -12,6 +12,8 @@ Klassroom generates HTML presentations for Polish parent-teacher meetings from s
 
 **Polish Output**: All user-facing output (chart labels, axis titles, UI text) must be in Polish. End users are Polish teachers and parents. Codebase uses English internally (variable names, comments, documentation).
 
+**Privacy Policy Sync**: The web app privacy policy (`packages/web/public/polityka-prywatnosci.html`) makes specific technical claims: no cookies, no server transmission of XLSX data, no persistent storage (localStorage/IndexedDB). Any change adding analytics, error reporting, or external data transmission REQUIRES updating this document to maintain GDPR compliance.
+
 ## Architecture
 
 pnpm monorepo: `@klassroom/core` (parsing, analytics, charts, HTML generation) → `@klassroom/cli` (command-line interface) → `@klassroom/web` (future browser UI).

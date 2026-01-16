@@ -1,0 +1,398 @@
+<!doctype html>
+<!--
+  UWAGA DLA OSÓB WDRAŻAJĄCYCH WŁASNĄ INSTANCJĘ:
+  Ta polityka prywatności dotyczy oficjalnej instancji klassroom.bitcraft.pl.
+  Jeśli hostujesz własną instancję tej aplikacji, musisz dostosować tę politykę
+  do swoich danych (nazwa administratora, dane kontaktowe, informacje o hostingu).
+  Jako operator własnej instancji stajesz się administratorem danych w rozumieniu RODO.
+-->
+<html lang="pl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Polityka prywatności aplikacji Klassroom - informacje o przetwarzaniu danych zgodnie z RODO" />
+    <meta name="theme-color" content="#2563eb" />
+    <link rel="icon" href="/favicon.ico" sizes="32x32" />
+    <link rel="icon" href="/icon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <title>Polityka prywatności - Klassroom</title>
+    <style>
+      :root {
+        --color-primary: #2563eb;
+        --color-text: #1f2937;
+        --color-text-light: #6b7280;
+        --color-bg: #ffffff;
+        --color-border: #e5e7eb;
+        --color-notice-bg: #eff6ff;
+        --color-notice-border: #bfdbfe;
+        --space-2: 0.5rem;
+        --space-4: 1rem;
+        --space-6: 1.5rem;
+        --space-8: 2rem;
+      }
+
+      *, *::before, *::after { box-sizing: border-box; }
+
+      body {
+        margin: 0;
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        font-size: 1rem;
+        line-height: 1.5;
+        color: var(--color-text);
+        background-color: var(--color-bg);
+        -webkit-font-smoothing: antialiased;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .page-header {
+        padding: var(--space-4);
+        text-align: center;
+        border-bottom: 1px solid var(--color-border);
+      }
+      .page-header__title {
+        margin: 0;
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--color-primary);
+      }
+      .page-header__subtitle {
+        margin: var(--space-2) 0 0;
+        font-size: 0.875rem;
+        color: var(--color-text-light);
+      }
+
+      .content {
+        flex: 1;
+        padding: var(--space-6) var(--space-4);
+        max-width: 40rem;
+        margin: 0 auto;
+        width: 100%;
+      }
+      .content h2 {
+        font-size: 1.25rem;
+        font-weight: 600;
+        margin: var(--space-8) 0 var(--space-4);
+        color: var(--color-text);
+      }
+      .content h2:first-child {
+        margin-top: 0;
+      }
+      .content p {
+        margin: 0 0 var(--space-4);
+      }
+      .content ul {
+        margin: 0 0 var(--space-4);
+        padding-left: var(--space-6);
+      }
+      .content li {
+        margin-bottom: var(--space-2);
+      }
+      .content a {
+        color: var(--color-primary);
+        text-decoration: none;
+      }
+      .content a:hover {
+        text-decoration: underline;
+      }
+      .content a:focus-visible {
+        outline: 2px solid var(--color-primary);
+        outline-offset: 2px;
+        border-radius: 2px;
+      }
+
+      .scope-notice {
+        font-size: 0.875rem;
+        color: var(--color-text-light);
+        padding: var(--space-2) var(--space-4);
+        background: #f9fafb;
+        border-radius: 0.25rem;
+        margin-bottom: var(--space-4);
+      }
+
+      .notice {
+        background-color: var(--color-notice-bg);
+        border: 1px solid var(--color-notice-border);
+        border-radius: 0.5rem;
+        padding: var(--space-4);
+        margin-bottom: var(--space-6);
+      }
+      .notice p {
+        margin-bottom: var(--space-2);
+      }
+      .notice p:last-child {
+        margin-bottom: 0;
+      }
+
+      .page-footer {
+        padding: var(--space-4);
+        text-align: center;
+        border-top: 1px solid var(--color-border);
+      }
+      .page-footer__links {
+        margin: 0;
+        font-size: 0.75rem;
+      }
+      .page-footer__links a {
+        color: var(--color-text-light);
+        text-decoration: none;
+        transition: color 0.15s;
+      }
+      .page-footer__links a:hover {
+        color: var(--color-primary);
+        text-decoration: underline;
+      }
+      .page-footer__links a:focus-visible {
+        outline: 2px solid var(--color-primary);
+        outline-offset: 2px;
+        border-radius: 2px;
+      }
+      .page-footer__separator {
+        margin: 0 var(--space-2);
+        color: var(--color-border);
+      }
+
+      @media (min-width: 640px) {
+        .page-header { padding: var(--space-6); }
+        .page-header__title { font-size: 1.875rem; }
+        .page-header__subtitle { font-size: 1rem; }
+        .content { padding: var(--space-8) var(--space-6); }
+        .page-footer { padding: var(--space-6); }
+        .page-footer__links { font-size: 0.875rem; }
+      }
+    </style>
+  </head>
+  <body>
+    <header class="page-header">
+      <h1 class="page-header__title">Klassroom</h1>
+      <p class="page-header__subtitle">Polityka prywatności</p>
+    </header>
+
+    <main class="content">
+      <p class="scope-notice">
+        <strong>Zakres:</strong> Ta polityka prywatności dotyczy wyłącznie oficjalnej
+        instancji aplikacji dostępnej pod adresem
+        <a href="https://klassroom.bitcraft.pl">klassroom.bitcraft.pl</a>.
+        Jeśli korzystasz z innej instancji, skontaktuj się z jej operatorem.
+      </p>
+
+      <p><em>Ostatnia aktualizacja: 16 stycznia 2026</em></p>
+
+      <div class="notice">
+        <p>
+          <strong>Ważna informacja:</strong> Klassroom to oprogramowanie działające
+          wyłącznie lokalnie w przeglądarce internetowej. Bitcraft Apps udostępnia
+          kod aplikacji i hosting strony internetowej, ale <strong>nie przetwarza
+          danych osobowych z plików XLSX</strong> przesyłanych przez użytkowników –
+          dane te nigdy nie opuszczają urządzenia użytkownika.
+        </p>
+        <p>
+          Nauczyciel lub szkoła korzystająca z aplikacji jest administratorem
+          przetwarzanych przez siebie danych uczniów i ponosi odpowiedzialność
+          za zgodność z RODO.
+        </p>
+      </div>
+
+      <h2>1. Administrator danych</h2>
+      <p>
+        <strong>Dane techniczne (hosting):</strong> Administratorem danych technicznych
+        związanych z korzystaniem ze strony internetowej (adresy IP, informacje o przeglądarce)
+        jest Szymon Graczyk, prowadzący jednoosobową działalność gospodarczą Bitcraft
+        (NIP: 6422997504, REGON: 243276930). Pełne dane rejestrowe są dostępne w
+        <a href="https://aplikacja.ceidg.gov.pl" target="_blank" rel="noopener noreferrer">CEIDG</a>.
+        Kontakt w sprawach ochrony danych: <a href="mailto:szymon@graczyk.dev">szymon@graczyk.dev</a>.
+      </p>
+      <p>
+        <strong>Dane z plików XLSX (dane uczniów):</strong> Bitcraft Apps nie jest
+        administratorem tych danych. Pliki XLSX są przetwarzane wyłącznie lokalnie
+        w przeglądarce użytkownika i nigdy nie są przesyłane na serwery Bitcraft Apps.
+        Administratorem danych uczniów jest szkoła lub nauczyciel korzystający z aplikacji.
+        W sprawach dotyczących danych uczniów należy kontaktować się z właściwą szkołą.
+      </p>
+      <p>
+        Zgodnie z art. 37 RODO, wyznaczenie inspektora ochrony danych (IOD/DPO) nie jest
+        wymagane — administrator nie jest organem publicznym, a przetwarzanie danych nie
+        obejmuje regularnego monitorowania osób na dużą skalę ani przetwarzania szczególnych
+        kategorii danych.
+      </p>
+
+      <h2>2. Jakie dane są przetwarzane</h2>
+      <p><strong>Dane techniczne zbierane przez Bitcraft Apps (via Cloudflare):</strong></p>
+      <ul>
+        <li>Adresy IP</li>
+        <li>Informacje o przeglądarce i urządzeniu</li>
+        <li>Data i czas dostępu do strony</li>
+      </ul>
+      <p><strong>Dane przetwarzane lokalnie przez użytkownika (w przeglądarce):</strong></p>
+      <p>Aplikacja Klassroom umożliwia przetwarzanie danych z plików XLSX eksportowanych z systemu Vulcan UONET+:</p>
+      <ul>
+        <li>Imiona i nazwiska uczniów</li>
+        <li>Numery w dzienniku</li>
+        <li>Oceny z przedmiotów</li>
+        <li>Oceny zachowania</li>
+        <li>Średnie ocen</li>
+        <li>Dane o frekwencji klasy</li>
+      </ul>
+      <p>
+        <strong>Bitcraft Apps nie ma dostępu do powyższych danych uczniów</strong> –
+        są one przetwarzane wyłącznie na urządzeniu użytkownika.
+      </p>
+
+      <h2>3. Gdzie dane są przetwarzane</h2>
+      <p>
+        <strong>Dane techniczne:</strong> Przetwarzane przez Cloudflare na serwerach
+        zlokalizowanych globalnie (szczegóły w sekcji 12).
+      </p>
+      <p>
+        <strong>Dane z plików XLSX:</strong> Przetwarzane wyłącznie lokalnie w przeglądarce
+        użytkownika. Plik XLSX nigdy nie jest wysyłany na żaden serwer. Aplikacja działa
+        w całości po stronie klienta (w przeglądarce) i nie przesyła danych osobowych
+        uczniów przez internet.
+      </p>
+
+      <h2>4. Cel przetwarzania</h2>
+      <p>
+        <strong>Dane techniczne:</strong> Przetwarzane w celu zapewnienia bezpieczeństwa
+        i prawidłowego funkcjonowania strony internetowej.
+      </p>
+      <p>
+        <strong>Dane z plików XLSX:</strong> Oprogramowanie Klassroom umożliwia użytkownikom
+        (nauczycielom) generowanie prezentacji HTML z podsumowaniem ocen klasy, przeznaczonych
+        do wyświetlenia podczas zebrań z rodzicami. Cel przetwarzania określa użytkownik
+        (nauczyciel/szkoła) jako administrator tych danych.
+      </p>
+
+      <h2>5. Podstawa prawna</h2>
+      <p>
+        <strong>Dane techniczne:</strong> Podstawą prawną przetwarzania danych technicznych
+        przez Bitcraft Apps jest prawnie uzasadniony interes (art. 6 ust. 1 lit. f RODO)
+        polegający na zapewnieniu bezpieczeństwa i prawidłowego funkcjonowania strony internetowej.
+      </p>
+      <p>
+        <strong>Dane z plików XLSX:</strong> Bitcraft Apps nie przetwarza tych danych i nie jest
+        ich administratorem. Szkoły korzystające z aplikacji Klassroom przetwarzają dane uczniów
+        zazwyczaj na podstawie art. 6 ust. 1 lit. e RODO (zadanie realizowane w interesie publicznym)
+        w związku z przepisami prawa oświatowego. Użytkownik (nauczyciel/szkoła) jest odpowiedzialny
+        za posiadanie właściwej podstawy prawnej do przetwarzania danych uczniów.
+      </p>
+
+      <h2>6. Obowiązek podania danych</h2>
+      <p>
+        <strong>Dane techniczne:</strong> Podanie danych technicznych (adres IP, informacje
+        o przeglądarce) jest wymogiem technicznym — dane te są automatycznie przesyłane
+        przez przeglądarkę podczas każdego połączenia ze stroną internetową. Bez tych danych
+        wyświetlenie strony nie jest możliwe.
+      </p>
+      <p>
+        <strong>Dane z plików XLSX:</strong> Korzystanie z aplikacji Klassroom i przetwarzanie
+        pliku XLSX jest całkowicie dobrowolne. Niepodanie tych danych oznacza jedynie
+        niemożność wygenerowania prezentacji z ocenami.
+      </p>
+
+      <h2>7. Odbiorcy danych</h2>
+      <p>
+        <strong>Dane techniczne:</strong> Mogą być przetwarzane przez dostawcę hostingu (Cloudflare) –
+        szczegóły w sekcji 12.
+      </p>
+      <p>
+        <strong>Dane z plików XLSX:</strong> Nie są udostępniane żadnym podmiotom, w tym Bitcraft Apps.
+        Plik XLSX i jego zawartość pozostają wyłącznie na urządzeniu użytkownika i nigdy nie opuszczają
+        przeglądarki.
+      </p>
+
+      <h2>8. Dane w wygenerowanej prezentacji</h2>
+      <p>
+        Oprogramowanie Klassroom zostało zaprojektowane tak, aby wygenerowana prezentacja zawierała
+        <strong>wyłącznie numery uczniów w dzienniku, nigdy imiona ani nazwiska</strong>.
+        Dzięki temu prezentację można bezpiecznie wyświetlić podczas zebrania z rodzicami,
+        zachowując prywatność poszczególnych uczniów.
+      </p>
+
+      <h2>9. Okres przechowywania danych</h2>
+      <p>
+        <strong>Dane techniczne:</strong> Przechowywane przez Cloudflare zgodnie z ich
+        <a href="https://www.cloudflare.com/privacypolicy/" target="_blank" rel="noopener noreferrer">polityką retencji</a>.
+      </p>
+      <p>
+        <strong>Dane z plików XLSX:</strong> Przechowywane wyłącznie w pamięci przeglądarki podczas
+        sesji użytkowania aplikacji. <strong>Po zamknięciu karty przeglądarki lub strony wszystkie
+        dane są automatycznie usuwane.</strong> Aplikacja nie zapisuje danych w localStorage,
+        IndexedDB ani żadnym innym trwałym magazynie danych.
+      </p>
+
+      <h2>10. Prawa użytkownika</h2>
+      <p>Zgodnie z RODO przysługują Państwu następujące prawa:</p>
+      <ul>
+        <li>Prawo dostępu do danych (art. 15 RODO)</li>
+        <li>Prawo do sprostowania danych (art. 16 RODO)</li>
+        <li>Prawo do usunięcia danych (art. 17 RODO)</li>
+        <li>Prawo do ograniczenia przetwarzania (art. 18 RODO)</li>
+        <li>Prawo do przenoszenia danych (art. 20 RODO)</li>
+        <li>Prawo do wniesienia sprzeciwu (art. 21 RODO)</li>
+      </ul>
+      <p>
+        <strong>W odniesieniu do danych technicznych:</strong> W celu realizacji powyższych praw
+        w zakresie danych przetwarzanych przez Bitcraft Apps (adresy IP, dane przeglądarki),
+        prosimy o kontakt na adres e-mail wskazany w sekcji 1.
+      </p>
+      <p>
+        <strong>W odniesieniu do danych uczniów z plików XLSX:</strong> Bitcraft Apps nie ma
+        dostępu do tych danych – są one przetwarzane wyłącznie lokalnie na urządzeniu użytkownika.
+        W celu realizacji praw dotyczących danych uczniów należy skontaktować się z administratorem
+        tych danych, czyli szkołą. Użytkownik może również samodzielnie usunąć dane poprzez
+        zamknięcie strony aplikacji.
+      </p>
+      <p>
+        Przysługuje Państwu również prawo do wniesienia skargi do organu nadzorczego – Prezesa Urzędu
+        Ochrony Danych Osobowych (ul. Stawki 2, 00-193 Warszawa,
+        <a href="https://uodo.gov.pl" target="_blank" rel="noopener noreferrer">uodo.gov.pl</a>).
+      </p>
+
+      <h2>11. Pliki cookie i Service Worker</h2>
+      <p>
+        Aplikacja nie wykorzystuje plików cookie do śledzenia użytkowników ani w celach marketingowych.
+        Service Worker jest używany wyłącznie do buforowania plików aplikacji (HTML, CSS, JavaScript)
+        w celu umożliwienia działania offline. <strong>Service Worker nie przechowuje żadnych danych osobowych.</strong>
+      </p>
+
+      <h2>12. Hosting i przekazywanie danych</h2>
+      <p>
+        Aplikacja jest hostowana na platformie Cloudflare Pages. Cloudflare może zbierać podstawowe
+        dane techniczne (adresy IP, informacje o przeglądarce) zgodnie ze swoją polityką prywatności:
+        <a href="https://www.cloudflare.com/privacypolicy/" target="_blank" rel="noopener noreferrer">cloudflare.com/privacypolicy</a>.
+        Cloudflare może przekazywać te dane techniczne do państw trzecich (w tym USA) na podstawie
+        standardowych klauzul umownych.
+      </p>
+      <p>
+        <strong>Należy podkreślić, że dane z plików XLSX (dane uczniów) nie są w żaden sposób przesyłane
+        do Cloudflare ani żadnego innego serwera</strong> – przetwarzanie odbywa się wyłącznie lokalnie
+        w przeglądarce.
+      </p>
+
+      <h2>13. Zautomatyzowane podejmowanie decyzji</h2>
+      <p>
+        Aplikacja nie stosuje zautomatyzowanego podejmowania decyzji ani profilowania w rozumieniu
+        art. 22 RODO.
+      </p>
+
+      <h2>14. Charakter dokumentu</h2>
+      <p>
+        Oprogramowanie Klassroom jest udostępniane na
+        <a href="https://github.com/bitcraft-apps/klassroom/blob/main/LICENSE" target="_blank" rel="noopener noreferrer">licencji MIT</a>,
+        bez jakichkolwiek gwarancji. Niniejsza polityka prywatności ma charakter informacyjny
+        i opisuje aktualne praktyki dotyczące prywatności. Nie stanowi ona porady prawnej.
+        W przypadku wątpliwości dotyczących zgodności z RODO, zalecamy konsultację z prawnikiem
+        lub inspektorem ochrony danych.
+      </p>
+    </main>
+
+    <footer class="page-footer">
+      <p class="page-footer__links">
+        <a href="/">Powrót do aplikacji</a>
+        <span class="page-footer__separator" aria-hidden="true">·</span>
+        <a href="https://github.com/bitcraft-apps/klassroom" target="_blank" rel="noopener noreferrer">GitHub</a>
+      </p>
+    </footer>
+  </body>
+</html>
