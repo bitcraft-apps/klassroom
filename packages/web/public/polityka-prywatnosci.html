@@ -1,0 +1,240 @@
+<!doctype html>
+<html lang="pl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Polityka prywatności aplikacji Klassroom - informacje o przetwarzaniu danych zgodnie z RODO" />
+    <meta name="theme-color" content="#2563eb" />
+    <link rel="icon" href="/favicon.ico" sizes="32x32" />
+    <link rel="icon" href="/icon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <title>Polityka prywatności - Klassroom</title>
+    <style>
+      :root {
+        --color-primary: #2563eb;
+        --color-text: #1f2937;
+        --color-text-light: #6b7280;
+        --color-bg: #ffffff;
+        --color-border: #e5e7eb;
+        --space-2: 0.5rem;
+        --space-4: 1rem;
+        --space-6: 1.5rem;
+        --space-8: 2rem;
+      }
+
+      *, *::before, *::after { box-sizing: border-box; }
+
+      body {
+        margin: 0;
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        font-size: 1rem;
+        line-height: 1.5;
+        color: var(--color-text);
+        background-color: var(--color-bg);
+        -webkit-font-smoothing: antialiased;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .page-header {
+        padding: var(--space-4);
+        text-align: center;
+        border-bottom: 1px solid var(--color-border);
+      }
+      .page-header__title {
+        margin: 0;
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--color-primary);
+      }
+      .page-header__subtitle {
+        margin: var(--space-2) 0 0;
+        font-size: 0.875rem;
+        color: var(--color-text-light);
+      }
+
+      .content {
+        flex: 1;
+        padding: var(--space-6) var(--space-4);
+        max-width: 40rem;
+        margin: 0 auto;
+        width: 100%;
+      }
+      .content h2 {
+        font-size: 1.25rem;
+        font-weight: 600;
+        margin: var(--space-8) 0 var(--space-4);
+        color: var(--color-text);
+      }
+      .content h2:first-child {
+        margin-top: 0;
+      }
+      .content p {
+        margin: 0 0 var(--space-4);
+      }
+      .content ul {
+        margin: 0 0 var(--space-4);
+        padding-left: var(--space-6);
+      }
+      .content li {
+        margin-bottom: var(--space-2);
+      }
+      .content a {
+        color: var(--color-primary);
+        text-decoration: none;
+      }
+      .content a:hover {
+        text-decoration: underline;
+      }
+      .content a:focus-visible {
+        outline: 2px solid var(--color-primary);
+        outline-offset: 2px;
+        border-radius: 2px;
+      }
+
+      .page-footer {
+        padding: var(--space-4);
+        text-align: center;
+        border-top: 1px solid var(--color-border);
+      }
+      .page-footer__links {
+        margin: 0;
+        font-size: 0.75rem;
+      }
+      .page-footer__links a {
+        color: var(--color-text-light);
+        text-decoration: none;
+        transition: color 0.15s;
+      }
+      .page-footer__links a:hover {
+        color: var(--color-primary);
+        text-decoration: underline;
+      }
+      .page-footer__links a:focus-visible {
+        outline: 2px solid var(--color-primary);
+        outline-offset: 2px;
+        border-radius: 2px;
+      }
+      .page-footer__separator {
+        margin: 0 var(--space-2);
+        color: var(--color-border);
+      }
+
+      @media (min-width: 640px) {
+        .page-header { padding: var(--space-6); }
+        .page-header__title { font-size: 1.875rem; }
+        .page-header__subtitle { font-size: 1rem; }
+        .content { padding: var(--space-8) var(--space-6); }
+        .page-footer { padding: var(--space-6); }
+        .page-footer__links { font-size: 0.875rem; }
+      }
+    </style>
+  </head>
+  <body>
+    <header class="page-header">
+      <h1 class="page-header__title">Klassroom</h1>
+      <p class="page-header__subtitle">Polityka prywatności</p>
+    </header>
+
+    <main class="content">
+      <h2>1. Administrator danych</h2>
+      <p>
+        Administratorem danych jest Bitcraft Apps. W sprawach związanych z przetwarzaniem danych
+        osobowych można kontaktować się przez repozytorium projektu na GitHub:
+        <a href="https://github.com/bitcraft-apps/klassroom" target="_blank" rel="noopener noreferrer">github.com/bitcraft-apps/klassroom</a>.
+      </p>
+
+      <h2>2. Jakie dane przetwarzamy</h2>
+      <p>Aplikacja Klassroom przetwarza dane zawarte w plikach XLSX eksportowanych z systemu Vulcan UONET+:</p>
+      <ul>
+        <li>Imiona i nazwiska uczniów</li>
+        <li>Numery w dzienniku</li>
+        <li>Oceny z przedmiotów</li>
+        <li>Oceny zachowania</li>
+        <li>Średnie ocen</li>
+        <li>Dane o frekwencji klasy</li>
+      </ul>
+
+      <h2>3. Gdzie dane są przetwarzane</h2>
+      <p>
+        <strong>Wszystkie dane są przetwarzane wyłącznie lokalnie w przeglądarce użytkownika.</strong>
+        Plik XLSX nigdy nie jest wysyłany na żaden serwer. Aplikacja działa w całości po stronie klienta
+        (w przeglądarce) i nie przesyła danych osobowych przez internet.
+      </p>
+
+      <h2>4. Cel przetwarzania</h2>
+      <p>
+        Dane są przetwarzane wyłącznie w celu wygenerowania prezentacji HTML z podsumowaniem ocen klasy.
+        Prezentacja jest przeznaczona do wyświetlenia podczas zebrań z rodzicami.
+      </p>
+
+      <h2>5. Podstawa prawna</h2>
+      <p>
+        Podstawą prawną przetwarzania danych jest zgoda użytkownika wyrażona poprzez świadome wybranie
+        i załadowanie pliku XLSX do aplikacji (art. 6 ust. 1 lit. a RODO).
+      </p>
+
+      <h2>6. Odbiorcy danych</h2>
+      <p>
+        Dane osobowe nie są udostępniane żadnym podmiotom trzecim. Plik XLSX i jego zawartość pozostają
+        wyłącznie na urządzeniu użytkownika.
+      </p>
+
+      <h2>7. Dane w wygenerowanej prezentacji</h2>
+      <p>
+        <strong>Wygenerowana prezentacja zawiera wyłącznie numery uczniów w dzienniku, nigdy imiona ani nazwiska.</strong>
+        Dzięki temu prezentację można bezpiecznie wyświetlić podczas zebrania z rodzicami, zachowując
+        prywatność poszczególnych uczniów.
+      </p>
+
+      <h2>8. Okres przechowywania danych</h2>
+      <p>
+        Dane są przechowywane wyłącznie w pamięci przeglądarki podczas sesji użytkowania aplikacji.
+        <strong>Po zamknięciu karty przeglądarki lub strony wszystkie dane są automatycznie usuwane.</strong>
+        Aplikacja nie zapisuje danych w localStorage, IndexedDB ani żadnym innym trwałym magazynie danych.
+      </p>
+
+      <h2>9. Prawa użytkownika</h2>
+      <p>Zgodnie z RODO przysługują Państwu następujące prawa:</p>
+      <ul>
+        <li>Prawo dostępu do danych (art. 15 RODO)</li>
+        <li>Prawo do sprostowania danych (art. 16 RODO)</li>
+        <li>Prawo do usunięcia danych (art. 17 RODO)</li>
+        <li>Prawo do ograniczenia przetwarzania (art. 18 RODO)</li>
+        <li>Prawo do przenoszenia danych (art. 20 RODO)</li>
+        <li>Prawo do wniesienia sprzeciwu (art. 21 RODO)</li>
+      </ul>
+      <p>
+        Ze względu na lokalny charakter przetwarzania (dane pozostają wyłącznie na urządzeniu użytkownika),
+        realizacja tych praw odbywa się poprzez zamknięcie strony aplikacji, co automatycznie usuwa wszystkie dane.
+      </p>
+
+      <h2>10. Pliki cookie i Service Worker</h2>
+      <p>
+        Aplikacja nie wykorzystuje plików cookie do śledzenia użytkowników ani w celach marketingowych.
+        Service Worker jest używany wyłącznie do buforowania plików aplikacji (HTML, CSS, JavaScript)
+        w celu umożliwienia działania offline. <strong>Service Worker nie przechowuje żadnych danych osobowych.</strong>
+      </p>
+
+      <h2>11. Hosting</h2>
+      <p>
+        Aplikacja jest hostowana na platformie Cloudflare Pages. Cloudflare może zbierać podstawowe
+        dane techniczne (adresy IP, informacje o przeglądarce) zgodnie ze swoją polityką prywatności:
+        <a href="https://www.cloudflare.com/privacypolicy/" target="_blank" rel="noopener noreferrer">cloudflare.com/privacypolicy</a>.
+      </p>
+      <p>
+        Należy podkreślić, że dane z plików XLSX nie są w żaden sposób przesyłane do Cloudflare ani
+        żadnego innego serwera.
+      </p>
+    </main>
+
+    <footer class="page-footer">
+      <p class="page-footer__links">
+        <a href="/">Powrót do aplikacji</a>
+        <span class="page-footer__separator" aria-hidden="true">·</span>
+        <a href="https://github.com/bitcraft-apps/klassroom" target="_blank" rel="noopener noreferrer">GitHub</a>
+      </p>
+    </footer>
+  </body>
+</html>
