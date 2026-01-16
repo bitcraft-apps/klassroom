@@ -8,8 +8,7 @@ import {
   type GeneratePresentationCoreOptions,
 } from './core.js';
 
-export interface BrowserGeneratePresentationOptions
-  extends GeneratePresentationCoreOptions {}
+export type BrowserGeneratePresentationOptions = GeneratePresentationCoreOptions;
 
 /**
  * Generates a self-contained HTML presentation for a parent-teacher meeting.
