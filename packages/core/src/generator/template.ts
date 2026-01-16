@@ -225,9 +225,14 @@ tr:hover {
   line-height: 1.6;
 }
 @media print {
+  @page { size: A4; margin: 2cm; }
+
   body {
-    background: white;
+    font-size: 12pt;
+    color: #000;
+    background: #fff;
   }
+
   .slide {
     min-height: auto;
     padding: 2rem;
@@ -238,6 +243,15 @@ tr:hover {
   .slide:last-child {
     page-break-after: avoid;
   }
+
+  .chart-container, table, figure {
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+
+  h1, h2 { page-break-before: always; }
+  h1:first-of-type { page-break-before: avoid; }
+
   .stat-card {
     box-shadow: none;
     border: 1px solid #d1d5db;
@@ -248,6 +262,8 @@ tr:hover {
   table {
     box-shadow: none;
   }
+
+  .no-print { display: none; }
 }
 `;
 

@@ -168,9 +168,14 @@ tr:hover {
   line-height: 1.6;
 }
 @media print {
+  @page { size: A4; margin: 2cm; }
+
   body {
-    background: white;
+    font-size: 12pt;
+    color: #000;
+    background: #fff;
   }
+
   .slide {
     min-height: auto;
     padding: 2rem;
@@ -181,6 +186,15 @@ tr:hover {
   .slide:last-child {
     page-break-after: avoid;
   }
+
+  .chart-container, table, figure {
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+
+  h1, h2 { page-break-before: always; }
+  h1:first-of-type { page-break-before: avoid; }
+
   .stat-card {
     box-shadow: none;
     border: 1px solid #d1d5db;
@@ -191,6 +205,8 @@ tr:hover {
   table {
     box-shadow: none;
   }
+
+  .no-print { display: none; }
 }
 </style></head><body><section class="slide title-slide"><h1>Zebranie z rodzicami</h1><div class="metadata"><p><strong>Klasa:</strong> 5b</p><p><strong>Semestr:</strong> 2024/2025 - Semestr 1</p><p><strong>Wychowawca:</strong> Jan Kowalski</p><p><strong>Data:</strong> 15 stycznia 2025</p></div></section><section class="slide"><h2>Podsumowanie klasy</h2><div class="stats-grid"><div class="stat-card"><div class="value">5</div><div class="label">Liczba uczniów</div></div><div class="stat-card"><div class="value">4.35</div><div class="label">Średnia klasy</div></div><div class="stat-card"><div class="value">3.50</div><div class="label">Najniższa średnia</div></div><div class="stat-card"><div class="value">5.25</div><div class="label">Najwyższa średnia</div></div></div></section><section class="slide"><h2>Średnie ocen z przedmiotów</h2><div class="chart-container"><img src="data:image/png;base64,[BASE64_DATA]" alt="Wykres średnich ocen z przedmiotów"></div></section><section class="slide"><h2>Rozkład ocen</h2><table><thead><tr><th scope="col">Przedmiot</th><th scope="col">1</th><th scope="col">2</th><th scope="col">3</th><th scope="col">4</th><th scope="col">5</th><th scope="col">6</th></tr></thead><tbody><tr><td>Historia</td><td>0</td><td>0</td><td>1</td><td>2</td><td>2</td><td>0</td></tr><tr><td>Język polski</td><td>0</td><td>0</td><td>1</td><td>2</td><td>2</td><td>0</td></tr><tr><td>Matematyka</td><td>0</td><td>0</td><td>1</td><td>1</td><td>2</td><td>1</td></tr><tr><td>Przyroda</td><td>0</td><td>0</td><td>0</td><td>3</td><td>2</td><td>0</td></tr></tbody></table></section><section class="slide"><h2>Średnie ocen uczniów</h2><div class="chart-container"><img src="data:image/png;base64,[BASE64_DATA]" alt="Wykres średnich ocen uczniów"></div></section><section class="slide"><h2>Najwyższe średnie</h2><p class="slide-subtitle">Średnia 4,75 i wyżej (2 uczniów)</p><table><thead><tr><th scope="col">Numer ucznia</th><th scope="col">Średnia</th></tr></thead><tbody><tr><td>1</td><td>5,25</td></tr><tr><td>5</td><td>4,75</td></tr></tbody></table></section><section class="slide"><h2>Frekwencja i zagrożenia</h2><div class="stats-grid"><div class="stat-card"><div class="value">92,5%</div><div class="label">Średnia frekwencja klasy (stan na 10.01.2025)</div></div></div><h3 class="section-heading">Zagrożenia</h3><table><thead><tr><th scope="col">Kategoria</th><th scope="col">Liczba uczniów</th></tr></thead><tbody><tr><td>Bez ocen niedostatecznych</td><td>4</td></tr><tr><td>Z 1-2 ocenami niedostatecznymi</td><td>1</td></tr><tr><td>Z 3+ ocenami niedostatecznymi</td><td>0</td></tr><tr><td>Nieklasyfikowani</td><td>0</td></tr></tbody></table></section><section class="slide"><h2>Rozkład wszystkich ocen</h2><div class="chart-container"><img src="data:image/png;base64,[BASE64_DATA]" alt="Wykres rozkładu ocen"></div><table><thead><tr><th scope="col">Ocena</th><th scope="col">Liczba</th></tr></thead><tbody><tr><td>Celujący (6)</td><td>1</td></tr><tr><td>Bardzo dobry (5)</td><td>9</td></tr><tr><td>Dobry (4)</td><td>6</td></tr><tr><td>Dostateczny (3)</td><td>4</td></tr><tr><td>Dopuszczający (2)</td><td>0</td></tr><tr><td>Niedostateczny (1)</td><td>0</td></tr><tr><td>Nieklasyfikowany</td><td>0</td></tr></tbody></table></section><section class="slide"><h2>Zachowanie</h2><table><thead><tr><th scope="col">Ocena zachowania</th><th scope="col">Liczba uczniów</th></tr></thead><tbody><tr><td>Wzorowe</td><td>1</td></tr><tr><td>Bardzo dobre</td><td>2</td></tr><tr><td>Dobre</td><td>1</td></tr><tr><td>Poprawne</td><td>1</td></tr><tr><td>Nieodpowiednie</td><td>0</td></tr><tr><td>Naganne</td><td>0</td></tr></tbody></table></section></body></html>"
 `;
