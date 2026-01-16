@@ -39,6 +39,16 @@ To format the code:
 pnpm format
 ```
 
+### Pre-commit Hooks
+
+This project uses [husky](https://typicode.github.io/husky/) and [lint-staged](https://github.com/lint-staged/lint-staged) to run linting and formatting on staged files before each commit.
+
+Hooks are installed automatically when you run `pnpm install`. If you need to bypass the hooks for a specific commit:
+
+```bash
+git commit --no-verify -m "your message"
+```
+
 To clean build artifacts:
 
 ```bash
