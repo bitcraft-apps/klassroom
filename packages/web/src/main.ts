@@ -17,6 +17,8 @@ const ERROR_INVALID_FILE =
 const BUTTON_RETRY = 'Spróbuj ponownie';
 
 // State
+// Only createGenerator returns a cleanup function (has async operations that need aborting).
+// createFileUpload and createPreview return void - their DOM is cleared via innerHTML.
 let currentCleanup: (() => void) | null = null;
 let isProcessing = false;
 
@@ -162,8 +164,9 @@ async function handleFileSelected(file: File): Promise<void> {
 
     // Transition to preview
     showPreview(classData);
-  } catch {
-    // Show Polish error for invalid file
+  } catch (error) {
+    // Log for debugging; user sees generic Polish error (invalid format is most likely cause)
+    console.error('File processing failed:', error);
     showError(ERROR_INVALID_FILE);
   } finally {
     isProcessing = false;
