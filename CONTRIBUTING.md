@@ -74,3 +74,23 @@ pnpm test
 1.  Make changes in the relevant package.
 2.  Run `pnpm build` to compile TypeScript.
 3.  Run `pnpm test` to verify changes.
+
+## Versioning
+
+This project uses [release-please](https://github.com/googleapis/release-please) for automated versioning and changelog generation. All packages share the same version.
+
+### How it works
+
+1. Use [conventional commits](https://www.conventionalcommits.org/) when merging PRs:
+   - `feat:` or `feat(scope):` for new features (bumps minor version)
+   - `fix:` or `fix(scope):` for bug fixes (bumps patch version)
+   - `feat!:` or `fix!:` for breaking changes (bumps major version)
+   - `docs:`, `chore:`, `ci:` for non-release changes
+
+2. When changes are merged to `main`, release-please automatically opens/updates a Release PR with:
+   - Version bumps across all packages
+   - Auto-generated CHANGELOG.md
+
+3. Merge the Release PR when ready to cut a release.
+
+No labels, no manual version edits required.
