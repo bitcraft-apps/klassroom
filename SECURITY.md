@@ -32,7 +32,9 @@ These are non-binding targets for a small team:
 
 - **Acknowledgment**: Within 7 days
 - **Assessment**: Within 14 days
-- **Public disclosure**: Coordinated with reporter, typically after fix is released (90-day maximum)
+- **Public disclosure**: Coordinated with reporter after fix is released, or after 90 days (whichever comes first)
+
+Security fixes are announced via GitHub Security Advisories and release notes.
 
 ## Scope
 
@@ -45,9 +47,11 @@ The following are in scope for security reports:
 
 ### Out of Scope
 
-- Denial of service attacks
+- Volumetric denial of service (rate limiting, bandwidth exhaustion)
 - Social engineering attacks
 - Issues in unsupported versions
+
+Input validation vulnerabilities (including malformed XLSX handling) are in scope, even if they cause resource exhaustion.
 
 For third-party dependency vulnerabilities, please report upstream. If the issue directly impacts Klassroom users, notify us as well.
 
