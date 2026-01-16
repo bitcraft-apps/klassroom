@@ -4,6 +4,10 @@ updates:
     directory: '/'
     schedule:
       interval: 'daily'
+    ignore:
+      # @types/node major must match runtime in .nvmrc (currently Node 22)
+      - dependency-name: '@types/node'
+        update-types: ['version-update:semver-major']
     groups:
       dev-dependencies:
         dependency-type: 'development'
