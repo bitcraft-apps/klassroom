@@ -2,6 +2,15 @@
  * Main orchestration for the web app.
  * Wires together file-upload, preview, and generator components.
  * State is implicit: current state = which component is mounted.
+ *
+ * ⚠️ PRIVACY POLICY SYNC REQUIRED
+ * The privacy policy (public/polityka-prywatnosci.html) states this app:
+ * - Does not use cookies for tracking
+ * - Does not transmit XLSX data to any server
+ * - Does not use localStorage/IndexedDB for user data
+ *
+ * Adding analytics, error reporting, or any data transmission
+ * requires updating the privacy policy to maintain GDPR compliance.
  */
 import { parseVulcanXlsxFromBuffer } from '@klassroom/core/browser';
 import type { ClassData } from '@klassroom/core';
@@ -13,8 +22,7 @@ import './styles/main.css';
 
 // Polish UI text
 const TEXT_PROCESSING = 'Przetwarzanie...';
-const ERROR_INVALID_FILE =
-  'Nieprawidłowy format pliku. Wybierz eksport z Vulcan UONET+.';
+const ERROR_INVALID_FILE = 'Nieprawidłowy format pliku. Wybierz eksport z Vulcan UONET+.';
 const BUTTON_RETRY = 'Spróbuj ponownie';
 const TEXT_UPDATE_AVAILABLE = 'Dostępna nowa wersja aplikacji.';
 const BUTTON_UPDATE = 'Odśwież';
