@@ -15,7 +15,6 @@ export default defineConfig({
         background_color: '#ffffff',
         display: 'standalone',
         start_url: '/klassroom/',
-        scope: '/klassroom/',
         lang: 'pl',
         icons: [
           {
@@ -28,12 +27,9 @@ export default defineConfig({
             sizes: '512x512',
             type: 'image/png',
           },
-          {
-            src: 'pwa-512x512.png',
-            sizes: '512x512',
-            type: 'image/png',
-            purpose: 'maskable',
-          },
+          // Note: Maskable icon removed - current icon has baked-in rounded corners
+          // which causes clipping issues. Create a dedicated maskable icon with
+          // full-bleed background and content within 80% safe zone if needed.
         ],
       },
       workbox: {

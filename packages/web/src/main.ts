@@ -8,6 +8,7 @@ import type { ClassData } from '@klassroom/core';
 import { createFileUpload } from './components/file-upload.js';
 import { createPreview, type PreviewData } from './components/preview.js';
 import { createGenerator } from './components/generator.js';
+import { registerSW } from 'virtual:pwa-register';
 import './styles/main.css';
 
 // Polish UI text
@@ -15,6 +16,9 @@ const TEXT_PROCESSING = 'Przetwarzanie...';
 const ERROR_INVALID_FILE =
   'Nieprawidłowy format pliku. Wybierz eksport z Vulcan UONET+.';
 const BUTTON_RETRY = 'Spróbuj ponownie';
+const TEXT_UPDATE_AVAILABLE = 'Dostępna nowa wersja aplikacji.';
+const BUTTON_UPDATE = 'Odśwież';
+const BUTTON_DISMISS = 'Później';
 
 // State
 // Only createGenerator returns a cleanup function (has async operations that need aborting).
@@ -214,6 +218,56 @@ function showGenerator(classData: ClassData): void {
 if (app) {
   showUpload();
 }
+
+/**
+ * Shows PWA update notification banner.
+ * Called when a new service worker version is available.
+ */
+function showUpdateBanner(updateSW: (reloadPage?: boolean) => Promise<void>): void {
+  // Remove any existing banner
+  const existing = document.querySelector('.pwa-update-banner');
+  if (existing) existing.remove();
+
+  const banner = document.createElement('div');
+  banner.className = 'pwa-update-banner';
+  banner.setAttribute('role', 'alert');
+
+  const text = document.createElement('span');
+  text.className = 'pwa-update-banner__text';
+  text.textContent = TEXT_UPDATE_AVAILABLE;
+
+  const updateButton = document.createElement('button');
+  updateButton.className = 'pwa-update-banner__button pwa-update-banner__button--primary';
+  updateButton.type = 'button';
+  updateButton.textContent = BUTTON_UPDATE;
+  updateButton.addEventListener('click', () => {
+    void updateSW(true);
+  });
+
+  const dismissButton = document.createElement('button');
+  dismissButton.className = 'pwa-update-banner__button';
+  dismissButton.type = 'button';
+  dismissButton.textContent = BUTTON_DISMISS;
+  dismissButton.addEventListener('click', () => {
+    banner.remove();
+  });
+
+  banner.appendChild(text);
+  banner.appendChild(updateButton);
+  banner.appendChild(dismissButton);
+  document.body.appendChild(banner);
+}
+
+// Register service worker with update prompt
+const updateSW = registerSW({
+  onNeedRefresh() {
+    showUpdateBanner(updateSW);
+  },
+  onOfflineReady() {
+    // App is cached and ready for offline use - silent success
+    console.log('Klassroom is ready to work offline');
+  },
+});
 
 // Re-export to verify @klassroom/core/browser bundles without Node.js code
 export { parseVulcanXlsxFromBuffer };

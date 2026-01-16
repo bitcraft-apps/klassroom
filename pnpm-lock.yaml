@@ -87,6 +87,9 @@ importers:
       vite-plugin-pwa:
         specifier: ^0.21.1
         version: 0.21.2(vite@6.4.1(@types/node@25.0.6)(terser@5.46.0))(workbox-build@7.4.0)(workbox-window@7.4.0)
+      workbox-window:
+        specifier: ^7.3.0
+        version: 7.4.0
 
 packages:
 
@@ -3233,7 +3236,7 @@ snapshots:
 
   '@babel/helper-annotate-as-pure@7.27.3':
     dependencies:
-      '@babel/types': 7.28.5
+      '@babel/types': 7.28.6
 
   '@babel/helper-compilation-targets@7.28.6':
     dependencies:
@@ -3279,7 +3282,7 @@ snapshots:
   '@babel/helper-member-expression-to-functions@7.28.5':
     dependencies:
       '@babel/traverse': 7.28.6
-      '@babel/types': 7.28.5
+      '@babel/types': 7.28.6
     transitivePeerDependencies:
       - supports-color
 
@@ -3301,7 +3304,7 @@ snapshots:
 
   '@babel/helper-optimise-call-expression@7.27.1':
     dependencies:
-      '@babel/types': 7.28.5
+      '@babel/types': 7.28.6
 
   '@babel/helper-plugin-utils@7.28.6': {}
 
@@ -3326,7 +3329,7 @@ snapshots:
   '@babel/helper-skip-transparent-expression-wrappers@7.27.1':
     dependencies:
       '@babel/traverse': 7.28.6
-      '@babel/types': 7.28.5
+      '@babel/types': 7.28.6
     transitivePeerDependencies:
       - supports-color
 
@@ -3825,7 +3828,7 @@ snapshots:
     dependencies:
       '@babel/core': 7.28.6
       '@babel/helper-plugin-utils': 7.28.6
-      '@babel/types': 7.28.5
+      '@babel/types': 7.28.6
       esutils: 2.0.3
 
   '@babel/runtime@7.28.6': {}
