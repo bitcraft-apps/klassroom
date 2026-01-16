@@ -77,19 +77,20 @@ pnpm test
 
 ## Versioning
 
-This project uses synchronized versioning across all packages. Every PR must have exactly one release label:
+This project uses [release-please](https://github.com/googleapis/release-please) for automated versioning and changelog generation. All packages share the same version.
 
-| Label           | When to use                                 |
-| --------------- | ------------------------------------------- |
-| `release:patch` | Bug fixes, documentation updates            |
-| `release:minor` | New features, non-breaking changes          |
-| `release:major` | Breaking changes                            |
-| `no-release`    | CI changes, refactoring with no user impact |
+### How it works
 
-For PRs with `release:patch`, `release:minor`, or `release:major`:
+1. Use [conventional commits](https://www.conventionalcommits.org/) when merging PRs:
+   - `feat:` or `feat(scope):` for new features (bumps minor version)
+   - `fix:` or `fix(scope):` for bug fixes (bumps patch version)
+   - `feat!:` or `fix!:` for breaking changes (bumps major version)
+   - `docs:`, `chore:`, `ci:` for non-release changes
 
-1. Update the version in root `package.json`
-2. Update all `packages/*/package.json` to the same version
-3. Versions must follow [semver](https://semver.org/)
+2. When changes are merged to `main`, release-please automatically opens/updates a Release PR with:
+   - Version bumps across all packages
+   - Auto-generated CHANGELOG.md
 
-The CI workflow validates label presence and version synchronization. Bot PRs (Dependabot, Renovate) are exempt from this check.
+3. Merge the Release PR when ready to cut a release.
+
+No labels, no manual version edits required.
