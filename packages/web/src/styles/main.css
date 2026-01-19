@@ -215,6 +215,45 @@ h2 {
   color: var(--color-border);
 }
 
+.page-footer__author {
+  display: inline-block;
+  position: relative;
+  margin-top: var(--space-3);
+}
+
+.page-footer__author:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+.page-footer__logo {
+  height: 1.5rem;
+  width: auto;
+  transition: opacity 0.2s;
+}
+
+.page-footer__logo--mono {
+  opacity: 0.5;
+}
+
+.page-footer__logo--color {
+  position: absolute;
+  left: 0;
+  top: 0;
+  opacity: 0;
+}
+
+.page-footer__author:hover .page-footer__logo--mono,
+.page-footer__author:focus-visible .page-footer__logo--mono {
+  opacity: 0;
+}
+
+.page-footer__author:hover .page-footer__logo--color,
+.page-footer__author:focus-visible .page-footer__logo--color {
+  opacity: 1;
+}
+
 @media (min-width: 640px) {
   .page-footer {
     padding: var(--space-6);
@@ -223,6 +262,10 @@ h2 {
   .page-footer__text,
   .page-footer__links {
     font-size: 0.875rem;
+  }
+
+  .page-footer__logo {
+    height: 1.75rem;
   }
 }
 
