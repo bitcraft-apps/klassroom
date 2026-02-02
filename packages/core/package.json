@@ -28,7 +28,7 @@
     "build": "tsc --build"
   },
   "dependencies": {
-    "@google/genai": "^1.37.0",
+    "@google/genai": "^1.39.0",
     "chart.js": "^4.4.8",
     "chartjs-node-canvas": "^5.0.0",
     "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz"
