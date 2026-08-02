@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.4.0](https://github.com/bitcraft-apps/klassroom/compare/v0.3.0...v0.4.0) (2026-08-02)
+
+
+### Features
+
+* **web:** add Bitcraft author branding to footer ([#133](https://github.com/bitcraft-apps/klassroom/issues/133)) ([fa4b0a1](https://github.com/bitcraft-apps/klassroom/commit/fa4b0a11cda0f5f3994061552b889a66ea634789))
+* **web:** display version in footer ([#131](https://github.com/bitcraft-apps/klassroom/issues/131)) ([fe5a0a5](https://github.com/bitcraft-apps/klassroom/commit/fe5a0a5c5df881ead9f3f64fd7a2fe5bd8d8e46f))
+
 ## [0.3.0](https://github.com/bitcraft-apps/klassroom/compare/v0.2.0...v0.3.0) (2026-01-16)
 
 
